@@ -12,6 +12,10 @@
     "pipeline": {
       "version": "2.0.0",
       "installedAt": 1774373430301
+    },
+    "redis-store": {
+      "version": "1.0.0",
+      "installedAt": 1774375037854
     }
   }
 }

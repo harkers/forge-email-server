@@ -1,6 +1,22 @@
 version: "3.9"
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: forge-pipeline-redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
   api:
     build:
       context: .
@@ -12,8 +28,13 @@ services:
       - "4181"
     environment:
       FORGE_PIPELINE_API_KEY: ${FORGE_PIPELINE_API_KEY:-}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - ./api/storage:/app/storage
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4181/api/health').read()"]
       interval: 30s

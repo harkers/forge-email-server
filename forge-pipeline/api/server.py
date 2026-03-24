@@ -5,9 +5,17 @@ import json
 import os
 import sqlite3
 from datetime import datetime, timezone
+from functools import wraps
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
+
+try:
+    from redis import Redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    Redis = None
 
 ROOT = Path(__file__).resolve().parent
 STORAGE_DIR = ROOT / "storage"
@@ -15,6 +23,23 @@ DB_FILE = STORAGE_DIR / "forge-pipeline.db"
 LEGACY_JSON_FILE = STORAGE_DIR / "forge-pipeline.json"
 LEGACY_EVENTS_FILE = STORAGE_DIR / "events.json"
 API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+
+# Initialize Redis connection (lazy, optional)
+_redis = None
+
+def get_redis() -> Redis | None:
+    global _redis
+    if not REDIS_AVAILABLE:
+        return None
+    if _redis is None:
+        try:
+            _redis = Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True, socket_connect_timeout=2)
+            _redis.ping()
+        except Exception:
+            _redis = None
+    return _redis
 
 ALLOWED_PROJECT_STATUS = {'on-track', 'at-risk', 'off-track', 'not-started', 'in-progress', 'blocked', 'completed', 'overdue', 'cancelled'}
 ALLOWED_TASK_STATUS = {'todo', 'in-progress', 'blocked', 'done'}
@@ -81,6 +106,39 @@ class ValidationError(Exception):
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def cache_with_ttl(key: str, ttl_seconds: int = 60):
+    """Decorator to cache function result in Redis with TTL."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            redis = get_redis()
+            if redis:
+                cached = redis.get(f'forge:cache:{key}')
+                if cached:
+                    return json.loads(cached)
+            result = func(*args, **kwargs)
+            if redis:
+                try:
+                    redis.setex(f'forge:cache:{key}', ttl_seconds, json.dumps(result))
+                except Exception:
+                    pass  # Cache best-effort
+            return result
+        return wrapper
+    return decorator
+
+
+def invalidate_cache(pattern: str = '*'):
+    """Invalidate cache keys matching pattern."""
+    redis = get_redis()
+    if redis:
+        try:
+            keys = redis.keys(f'forge:cache:{pattern}')
+            if keys:
+                redis.delete(*keys)
+        except Exception:
+            pass  # Cache best-effort
 
 
 def db() -> sqlite3.Connection:
@@ -277,6 +335,36 @@ def project_count(conn: sqlite3.Connection) -> int:
 
 def event_count(conn: sqlite3.Connection) -> int:
     return conn.execute('SELECT COUNT(*) FROM events').fetchone()[0]
+
+
+def _get_summary_cached(conn: sqlite3.Connection) -> dict:
+    """Get summary with Redis cache (60s TTL)."""
+    redis = get_redis()
+    if redis:
+        cached = redis.get('forge:cache:summary')
+        if cached:
+            return json.loads(cached)
+    
+    # Compute summary
+    projects = list_projects(conn)
+    tasks = [t for p in projects for t in p.get('tasks', [])]
+    summary = {
+        'projectCount': len(projects),
+        'taskCount': len(tasks),
+        'openTaskCount': len([t for t in tasks if t.get('status') != 'done']),
+        'doneTaskCount': len([t for t in tasks if t.get('status') == 'done']),
+        'blockedTaskCount': len([t for t in tasks if t.get('status') == 'blocked']),
+        'updatedAt': now_iso(),
+    }
+    
+    # Cache it
+    if redis:
+        try:
+            redis.setex('forge:cache:summary', 60, json.dumps(summary))
+        except Exception:
+            pass
+    
+    return summary
 
 
 def migrate_if_needed() -> None:
@@ -543,26 +631,32 @@ class Handler(BaseHTTPRequestHandler):
         conn = db()
 
         if parsed.path == '/api/health':
+            redis_status = 'unknown'
+            redis = get_redis()
+            if redis:
+                try:
+                    redis.ping()
+                    redis_status = 'connected'
+                except Exception:
+                    redis_status = 'disconnected'
+            else:
+                redis_status = 'not_available'
+            
             self.send_json(200, {
                 'status': 'ok',
                 'service': 'forge-pipeline-api',
                 'authEnabled': bool(API_KEY),
                 'storage': 'sqlite',
+                'redis': redis_status,
+                'redisAvailable': REDIS_AVAILABLE,
             })
             conn.close()
             return
 
         if parsed.path == '/api/summary':
-            projects = list_projects(conn)
-            tasks = [t for p in projects for t in p.get('tasks', [])]
-            self.send_json(200, {
-                'projectCount': len(projects),
-                'taskCount': len(tasks),
-                'openTaskCount': len([t for t in tasks if t.get('status') != 'done']),
-                'doneTaskCount': len([t for t in tasks if t.get('status') == 'done']),
-                'blockedTaskCount': len([t for t in tasks if t.get('status') == 'blocked']),
-                'updatedAt': now_iso(),
-            })
+            # Use cached summary (60s TTL)
+            summary = _get_summary_cached(conn)
+            self.send_json(200, summary)
             conn.close()
             return
 
@@ -642,6 +736,7 @@ class Handler(BaseHTTPRequestHandler):
                 project = get_project(conn, pid)
                 conn.close()
                 record_event('project.created', {'projectId': pid, 'name': project['name']})
+                invalidate_cache('summary')
                 self.send_json(201, project)
                 return
 
@@ -665,6 +760,7 @@ class Handler(BaseHTTPRequestHandler):
                 task = get_task(conn, project_id, tid)
                 conn.close()
                 record_event('task.created', {'projectId': project_id, 'taskId': tid, 'title': task['title']})
+                invalidate_cache('summary')
                 self.send_json(201, task)
                 return
 
@@ -857,6 +953,7 @@ class Handler(BaseHTTPRequestHandler):
                 updated = get_project(conn, project_id)
                 conn.close()
                 record_event('project.updated', {'projectId': project_id})
+                invalidate_cache('summary')
                 self.send_json(200, updated)
                 return
 
@@ -892,6 +989,7 @@ class Handler(BaseHTTPRequestHandler):
                 updated = get_task(conn, project_id, task_id)
                 conn.close()
                 record_event('task.updated', {'projectId': project_id, 'taskId': task_id})
+                invalidate_cache('summary')
                 self.send_json(200, updated)
                 return
 
@@ -918,6 +1016,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(404, {'error': 'project_not_found', 'id': project_id})
                 return
             record_event('project.deleted', {'projectId': project_id})
+            invalidate_cache('summary')
             self.send_json(200, {'deleted': True, 'projectId': project_id})
             return
 
@@ -933,6 +1032,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(404, {'error': 'task_not_found', 'id': task_id})
                 return
             record_event('task.deleted', {'projectId': project_id, 'taskId': task_id})
+            invalidate_cache('summary')
             self.send_json(200, {'deleted': True, 'projectId': project_id, 'taskId': task_id})
             return
 
@@ -949,4 +1049,11 @@ if __name__ == '__main__':
     print('Forge Pipeline API listening on :4181')
     print(f'Auth enabled: {bool(API_KEY)}')
     print(f'Storage: sqlite ({DB_FILE})')
+    print(f'Redis available: {REDIS_AVAILABLE} (host={REDIS_HOST}, port={REDIS_PORT})')
+    if REDIS_AVAILABLE:
+        redis = get_redis()
+        if redis:
+            print('Redis: connected')
+        else:
+            print('Redis: not connected (will retry on first cache operation)')
     server.serve_forever()
