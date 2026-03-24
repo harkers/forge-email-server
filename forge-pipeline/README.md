@@ -41,6 +41,7 @@ It combines:
 
 ### Web UI
 - create/edit/delete projects
+- set project-level status using a richer status model
 - create/edit/delete tasks
 - edit task status, priority, due date, tags, and notes
 - edit project notes and descriptions inline
@@ -70,6 +71,7 @@ It combines:
 - automatic source tagging in MCP/webhook flows
 - lightweight event log endpoint
 - tighter request validation with clear error responses
+- richer project status model
 
 ### Storage
 - SQLite backend

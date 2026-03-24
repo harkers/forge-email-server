@@ -30,7 +30,16 @@ The API performs tighter request validation.
 - `name`: required on create, string, max 200 chars
 - `description`: string, max 5000 chars
 - `notes`: string, max 5000 chars
-- `status`: one of `active`, `paused`, `blocked`, `done`, `archived`
+- `status`: one of:
+  - `on-track`
+  - `at-risk`
+  - `off-track`
+  - `not-started`
+  - `in-progress`
+  - `blocked`
+  - `completed`
+  - `overdue`
+  - `cancelled`
 - `tags`: list of strings, max 50 items, max 64 chars each
 
 ### Task payloads

@@ -20,11 +20,28 @@ python3 server.py
 - Web UI: `http://localhost:4173`
 - API: `http://localhost:4181`
 
+## Project status model
+
+Forge Pipeline now supports these project-level statuses:
+
+- `on-track` — On Track / Green
+- `at-risk` — At Risk / Yellow
+- `off-track` — Off Track / Red
+- `not-started` — Not Started / Pending
+- `in-progress` — In Progress / Active
+- `blocked` — Blocked / On Hold
+- `completed` — Completed / Done
+- `overdue` — Overdue
+- `cancelled` — Cancelled
+
+These are distinct from task statuses.
+
 ## Human workflow
 
 Use the web UI to:
 
 - create projects
+- set project status
 - update project descriptions and notes
 - add tasks to projects
 - update task status, priority, due date, tags, and notes
@@ -36,13 +53,14 @@ Use the web UI to:
   - **Blocked** — currently stuck work
   - **Recently changed** — freshest task movement
 
-The UI now also polls the API automatically, so the board refreshes itself regularly and shows a small live refresh status indicator.
+The UI also polls the API automatically and shows a live refresh status indicator.
 
 ## Automation workflow
 
 Use the API to:
 
 - create or update projects from other systems
+- set project status using the project status model above
 - add tasks as milestones or next actions
 - mark items blocked/done/in-progress
 - query open or blocked work

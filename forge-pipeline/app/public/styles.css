@@ -108,3 +108,16 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 .mini-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
 .live-status { margin-top: 12px; color: var(--accent-2); font-size: 13px; }
+
+.project-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.inline-select { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+.badge.project-status { font-weight: 700; }
+.badge.status-on-track { background: rgba(86,224,197,0.18); color: #caffee; }
+.badge.status-at-risk { background: rgba(255,188,88,0.18); color: #ffe4b0; }
+.badge.status-off-track { background: rgba(255,90,110,0.18); color: #ffd5db; }
+.badge.status-not-started { background: rgba(120,196,255,0.16); color: #d3edff; }
+.badge.status-in-progress { background: rgba(124,156,255,0.18); color: #dbe3ff; }
+.badge.status-blocked { background: rgba(255,127,152,0.18); color: #ffd5df; }
+.badge.status-completed { background: rgba(86,224,197,0.18); color: #caffee; }
+.badge.status-overdue { background: rgba(255,90,110,0.22); color: #ffd5db; }
+.badge.status-cancelled { background: rgba(255,255,255,0.12); color: #d7ddf0; }

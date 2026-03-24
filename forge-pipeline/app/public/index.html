@@ -72,6 +72,19 @@
           <form id="projectForm" class="form-block">
             <h3>New Project</h3>
             <label>Name<input name="name" required placeholder="Display Forge" /></label>
+            <label>Status
+              <select name="status">
+                <option value="not-started">Not Started / Pending</option>
+                <option value="in-progress" selected>In Progress / Active</option>
+                <option value="on-track">On Track / Green</option>
+                <option value="at-risk">At Risk / Yellow</option>
+                <option value="off-track">Off Track / Red</option>
+                <option value="blocked">Blocked / On Hold</option>
+                <option value="completed">Completed / Done</option>
+                <option value="overdue">Overdue</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </label>
             <label>Description<textarea name="description" rows="3" placeholder="What is this project for?"></textarea></label>
             <label>Notes<textarea name="notes" rows="5" placeholder="Extensive notes, context, next steps…"></textarea></label>
             <label>Source tag<input name="sourceTag" placeholder="source:mcp-pipeline" /></label>

@@ -1,6 +1,17 @@
 const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 const POLL_MS = 30000;
+const PROJECT_STATUSES = [
+  ['not-started', 'Not Started / Pending'],
+  ['in-progress', 'In Progress / Active'],
+  ['on-track', 'On Track / Green'],
+  ['at-risk', 'At Risk / Yellow'],
+  ['off-track', 'Off Track / Red'],
+  ['blocked', 'Blocked / On Hold'],
+  ['completed', 'Completed / Done'],
+  ['overdue', 'Overdue'],
+  ['cancelled', 'Cancelled'],
+];
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all', source: 'all' };
@@ -64,9 +75,7 @@ function startPolling() {
   setInterval(async () => {
     try {
       await refresh();
-    } catch (_) {
-      // status already updated in refresh()
-    }
+    } catch (_) {}
   }, POLL_MS);
 }
 
@@ -106,13 +115,14 @@ async function onCreateProject(event) {
     method: 'POST',
     body: JSON.stringify({
       name: fd.get('name'),
+      status: fd.get('status') || 'in-progress',
       description: fd.get('description') || '',
       notes: fd.get('notes') || '',
-      status: 'active',
       tags: sourceTag ? [sourceTag] : [],
     }),
   });
   event.target.reset();
+  event.target.querySelector('[name="status"]').value = 'in-progress';
   await refresh();
 }
 
@@ -257,7 +267,7 @@ function projectMatches(project) {
 
 function allTasksWithProject() {
   return state.projects.flatMap(project =>
-    (project.tasks || []).map(task => ({ ...task, projectId: project.id, projectName: project.name, projectTags: project.tags || [] }))
+    (project.tasks || []).map(task => ({ ...task, projectId: project.id, projectName: project.name, projectTags: project.tags || [], projectStatus: project.status }))
   );
 }
 
@@ -279,7 +289,7 @@ function renderDashboard() {
     .slice(0, 5);
 
   const blocked = tasks
-    .filter(task => task.status === 'blocked')
+    .filter(task => task.status === 'blocked' || task.projectStatus === 'blocked')
     .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
     .slice(0, 5);
 
@@ -328,6 +338,14 @@ function collectSourceTags(item) {
   return [...tags];
 }
 
+function projectStatusBadge(status) {
+  return `<span class="badge project-status status-${escapeHtml(status || 'in-progress')}">${escapeHtml(projectStatusLabel(status))}</span>`;
+}
+
+function projectStatusLabel(status) {
+  return Object.fromEntries(PROJECT_STATUSES)[status] || status || 'Unknown';
+}
+
 function renderProjects() {
   const filteredProjects = state.projects.filter(projectMatches);
   const grid = document.getElementById('projectGrid');
@@ -344,6 +362,15 @@ function renderProjects() {
         <div class="project-head">
           <input class="project-name-input" data-project-id="${project.id}" data-field="name" value="${escapeHtml(project.name || '')}" />
           <button class="icon-button danger" data-action="delete-project" data-project-id="${project.id}">Delete</button>
+        </div>
+
+        <div class="project-status-row">
+          ${projectStatusBadge(project.status)}
+          <label class="inline-select">Project status
+            <select data-project-id="${project.id}" data-field="status">
+              ${PROJECT_STATUSES.map(([value, label]) => `<option value="${value}" ${project.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+            </select>
+          </label>
         </div>
 
         <label class="editor-label">Description

@@ -16,7 +16,7 @@ LEGACY_JSON_FILE = STORAGE_DIR / "forge-pipeline.json"
 LEGACY_EVENTS_FILE = STORAGE_DIR / "events.json"
 API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 
-ALLOWED_PROJECT_STATUS = {'active', 'paused', 'blocked', 'done', 'archived'}
+ALLOWED_PROJECT_STATUS = {'on-track', 'at-risk', 'off-track', 'not-started', 'in-progress', 'blocked', 'completed', 'overdue', 'cancelled'}
 ALLOWED_TASK_STATUS = {'todo', 'in-progress', 'blocked', 'done'}
 ALLOWED_PRIORITY = {'low', 'medium', 'high'}
 MAX_NAME = 200
