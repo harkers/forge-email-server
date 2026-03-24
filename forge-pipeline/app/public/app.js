@@ -1,6 +1,8 @@
 const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 const POLL_MS = 30000;
+const VERSION = '1.0.0';
+const BUILD_DATE = '2026-03-24';
 const PROJECT_STATUSES = [
   ['not-started', 'Not Started / Pending'],
   ['in-progress', 'In Progress / Active'],
@@ -63,6 +65,7 @@ async function refresh() {
     lastRefreshAt = new Date();
     populateSourceFilter();
     render();
+    renderVersionInfo();
     setLiveStatus(`Live refresh on · updated ${formatClockTime(lastRefreshAt)}`);
   } catch (err) {
     setLiveStatus(`Refresh failed · ${err}`);
@@ -83,6 +86,15 @@ function startPolling() {
 function setLiveStatus(text) {
   const el = document.getElementById('liveStatus');
   if (el) el.textContent = text;
+}
+
+function renderVersionInfo() {
+  const versionEl = document.getElementById('versionBadge');
+  const infoEl = document.getElementById('versionInfo');
+  if (versionEl) versionEl.textContent = `v${VERSION}`;
+  if (infoEl && lastRefreshAt) {
+    infoEl.textContent = `Last updated: ${lastRefreshAt.toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}`;
+  }
 }
 
 function formatClockTime(date) {
