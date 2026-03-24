@@ -45,6 +45,7 @@ It combines:
 - edit project notes and descriptions inline
 - search across projects/tasks/tags
 - filter by task status
+- filter by source tag
 - view recent audit/activity events in a human-friendly sidebar feed
 - dashboard sections for:
   - next up

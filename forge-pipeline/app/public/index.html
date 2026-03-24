@@ -58,6 +58,9 @@
               <option value="blocked">blocked</option>
               <option value="done">done</option>
             </select>
+            <select id="sourceFilter">
+              <option value="all">All sources</option>
+            </select>
           </div>
 
           <div class="api-note">
@@ -70,6 +73,7 @@
             <label>Name<input name="name" required placeholder="Display Forge" /></label>
             <label>Description<textarea name="description" rows="3" placeholder="What is this project for?"></textarea></label>
             <label>Notes<textarea name="notes" rows="5" placeholder="Extensive notes, context, next steps…"></textarea></label>
+            <label>Source tag<input name="sourceTag" placeholder="source:mcp-pipeline" /></label>
             <button type="submit">Add project</button>
           </form>
 

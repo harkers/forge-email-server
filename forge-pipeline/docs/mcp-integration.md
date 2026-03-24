@@ -36,14 +36,27 @@ Use when:
 - there is no direct project/task mutation
 - you want visibility into pipeline activity
 
+## Source-aware tagging convention
+
+Forge Pipeline now supports source-aware filtering in the UI.
+
+Recommended convention:
+- add source tags like `source:display-forge`
+- add source tags like `source:mcp-pipeline`
+- attach them to projects and/or tasks
+
+This lets the board filter by origin and makes the dashboard, task views, and event feed much more usable.
+
 ## Suggested automation pattern
 
 For each external project or automation:
 
 1. call project upsert
-2. call task upserts for major tasks/milestones
-3. call project update when status or summary changes
-4. optionally emit generic events for major syncs or failures
+2. include a stable source tag such as `source:display-forge`
+3. call task upserts for major tasks/milestones
+4. include the same source tag on tasks where useful
+5. call project update when status or summary changes
+6. optionally emit generic events for major syncs or failures
 
 ## Event visibility
 
@@ -54,5 +67,5 @@ This gives a lightweight operational trail even before a full audit system exist
 
 ## Caveat
 
-These endpoints are still file-backed and lightweight.
-They are suitable for modest automation and MCP usage, but not yet a high-concurrency event bus.
+These endpoints are still lightweight and not a high-volume event bus.
+They are meant for practical coordination, not infinite firehose theatre.

@@ -2,7 +2,7 @@ const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 
 let state = { projects: [] };
-let filters = { search: '', status: 'all' };
+let filters = { search: '', status: 'all', source: 'all' };
 let recentEvents = [];
 
 async function boot() {
@@ -40,6 +40,7 @@ async function refresh() {
   document.getElementById('openCount').textContent = summary.openTaskCount;
   document.getElementById('doneCount').textContent = summary.doneTaskCount;
 
+  populateSourceFilter();
   render();
 }
 
@@ -53,6 +54,10 @@ function bindUI() {
     filters.status = e.target.value;
     render();
   });
+  document.getElementById('sourceFilter').addEventListener('change', (e) => {
+    filters.source = e.target.value;
+    render();
+  });
   document.getElementById('projectGrid').addEventListener('click', handleGridClick);
   document.getElementById('projectGrid').addEventListener('change', handleGridChange);
   document.getElementById('refreshEventsButton').addEventListener('click', refresh);
@@ -61,6 +66,7 @@ function bindUI() {
 async function onCreateProject(event) {
   event.preventDefault();
   const fd = new FormData(event.target);
+  const sourceTag = (fd.get('sourceTag') || '').trim();
   await request('/projects', {
     method: 'POST',
     body: JSON.stringify({
@@ -68,7 +74,7 @@ async function onCreateProject(event) {
       description: fd.get('description') || '',
       notes: fd.get('notes') || '',
       status: 'active',
-      tags: [],
+      tags: sourceTag ? [sourceTag] : [],
     }),
   });
   event.target.reset();
@@ -119,7 +125,11 @@ async function handleGridChange(event) {
   if (!project) return;
 
   if (!taskId && field) {
-    const payload = { [field]: input.value };
+    let value = input.value;
+    if (field === 'tags') {
+      value = input.value.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    const payload = { [field]: value };
     await request(`/projects/${projectId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
@@ -143,6 +153,48 @@ async function handleGridChange(event) {
   await refresh();
 }
 
+function populateSourceFilter() {
+  const select = document.getElementById('sourceFilter');
+  const current = filters.source;
+  const sources = new Set();
+
+  for (const project of state.projects) {
+    (project.tags || []).filter(isSourceTag).forEach(tag => sources.add(tag));
+    for (const task of project.tasks || []) {
+      (task.tags || []).filter(isSourceTag).forEach(tag => sources.add(tag));
+    }
+  }
+
+  for (const event of recentEvents) {
+    const source = extractEventSource(event);
+    if (source) sources.add(`source:${source}`);
+  }
+
+  select.innerHTML = '<option value="all">All sources</option>' +
+    [...sources].sort().map(source => `<option value="${escapeHtml(source)}">${escapeHtml(source)}</option>`).join('');
+
+  select.value = [...sources].includes(current) ? current : 'all';
+  filters.source = select.value;
+}
+
+function isSourceTag(tag) {
+  return String(tag).startsWith('source:');
+}
+
+function extractEventSource(event) {
+  const payload = event.payload || {};
+  if (payload.source) return payload.source;
+  if (payload.payload?.source) return payload.payload.source;
+  return null;
+}
+
+function sourceMatchesProject(project) {
+  if (filters.source === 'all') return true;
+  const projectSources = new Set((project.tags || []).filter(isSourceTag));
+  (project.tasks || []).forEach(task => (task.tags || []).filter(isSourceTag).forEach(tag => projectSources.add(tag)));
+  return projectSources.has(filters.source);
+}
+
 function taskMatches(task) {
   const searchBlob = [
     task.title,
@@ -155,19 +207,22 @@ function taskMatches(task) {
 
   const matchesSearch = !filters.search || searchBlob.includes(filters.search);
   const matchesStatus = filters.status === 'all' || task.status === filters.status;
-  return matchesSearch && matchesStatus;
+  const matchesSource = filters.source === 'all' || (task.tags || []).includes(filters.source);
+  return matchesSearch && matchesStatus && matchesSource;
 }
 
 function projectMatches(project) {
   const projectBlob = [project.name, project.description, project.notes, ...(project.tags || [])].join(' ').toLowerCase();
   const projectSearchHit = !filters.search || projectBlob.includes(filters.search);
   const matchingTasks = (project.tasks || []).filter(taskMatches);
-  return projectSearchHit || matchingTasks.length > 0;
+  const projectSourceHit = filters.source === 'all' || (project.tags || []).includes(filters.source);
+  if (!(projectSourceHit || sourceMatchesProject(project))) return false;
+  return (projectSearchHit && (filters.source === 'all' || projectSourceHit)) || matchingTasks.length > 0;
 }
 
 function allTasksWithProject() {
   return state.projects.flatMap(project =>
-    (project.tasks || []).map(task => ({ ...task, projectId: project.id, projectName: project.name }))
+    (project.tasks || []).map(task => ({ ...task, projectId: project.id, projectName: project.name, projectTags: project.tags || [] }))
   );
 }
 
@@ -178,7 +233,10 @@ function render() {
 }
 
 function renderDashboard() {
-  const tasks = allTasksWithProject();
+  const tasks = allTasksWithProject().filter(task => {
+    if (filters.source === 'all') return true;
+    return (task.tags || []).includes(filters.source) || (task.projectTags || []).includes(filters.source);
+  });
 
   const nextUp = tasks
     .filter(task => task.status === 'todo' || task.status === 'in-progress')
@@ -222,9 +280,17 @@ function renderMiniList(targetId, items, emptyText) {
         <span class="badge">${escapeHtml(item.status || '')}</span>
         <span class="badge priority-${escapeHtml(item.priority || 'medium')}">${escapeHtml(item.priority || 'medium')}</span>
         ${item.dueDate ? `<span class="badge">due ${escapeHtml(item.dueDate)}</span>` : ''}
+        ${collectSourceTags(item).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
       </div>
     </div>
   `).join('');
+}
+
+function collectSourceTags(item) {
+  const tags = new Set();
+  (item.tags || []).filter(isSourceTag).forEach(t => tags.add(t));
+  (item.projectTags || []).filter(isSourceTag).forEach(t => tags.add(t));
+  return [...tags];
 }
 
 function renderProjects() {
@@ -251,6 +317,10 @@ function renderProjects() {
 
         <label class="editor-label">Notes
           <textarea data-project-id="${project.id}" data-field="notes" rows="5">${escapeHtml(project.notes || '')}</textarea>
+        </label>
+
+        <label class="editor-label">Project tags
+          <input data-project-id="${project.id}" data-field="tags" value="${escapeHtml((project.tags || []).join(', '))}" placeholder="source:mcp-pipeline, ops" />
         </label>
 
         <div class="project-actions">
@@ -280,7 +350,7 @@ function renderProjects() {
                   <input type="date" data-project-id="${project.id}" data-task-id="${task.id}" data-field="dueDate" value="${escapeHtml(task.dueDate || '')}" />
                 </label>
                 <label>Tags
-                  <input data-project-id="${project.id}" data-task-id="${task.id}" data-field="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="ops, urgent, ui" />
+                  <input data-project-id="${project.id}" data-task-id="${task.id}" data-field="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="source:display-forge, ui" />
                 </label>
               </div>
               <label class="editor-label">Task notes
@@ -291,6 +361,7 @@ function renderProjects() {
                 <span class="badge priority-${task.priority}">${task.priority}</span>
                 ${task.dueDate ? `<span class="badge">due ${task.dueDate}</span>` : ''}
                 ${(task.tags || []).map(tag => `<span class="badge">#${escapeHtml(tag)}</span>`).join('')}
+                ${(project.tags || []).filter(isSourceTag).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
               </div>
             </div>
           `).join('') : `<div class="empty-tasks">No tasks match the current filters.</div>`}
@@ -302,12 +373,18 @@ function renderProjects() {
 
 function renderEvents() {
   const eventList = document.getElementById('eventList');
-  if (!recentEvents.length) {
+  const visibleEvents = recentEvents.filter(event => {
+    if (filters.source === 'all') return true;
+    const source = extractEventSource(event);
+    return source ? `source:${source}` === filters.source : false;
+  });
+
+  if (!visibleEvents.length) {
     eventList.innerHTML = `<div class="empty-tasks">No recent activity yet.</div>`;
     return;
   }
 
-  eventList.innerHTML = recentEvents.map(event => {
+  eventList.innerHTML = visibleEvents.map(event => {
     const formatted = formatEvent(event);
     return `
       <article class="event-item">
