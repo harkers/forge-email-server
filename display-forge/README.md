@@ -24,3 +24,17 @@ A fresh workspace for a polished visual dashboard focused on projects, tasks, an
 - `docs/architecture/technical-spec.md`
 - `docs/plans/phased-mvp-plan.md`
 - `docs/plans/openclaw-execution-pack.md`
+
+
+## Repository Structure
+
+- `apps/admin-ui/` — admin frontend
+- `apps/player-ui/` — signage/player frontend
+- `services/api/` — backend API service
+- `services/worker/` — RSS polling and background jobs
+- `packages/shared/` — shared types/helpers
+- `infra/docker/` — container/runtime definitions
+- `infra/scripts/` — ops/startup scripts
+- `config/` — config templates
+- `storage/` — media/cache/logs/backups
+- `tests/` — test suites

@@ -1,0 +1,12 @@
+{
+  "name": "display-forge",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:admin": "echo admin-ui scaffolded",
+    "dev:player": "echo player-ui scaffolded"
+  }
+}
