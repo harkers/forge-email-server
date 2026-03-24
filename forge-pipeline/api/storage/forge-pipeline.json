@@ -1,9 +1,230 @@
 {
   "projects": [
     {
+      "id": "forge-pipeline",
+      "name": "Forge Pipeline",
+      "description": "Central project and task hub with web UI, shared API, SQLite backend, and MCP integration.",
+      "notes": "Built from static scaffold into full shared project hub. Images pushed to local registry: localhost:5000/forge-pipeline-api:latest, localhost:5000/forge-pipeline-web:latest",
+      "status": "active",
+      "tags": [
+        "pipeline",
+        "platform",
+        "mcp"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "forgeorchestra",
+      "name": "ForgeOrchestra",
+      "description": "The operating layer where workflows, systems, automations, dashboards, and specialist products converge. Command layer above the Forge family.",
+      "notes": "Workspace spun up today with full visual design system (obsidian intelligence, platinum blue accents). Skills installed: agent-team-orchestration, pipeline, calendar. Design guide complete.",
+      "status": "active",
+      "tags": [
+        "orchestration",
+        "platform",
+        "parent-brand"
+      ],
+      "updatedAt": "2026-03-24T17:35:00+00:00",
+      "tasks": [
+        {
+          "id": "task-forgeorchestra-1",
+          "title": "Review flagged skills (workflow-engine, dashboard)",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "2026-03-25",
+          "tags": [
+            "security-review",
+            "skills"
+          ],
+          "notes": "VirusTotal flagged these as suspicious - need manual code review before install",
+          "updatedAt": "2026-03-24T17:35:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "display-forge",
+      "name": "Display Forge",
+      "description": "Digital signage platform project with PRD, technical spec, phased MVP plan, execution pack, and repo structure.",
+      "notes": "Created PRD, technical specification, phased MVP plan, execution pack, repo structure, compose baseline, service map, MVP skeleton for API/admin/player, campaign persistence and scheduling logic, admin edit/delete controls.",
+      "status": "active",
+      "tags": [
+        "signage",
+        "platform"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": [
+        {
+          "id": "task-2",
+          "title": "Add scheduling logic",
+          "status": "in-progress",
+          "priority": "high",
+          "dueDate": "2026-03-28",
+          "tags": [
+            "api",
+            "schedule"
+          ],
+          "notes": "Eligibility and expiry rules first.",
+          "updatedAt": "2026-03-24T10:06:05+00:00"
+        }
+      ]
+    },
+    {
+      "id": "privacy-dsar",
+      "name": "Privacy / DSAR",
+      "description": "Handle access requests and related compliance tasks. UK GDPR workflow tooling and templates.",
+      "notes": "Created DSAR workspace scaffold, first case scaffold, DSAR workflow skill, UK GDPR templates and deadline docs, UK GDPR deadline calculator script, packaged skill artifact.",
+      "status": "active",
+      "tags": [
+        "privacy",
+        "compliance",
+        "gdpr"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": [
+        {
+          "id": "task-1",
+          "title": "Review intake template",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "2026-03-31",
+          "tags": [
+            "privacy",
+            "template"
+          ],
+          "notes": "Check wording and deadline language.",
+          "updatedAt": "2026-03-24T10:06:05+00:00"
+        }
+      ]
+    },
+    {
+      "id": "openclaw-accountant",
+      "name": "OpenClaw Accountant",
+      "description": "Financial tracking and cost analysis for OpenClaw sessions and operations.",
+      "notes": "Planning-stage project added to board. Track session costs, model usage, and operational spend.",
+      "status": "planning",
+      "tags": [
+        "finance",
+        "openclaw",
+        "tracking"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "forgecalendar",
+      "name": "ForgeCalendar",
+      "description": "Calendar and scheduling system within the Forge family.",
+      "notes": "Planning-stage project. Integrates with calendar skill for scheduling and event management.",
+      "status": "planning",
+      "tags": [
+        "calendar",
+        "scheduling",
+        "forge-family"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "forgefinance",
+      "name": "ForgeFinance",
+      "description": "Financial management and tracking within the Forge ecosystem.",
+      "notes": "Planning-stage project. Budget tracking, expense management, financial reporting.",
+      "status": "planning",
+      "tags": [
+        "finance",
+        "forge-family"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "forgecrm",
+      "name": "ForgeCRM",
+      "description": "Customer relationship management within the Forge ecosystem.",
+      "notes": "Planning-stage project. Contact management, interaction tracking, pipeline management.",
+      "status": "planning",
+      "tags": [
+        "crm",
+        "forge-family"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "orderededge",
+      "name": "OrderedEdge",
+      "description": "Product suite with Core, Atlas, Prism, Flow, Nexus, Sentinel, Compass, Horizon. Atlas is the visual reasoning/diagram layer.",
+      "notes": "Concept capture complete. Product mapping documented in board. Roadmap/strategy tasks added. Atlas positioned as visual reasoning layer.",
+      "status": "planning",
+      "tags": [
+        "product-suite",
+        "visual-reasoning",
+        "atlas"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "orderededge-security-log-scanner",
+      "name": "OrderedEdge Security Log Scanner",
+      "description": "Security log analysis and scanning tool within the OrderedEdge suite.",
+      "notes": "Planning-stage project. Log parsing, threat detection, security analysis.",
+      "status": "planning",
+      "tags": [
+        "security",
+        "orderededge",
+        "logging"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "orderededge-data-governance",
+      "name": "OrderedEdge Data Governance",
+      "description": "Data governance and compliance tooling within the OrderedEdge suite.",
+      "notes": "Planning-stage project. Data policies, compliance tracking, governance workflows.",
+      "status": "planning",
+      "tags": [
+        "governance",
+        "orderededge",
+        "compliance"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "memory-stack",
+      "name": "Memory Stack",
+      "description": "Memory service/tooling framework imported from memory-stack.zip. Template/install/documentation kit rather than deployable app.",
+      "notes": "Downloaded and imported memory-stack.zip into workspace as memory-stack/. Reclassified from service/deployment review to framework/template review. Best adoption candidate: memory-stack/templates/files/PARA.md. Recommendation is selective/manual adoption only - do not run apply.sh wholesale against existing workspace.",
+      "status": "review",
+      "tags": [
+        "memory",
+        "framework",
+        "template"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
+      "id": "trilium-cleanup",
+      "name": "Trilium Cleanup & Organisation",
+      "description": "Trilium notebook reorganization at http://192.168.10.5:8080. ETAPI auth with plain Authorization header.",
+      "notes": "Confirmed Trilium reachable. Reorganized non-destructively by creating top-level buckets: 00 Inbox, 10 Infrastructure, 20 Services, 30 Code & Config, 40 Domains & Web, 50 Reference, 60 Tasks/Ops, 90 Archive. Moved notes under new buckets, removed old root branches after safe re-linking. Added second-pass sub-buckets for hosts, virtualization, networking, edge/proxy, providers, databases, notifications, docker compose, SQL, YAML config, web server config, networking reference, software reference, now. Cleaned up Servers branch and leftover root notes.",
+      "status": "completed",
+      "tags": [
+        "trilium",
+        "organisation",
+        "knowledge-base"
+      ],
+      "updatedAt": "2026-03-24T17:30:00+00:00",
+      "tasks": []
+    },
+    {
       "id": "mcp-events",
       "name": "MCP Events",
-      "description": "event test",
+      "description": "Event test",
       "notes": "",
       "status": "active",
       "tags": [
@@ -61,60 +282,6 @@
           ],
           "notes": "external write test",
           "updatedAt": "2026-03-24T10:06:06+00:00"
-        }
-      ]
-    },
-    {
-      "id": "privacy-dsar",
-      "name": "Privacy / DSAR",
-      "description": "Handle access requests and related compliance tasks.",
-      "notes": "Track deadlines carefully and maintain a full audit trail.",
-      "status": "active",
-      "tags": [
-        "privacy",
-        "compliance"
-      ],
-      "updatedAt": "2026-03-24T10:06:05+00:00",
-      "tasks": [
-        {
-          "id": "task-1",
-          "title": "Review intake template",
-          "status": "todo",
-          "priority": "high",
-          "dueDate": "2026-03-31",
-          "tags": [
-            "privacy",
-            "template"
-          ],
-          "notes": "Check wording and deadline language.",
-          "updatedAt": "2026-03-24T10:06:05+00:00"
-        }
-      ]
-    },
-    {
-      "id": "display-forge",
-      "name": "Display Forge",
-      "description": "Build the signage platform and playback stack.",
-      "notes": "Focus on API, scheduling, playback resilience, and admin flow.",
-      "status": "active",
-      "tags": [
-        "signage",
-        "platform"
-      ],
-      "updatedAt": "2026-03-24T10:06:05+00:00",
-      "tasks": [
-        {
-          "id": "task-2",
-          "title": "Add scheduling logic",
-          "status": "in-progress",
-          "priority": "high",
-          "dueDate": "2026-03-28",
-          "tags": [
-            "api",
-            "schedule"
-          ],
-          "notes": "Eligibility and expiry rules first.",
-          "updatedAt": "2026-03-24T10:06:05+00:00"
         }
       ]
     }

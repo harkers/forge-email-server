@@ -1,0 +1,40 @@
+---
+title: "Quarto Test Document"
+author: "OpenClaw Assistant"
+date: "2026-03-24"
+format: html
+---
+
+## Welcome to Quarto
+
+This is a test document to verify the Quarto installation is working correctly.
+
+### Features Tested
+
+- **Markdown rendering**: Basic text formatting works
+- **Code chunks**: Execute code inline
+- **HTML output**: Render to HTML format
+
+### R Code Example
+
+```r
+# Simple R code chunk
+x <- 1:10
+mean(x)
+```
+
+### Python Code Example
+
+```python
+# Simple Python code chunk
+import numpy as np
+data = np.arange(1, 11)
+print(f"Mean: {data.mean()}")
+```
+
+## Conclusion
+
+If this renders successfully, Quarto is fully operational!
+
+---
+*Generated on {{< meta date >}}*

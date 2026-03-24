@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "calendar": {
+      "version": "1.0.0",
+      "installedAt": 1774373427334
+    },
+    "agent-team-orchestration": {
+      "version": "1.0.0",
+      "installedAt": 1774373427952
+    },
+    "pipeline": {
+      "version": "2.0.0",
+      "installedAt": 1774373430301
+    }
+  }
+}
