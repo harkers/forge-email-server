@@ -90,7 +90,22 @@
         "type": "image",
         "url": "https://picsum.photos/1600/900?random=52"
       }
+    },
+    {
+      "id": "camp-007",
+      "title": "Editable Campaign",
+      "status": "active",
+      "priority": 44,
+      "durationSeconds": 7,
+      "template": "announcement",
+      "body": "before edit",
+      "activeFrom": null,
+      "activeUntil": null,
+      "media": {
+        "type": "image",
+        "url": "https://picsum.photos/1600/900?random=61"
+      }
     }
   ],
-  "generatedAt": "2026-03-24T09:06:52+00:00"
+  "generatedAt": "2026-03-24T09:56:46+00:00"
 }

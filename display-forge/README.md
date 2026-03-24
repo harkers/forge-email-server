@@ -47,12 +47,20 @@ Endpoints:
 Persistence:
 - JSON file store in `services/api/app/storage/campaigns.json`
 
+Scheduling:
+- `status`
+- `activeFrom`
+- `activeUntil`
+- playlist returns only currently eligible campaigns
+
 ### Admin UI
 
 Features:
 - summary cards
 - health panel
 - create campaign form
+- edit campaign from library
+- delete campaign from library
 - campaign library
 - active playlist preview
 
