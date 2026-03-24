@@ -278,7 +278,7 @@ function render() {
 }
 
 function renderDashboard() {
-  const tasks = allTasksWithProject().filter(task => {
+  const tasks = allTasksWithProject().filter(task => task.projectStatus !== 'cancelled').filter(task => {
     if (filters.source === 'all') return true;
     return (task.tags || []).includes(filters.source) || (task.projectTags || []).includes(filters.source);
   });
@@ -347,7 +347,7 @@ function projectStatusLabel(status) {
 }
 
 function renderProjects() {
-  const filteredProjects = state.projects.filter(projectMatches);
+  const filteredProjects = state.projects.filter(project => project.status !== 'cancelled').filter(projectMatches);
   const grid = document.getElementById('projectGrid');
 
   if (!filteredProjects.length) {
