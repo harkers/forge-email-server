@@ -22,7 +22,7 @@ python3 server.py
 
 ## Project status model
 
-Forge Pipeline now supports these project-level statuses:
+Forge Pipeline supports these project-level statuses:
 
 - `on-track` — On Track / Green
 - `at-risk` — At Risk / Yellow
@@ -52,6 +52,12 @@ Use the web UI to:
   - **Next up** — likely priority work to tackle next
   - **Blocked** — currently stuck work
   - **Recently changed** — freshest task movement
+- browse projects grouped into portfolio sections:
+  - Products & Platforms
+  - Privacy & Governance
+  - Finance & Operations
+  - Concepts & Strategy
+  - Other Workstreams
 
 The UI also polls the API automatically and shows a live refresh status indicator.
 

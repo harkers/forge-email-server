@@ -50,7 +50,8 @@ It combines:
 - filter by source tag
 - auto-refresh/polling against the API
 - live refresh status indicator
-- hide cancelled projects from the default board view
+- hide cancelled projects from the default view
+- group visible projects into portfolio sections
 - view recent audit/activity events in a human-friendly sidebar feed
 - dashboard sections for:
   - next up

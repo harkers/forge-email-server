@@ -271,6 +271,17 @@ function allTasksWithProject() {
   );
 }
 
+function portfolioSectionFor(project) {
+  const tags = new Set(project.tags || []);
+  const name = (project.name || '').toLowerCase();
+
+  if (tags.has('finance') || name.includes('finance') || name.includes('accountant')) return 'Finance & Operations';
+  if (tags.has('business-concept') || tags.has('strategy') || name.includes('orderededge')) return 'Concepts & Strategy';
+  if (tags.has('privacy') || tags.has('compliance') || name.includes('dsar')) return 'Privacy & Governance';
+  if (tags.has('calendar') || tags.has('crm') || tags.has('platform') || tags.has('signage') || name.includes('forge')) return 'Products & Platforms';
+  return 'Other Workstreams';
+}
+
 function render() {
   renderDashboard();
   renderProjects();
@@ -347,7 +358,9 @@ function projectStatusLabel(status) {
 }
 
 function renderProjects() {
-  const filteredProjects = state.projects.filter(project => project.status !== 'cancelled').filter(projectMatches);
+  const filteredProjects = state.projects
+    .filter(project => project.status !== 'cancelled')
+    .filter(projectMatches);
   const grid = document.getElementById('projectGrid');
 
   if (!filteredProjects.length) {
@@ -355,82 +368,105 @@ function renderProjects() {
     return;
   }
 
-  grid.innerHTML = filteredProjects.map(project => {
-    const visibleTasks = (project.tasks || []).filter(taskMatches);
-    return `
-      <article class="project-card">
-        <div class="project-head">
-          <input class="project-name-input" data-project-id="${project.id}" data-field="name" value="${escapeHtml(project.name || '')}" />
-          <button class="icon-button danger" data-action="delete-project" data-project-id="${project.id}">Delete</button>
+  const sections = {};
+  for (const project of filteredProjects) {
+    const section = portfolioSectionFor(project);
+    sections[section] ||= [];
+    sections[section].push(project);
+  }
+
+  const orderedSections = ['Products & Platforms', 'Privacy & Governance', 'Finance & Operations', 'Concepts & Strategy', 'Other Workstreams'];
+
+  grid.innerHTML = orderedSections
+    .filter(section => sections[section]?.length)
+    .map(section => `
+      <section class="portfolio-section">
+        <div class="portfolio-header">
+          <h3>${escapeHtml(section)}</h3>
+          <span class="portfolio-count">${sections[section].length} project${sections[section].length === 1 ? '' : 's'}</span>
         </div>
-
-        <div class="project-status-row">
-          ${projectStatusBadge(project.status)}
-          <label class="inline-select">Project status
-            <select data-project-id="${project.id}" data-field="status">
-              ${PROJECT_STATUSES.map(([value, label]) => `<option value="${value}" ${project.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
-            </select>
-          </label>
+        <div class="portfolio-grid">
+          ${sections[section].map(project => renderProjectCard(project)).join('')}
         </div>
+      </section>
+    `).join('');
+}
 
-        <label class="editor-label">Description
-          <textarea data-project-id="${project.id}" data-field="description" rows="2">${escapeHtml(project.description || '')}</textarea>
+function renderProjectCard(project) {
+  const visibleTasks = (project.tasks || []).filter(taskMatches);
+  return `
+    <article class="project-card">
+      <div class="project-head">
+        <input class="project-name-input" data-project-id="${project.id}" data-field="name" value="${escapeHtml(project.name || '')}" />
+        <button class="icon-button danger" data-action="delete-project" data-project-id="${project.id}">Delete</button>
+      </div>
+
+      <div class="project-status-row">
+        ${projectStatusBadge(project.status)}
+        <label class="inline-select">Project status
+          <select data-project-id="${project.id}" data-field="status">
+            ${PROJECT_STATUSES.map(([value, label]) => `<option value="${value}" ${project.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+          </select>
         </label>
+      </div>
 
-        <label class="editor-label">Notes
-          <textarea data-project-id="${project.id}" data-field="notes" rows="5">${escapeHtml(project.notes || '')}</textarea>
-        </label>
+      <label class="editor-label">Description
+        <textarea data-project-id="${project.id}" data-field="description" rows="2">${escapeHtml(project.description || '')}</textarea>
+      </label>
 
-        <label class="editor-label">Project tags
-          <input data-project-id="${project.id}" data-field="tags" value="${escapeHtml((project.tags || []).join(', '))}" placeholder="source:mcp-pipeline, ops" />
-        </label>
+      <label class="editor-label">Notes
+        <textarea data-project-id="${project.id}" data-field="notes" rows="5">${escapeHtml(project.notes || '')}</textarea>
+      </label>
 
-        <div class="project-actions">
-          <button data-action="add-task" data-project-id="${project.id}">Add task</button>
-          <span class="project-meta">${visibleTasks.length} shown / ${(project.tasks || []).length} total</span>
-        </div>
+      <label class="editor-label">Project tags
+        <input data-project-id="${project.id}" data-field="tags" value="${escapeHtml((project.tags || []).join(', '))}" placeholder="source:mcp-pipeline, ops" />
+      </label>
 
-        <div class="task-list">
-          ${visibleTasks.length ? visibleTasks.map(task => `
-            <div class="task-item">
-              <div class="task-top">
-                <input class="task-title-input" data-project-id="${project.id}" data-task-id="${task.id}" data-field="title" value="${escapeHtml(task.title || '')}" />
-                <button class="icon-button danger small" data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}">Delete</button>
-              </div>
-              <div class="task-edit-grid">
-                <label>Status
-                  <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="status">
-                    ${['todo','in-progress','blocked','done'].map(s => `<option value="${s}" ${task.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-                  </select>
-                </label>
-                <label>Priority
-                  <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="priority">
-                    ${['low','medium','high'].map(s => `<option value="${s}" ${task.priority === s ? 'selected' : ''}>${s}</option>`).join('')}
-                  </select>
-                </label>
-                <label>Due
-                  <input type="date" data-project-id="${project.id}" data-task-id="${task.id}" data-field="dueDate" value="${escapeHtml(task.dueDate || '')}" />
-                </label>
-                <label>Tags
-                  <input data-project-id="${project.id}" data-task-id="${task.id}" data-field="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="source:display-forge, ui" />
-                </label>
-              </div>
-              <label class="editor-label">Task notes
-                <textarea data-project-id="${project.id}" data-task-id="${task.id}" data-field="notes" rows="3">${escapeHtml(task.notes || '')}</textarea>
-              </label>
-              <div class="task-meta">
-                <span class="badge">${task.status}</span>
-                <span class="badge priority-${task.priority}">${task.priority}</span>
-                ${task.dueDate ? `<span class="badge">due ${task.dueDate}</span>` : ''}
-                ${(task.tags || []).map(tag => `<span class="badge">#${escapeHtml(tag)}</span>`).join('')}
-                ${(project.tags || []).filter(isSourceTag).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
-              </div>
+      <div class="project-actions">
+        <button data-action="add-task" data-project-id="${project.id}">Add task</button>
+        <span class="project-meta">${visibleTasks.length} shown / ${(project.tasks || []).length} total</span>
+      </div>
+
+      <div class="task-list">
+        ${visibleTasks.length ? visibleTasks.map(task => `
+          <div class="task-item">
+            <div class="task-top">
+              <input class="task-title-input" data-project-id="${project.id}" data-task-id="${task.id}" data-field="title" value="${escapeHtml(task.title || '')}" />
+              <button class="icon-button danger small" data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}">Delete</button>
             </div>
-          `).join('') : `<div class="empty-tasks">No tasks match the current filters.</div>`}
-        </div>
-      </article>
-    `;
-  }).join('');
+            <div class="task-edit-grid">
+              <label>Status
+                <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="status">
+                  ${['todo','in-progress','blocked','done'].map(s => `<option value="${s}" ${task.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </label>
+              <label>Priority
+                <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="priority">
+                  ${['low','medium','high'].map(s => `<option value="${s}" ${task.priority === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </label>
+              <label>Due
+                <input type="date" data-project-id="${project.id}" data-task-id="${task.id}" data-field="dueDate" value="${escapeHtml(task.dueDate || '')}" />
+              </label>
+              <label>Tags
+                <input data-project-id="${project.id}" data-task-id="${task.id}" data-field="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="source:display-forge, ui" />
+              </label>
+            </div>
+            <label class="editor-label">Task notes
+              <textarea data-project-id="${project.id}" data-task-id="${task.id}" data-field="notes" rows="3">${escapeHtml(task.notes || '')}</textarea>
+            </label>
+            <div class="task-meta">
+              <span class="badge">${task.status}</span>
+              <span class="badge priority-${task.priority}">${task.priority}</span>
+              ${task.dueDate ? `<span class="badge">due ${task.dueDate}</span>` : ''}
+              ${(task.tags || []).map(tag => `<span class="badge">#${escapeHtml(tag)}</span>`).join('')}
+              ${(project.tags || []).filter(isSourceTag).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
+            </div>
+          </div>
+        `).join('') : `<div class="empty-tasks">No tasks match the current filters.</div>`}
+      </div>
+    </article>
+  `;
 }
 
 function renderEvents() {
