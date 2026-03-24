@@ -42,6 +42,8 @@ h1 { font-size: 56px; margin: 8px 0 12px; }
 .panel { padding: 22px; }
 .sidebar { position: sticky; top: 24px; }
 .toolbar, .form-block { display: grid; gap: 12px; margin-top: 16px; }
+.api-note { margin-top: 16px; padding: 14px; border-radius: 16px; background: rgba(124,156,255,0.08); display: grid; gap: 6px; color: var(--muted); }
+
 .form-block h3 { margin: 10px 0 0; }
 .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; }
 .project-card { padding: 20px; }

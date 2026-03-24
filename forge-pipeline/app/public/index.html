@@ -28,12 +28,17 @@
           <div class="toolbar">
             <input id="searchInput" type="search" placeholder="Search projects, tasks, tags…" />
             <select id="statusFilter">
-              <option value="all">All statuses</option>
+              <option value="all">All task statuses</option>
               <option value="todo">todo</option>
               <option value="in-progress">in-progress</option>
               <option value="blocked">blocked</option>
               <option value="done">done</option>
             </select>
+          </div>
+
+          <div class="api-note">
+            <strong>API-backed mode</strong>
+            <span>This board now reads/writes shared project data through the Forge Pipeline API.</span>
           </div>
 
           <form id="projectForm" class="form-block">

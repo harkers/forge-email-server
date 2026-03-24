@@ -1,32 +1,34 @@
-const STORAGE_KEY = 'forge-pipeline-data-v1';
-const DATA_URL = '../data/sample-data.json';
+const API = 'http://localhost:4181';
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all' };
 
 async function boot() {
-  state = await loadState();
   bindUI();
-  render();
+  await refresh();
 }
 
-async function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch (_) {}
-  }
-  const res = await fetch(DATA_URL);
+async function request(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (res.status === 204) return null;
   return res.json();
 }
 
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+async function refresh() {
+  const summary = await request('/api/summary');
+  const projectData = await request('/api/projects');
+  state.projects = projectData.projects || [];
 
-function uid(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+  document.getElementById('projectCount').textContent = summary.projectCount;
+  document.getElementById('taskCount').textContent = summary.taskCount;
+  document.getElementById('openCount').textContent = summary.openTaskCount;
+  document.getElementById('doneCount').textContent = summary.doneTaskCount;
+
+  render();
 }
 
 function bindUI() {
@@ -43,22 +45,24 @@ function bindUI() {
   document.getElementById('projectGrid').addEventListener('change', handleGridChange);
 }
 
-function onCreateProject(event) {
+async function onCreateProject(event) {
   event.preventDefault();
   const fd = new FormData(event.target);
-  state.projects.unshift({
-    id: uid('project'),
-    name: fd.get('name'),
-    description: fd.get('description') || '',
-    notes: fd.get('notes') || '',
-    tasks: [],
+  await request('/api/projects', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: fd.get('name'),
+      description: fd.get('description') || '',
+      notes: fd.get('notes') || '',
+      status: 'active',
+      tags: [],
+    }),
   });
   event.target.reset();
-  persist();
-  render();
+  await refresh();
 }
 
-function handleGridClick(event) {
+async function handleGridClick(event) {
   const actionEl = event.target.closest('[data-action]');
   if (!actionEl) return;
   const projectId = actionEl.dataset.projectId;
@@ -69,29 +73,31 @@ function handleGridClick(event) {
 
   if (action === 'delete-project') {
     if (!confirm(`Delete project "${project.name}"?`)) return;
-    state.projects = state.projects.filter(p => p.id !== projectId);
+    await request(`/api/projects/${projectId}`, { method: 'DELETE' });
   }
 
   if (action === 'add-task') {
-    project.tasks.unshift({
-      id: uid('task'),
-      title: 'New task',
-      status: 'todo',
-      priority: 'medium',
-      dueDate: '',
-      tags: [],
+    await request(`/api/projects/${projectId}/tasks`, {
+      method: 'POST',
+      body: JSON.stringify({
+        title: 'New task',
+        status: 'todo',
+        priority: 'medium',
+        dueDate: '',
+        tags: [],
+        notes: '',
+      }),
     });
   }
 
   if (action === 'delete-task') {
-    project.tasks = project.tasks.filter(t => t.id !== taskId);
+    await request(`/api/projects/${projectId}/tasks/${taskId}`, { method: 'DELETE' });
   }
 
-  persist();
-  render();
+  await refresh();
 }
 
-function handleGridChange(event) {
+async function handleGridChange(event) {
   const input = event.target;
   const projectId = input.dataset.projectId;
   const taskId = input.dataset.taskId;
@@ -100,23 +106,28 @@ function handleGridChange(event) {
   if (!project) return;
 
   if (!taskId && field) {
-    project[field] = input.value;
-    persist();
-    render();
+    const payload = { [field]: input.value };
+    await request(`/api/projects/${projectId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    await refresh();
     return;
   }
 
   const task = project.tasks.find(t => t.id === taskId);
   if (!task) return;
 
+  let value = input.value;
   if (field === 'tags') {
-    task.tags = input.value.split(',').map(s => s.trim()).filter(Boolean);
-  } else {
-    task[field] = input.value;
+    value = input.value.split(',').map(s => s.trim()).filter(Boolean);
   }
 
-  persist();
-  render();
+  await request(`/api/projects/${projectId}/tasks/${taskId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ [field]: value }),
+  });
+  await refresh();
 }
 
 function taskMatches(task) {
@@ -125,6 +136,7 @@ function taskMatches(task) {
     task.status,
     task.priority,
     task.dueDate,
+    task.notes,
     ...(task.tags || []),
   ].join(' ').toLowerCase();
 
@@ -134,24 +146,14 @@ function taskMatches(task) {
 }
 
 function projectMatches(project) {
-  const projectBlob = [project.name, project.description, project.notes].join(' ').toLowerCase();
+  const projectBlob = [project.name, project.description, project.notes, ...(project.tags || [])].join(' ').toLowerCase();
   const projectSearchHit = !filters.search || projectBlob.includes(filters.search);
   const matchingTasks = (project.tasks || []).filter(taskMatches);
   return projectSearchHit || matchingTasks.length > 0;
 }
 
 function render() {
-  const projects = state.projects || [];
-  const allTasks = projects.flatMap(p => p.tasks || []);
-  const open = allTasks.filter(t => t.status !== 'done');
-  const done = allTasks.filter(t => t.status === 'done');
-
-  document.getElementById('projectCount').textContent = projects.length;
-  document.getElementById('taskCount').textContent = allTasks.length;
-  document.getElementById('openCount').textContent = open.length;
-  document.getElementById('doneCount').textContent = done.length;
-
-  const filteredProjects = projects.filter(projectMatches);
+  const filteredProjects = state.projects.filter(projectMatches);
   const grid = document.getElementById('projectGrid');
 
   if (!filteredProjects.length) {
@@ -206,6 +208,9 @@ function render() {
                   <input data-project-id="${project.id}" data-task-id="${task.id}" data-field="tags" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="ops, urgent, ui" />
                 </label>
               </div>
+              <label class="editor-label">Task notes
+                <textarea data-project-id="${project.id}" data-task-id="${task.id}" data-field="notes" rows="3">${escapeHtml(task.notes || '')}</textarea>
+              </label>
               <div class="task-meta">
                 <span class="badge">${task.status}</span>
                 <span class="badge priority-${task.priority}">${task.priority}</span>
@@ -229,5 +234,5 @@ function escapeHtml(value) {
 }
 
 boot().catch(err => {
-  document.body.innerHTML = `<pre style="padding:20px;color:white;">Failed to load app data\n${err}</pre>`;
+  document.body.innerHTML = `<pre style="padding:20px;color:white;">Failed to load Forge Pipeline\n${err}</pre>`;
 });
