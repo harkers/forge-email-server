@@ -10,11 +10,18 @@ async function fetchJson(path, options = {}) {
   return res.json();
 }
 
+function toIsoOrNull(value) {
+  if (!value) return null;
+  return new Date(value).toISOString();
+}
+
 function renderSummary(summary) {
   const el = document.getElementById('summary');
   const entries = [
     ['Campaigns', summary.campaignCount],
-    ['Active', summary.activeCampaignCount],
+    ['Active now', summary.activeCampaignCount],
+    ['Scheduled', summary.scheduledCampaignCount],
+    ['Expired', summary.expiredCampaignCount],
     ['Screens', summary.screenCount],
     ['Feed Errors', summary.feedErrorCount],
   ];
@@ -35,6 +42,9 @@ function renderCards(targetId, campaigns) {
         <span class="tag">${item.template}</span>
         <span class="tag">${item.durationSeconds}s</span>
         <span class="tag">priority ${item.priority}</span>
+        ${item.eligibility ? `<span class="tag state">${item.eligibility}</span>` : ''}
+        ${item.activeFrom ? `<div class="schedule">from ${item.activeFrom}</div>` : ''}
+        ${item.activeUntil ? `<div class="schedule">until ${item.activeUntil}</div>` : ''}
       </div>
     </article>
   `).join('');
@@ -68,6 +78,8 @@ function bindForm() {
         template: fd.get('template'),
         priority: Number(fd.get('priority')),
         durationSeconds: Number(fd.get('durationSeconds')),
+        activeFrom: toIsoOrNull(fd.get('activeFrom')),
+        activeUntil: toIsoOrNull(fd.get('activeUntil')),
         media: { type: 'image', url: mediaUrl },
       }),
     });

@@ -22,6 +22,8 @@ DEFAULT_DATA = {
             "durationSeconds": 12,
             "template": "full-screen-image",
             "body": "Fresh seasonal offer now running.",
+            "activeFrom": None,
+            "activeUntil": None,
             "media": {"type": "image", "url": "https://picsum.photos/1600/900?random=11"},
         },
         {
@@ -32,6 +34,8 @@ DEFAULT_DATA = {
             "durationSeconds": 10,
             "template": "rss-card",
             "body": "Upcoming local events and venue notices.",
+            "activeFrom": None,
+            "activeUntil": None,
             "media": {"type": "image", "url": "https://picsum.photos/1600/900?random=15"},
         },
         {
@@ -42,14 +46,34 @@ DEFAULT_DATA = {
             "durationSeconds": 8,
             "template": "announcement",
             "body": "Display Forge keeps the screen alive even when everything else gets weird.",
+            "activeFrom": None,
+            "activeUntil": None,
             "media": {"type": "image", "url": "https://picsum.photos/1600/900?random=19"},
         },
     ],
 }
 
 
+def now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
 def now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return now_utc().replace(microsecond=0).isoformat()
+
+
+def parse_dt(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    dt = datetime.fromisoformat(value)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 def ensure_data_file() -> None:
@@ -60,15 +84,29 @@ def ensure_data_file() -> None:
         DATA_FILE.write_text(json.dumps(payload, indent=2))
 
 
+def normalize_campaign(campaign: dict) -> dict:
+    campaign.setdefault("activeFrom", None)
+    campaign.setdefault("activeUntil", None)
+    campaign.setdefault("media", {"type": "image", "url": "https://picsum.photos/1600/900?random=21"})
+    campaign.setdefault("template", "announcement")
+    campaign.setdefault("durationSeconds", 10)
+    campaign.setdefault("priority", 50)
+    campaign.setdefault("status", "draft")
+    campaign.setdefault("body", "")
+    return campaign
+
+
 def load_data() -> dict:
     ensure_data_file()
     data = json.loads(DATA_FILE.read_text())
+    data["campaigns"] = [normalize_campaign(c) for c in data.get("campaigns", [])]
     data["generatedAt"] = now_iso()
     return data
 
 
 def save_data(data: dict) -> None:
     ensure_data_file()
+    data["campaigns"] = [normalize_campaign(c) for c in data.get("campaigns", [])]
     data["generatedAt"] = now_iso()
     DATA_FILE.write_text(json.dumps(data, indent=2))
 
@@ -83,6 +121,32 @@ def next_id(campaigns: list[dict]) -> str:
             except Exception:
                 pass
     return f"camp-{(max(nums) if nums else 0) + 1:03d}"
+
+
+def campaign_is_active(campaign: dict, current: datetime | None = None) -> bool:
+    if campaign.get("status") != "active":
+        return False
+    current = current or now_utc()
+    active_from = parse_dt(campaign.get("activeFrom"))
+    active_until = parse_dt(campaign.get("activeUntil"))
+    if active_from and current < active_from:
+        return False
+    if active_until and current > active_until:
+        return False
+    return True
+
+
+def eligibility_reason(campaign: dict, current: datetime | None = None) -> str:
+    current = current or now_utc()
+    if campaign.get("status") != "active":
+        return "status_not_active"
+    active_from = parse_dt(campaign.get("activeFrom"))
+    active_until = parse_dt(campaign.get("activeUntil"))
+    if active_from and current < active_from:
+        return "scheduled_for_future"
+    if active_until and current > active_until:
+        return "expired"
+    return "eligible"
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -115,10 +179,14 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/dashboard/summary":
             data = load_data()
             campaigns = data.get("campaigns", [])
-            active = [c for c in campaigns if c.get("status") == "active"]
+            active = [c for c in campaigns if campaign_is_active(c)]
+            scheduled = [c for c in campaigns if eligibility_reason(c) == "scheduled_for_future"]
+            expired = [c for c in campaigns if eligibility_reason(c) == "expired"]
             self._send(200, {
                 "campaignCount": len(campaigns),
                 "activeCampaignCount": len(active),
+                "scheduledCampaignCount": len(scheduled),
+                "expiredCampaignCount": len(expired),
                 "screenCount": 1,
                 "feedErrorCount": 0,
             })
@@ -131,12 +199,17 @@ class Handler(BaseHTTPRequestHandler):
             campaigns = data.get("campaigns", [])
             if status:
                 campaigns = [c for c in campaigns if c.get("status") == status]
-            self._send(200, {"campaigns": campaigns})
+            payload = []
+            for c in campaigns:
+                item = dict(c)
+                item["eligibility"] = eligibility_reason(c)
+                payload.append(item)
+            self._send(200, {"campaigns": payload})
             return
 
         if parsed.path == "/api/screens/default/playlist":
             data = load_data()
-            campaigns = [c for c in data.get("campaigns", []) if c.get("status") == "active"]
+            campaigns = [c for c in data.get("campaigns", []) if campaign_is_active(c)]
             campaigns.sort(key=lambda c: c.get("priority", 0), reverse=True)
             self._send(200, {
                 "screenId": data.get("screenId", "default"),
@@ -153,7 +226,7 @@ class Handler(BaseHTTPRequestHandler):
             data = load_data()
             campaigns = data.setdefault("campaigns", [])
             body = self._read_json()
-            campaign = {
+            campaign = normalize_campaign({
                 "id": next_id(campaigns),
                 "title": body.get("title", "Untitled campaign"),
                 "status": body.get("status", "draft"),
@@ -161,8 +234,10 @@ class Handler(BaseHTTPRequestHandler):
                 "durationSeconds": int(body.get("durationSeconds", 10)),
                 "template": body.get("template", "announcement"),
                 "body": body.get("body", ""),
+                "activeFrom": body.get("activeFrom"),
+                "activeUntil": body.get("activeUntil"),
                 "media": body.get("media", {"type": "image", "url": "https://picsum.photos/1600/900?random=21"}),
-            }
+            })
             campaigns.append(campaign)
             save_data(data)
             self._send(201, campaign)
@@ -179,6 +254,7 @@ class Handler(BaseHTTPRequestHandler):
             for campaign in data.get("campaigns", []):
                 if campaign.get("id") == campaign_id:
                     campaign.update(body)
+                    normalize_campaign(campaign)
                     save_data(data)
                     self._send(200, campaign)
                     return

@@ -11,7 +11,7 @@
     <header>
       <p class="eyebrow">DISPLAY FORGE / ADMIN</p>
       <h1>Control Surface</h1>
-      <p class="lede">MVP dashboard with live summary, campaign creation, and playlist preview.</p>
+      <p class="lede">MVP dashboard with scheduling-aware campaign control and playlist preview.</p>
     </header>
 
     <section class="grid two-up">
@@ -38,6 +38,10 @@
           <div class="row">
             <label>Priority<input type="number" name="priority" value="50" min="0" max="100" /></label>
             <label>Duration (s)<input type="number" name="durationSeconds" value="10" min="3" max="120" /></label>
+          </div>
+          <div class="row">
+            <label>Active from<input type="datetime-local" name="activeFrom" /></label>
+            <label>Active until<input type="datetime-local" name="activeUntil" /></label>
           </div>
           <label>Image URL<input name="mediaUrl" placeholder="https://…" /></label>
           <button type="submit">Create campaign</button>
