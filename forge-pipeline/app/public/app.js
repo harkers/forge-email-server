@@ -1,4 +1,4 @@
-const API = 'http://localhost:4181';
+const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all' };
@@ -19,8 +19,8 @@ async function request(path, options = {}) {
 }
 
 async function refresh() {
-  const summary = await request('/api/summary');
-  const projectData = await request('/api/projects');
+  const summary = await request('/summary');
+  const projectData = await request('/projects');
   state.projects = projectData.projects || [];
 
   document.getElementById('projectCount').textContent = summary.projectCount;
@@ -48,7 +48,7 @@ function bindUI() {
 async function onCreateProject(event) {
   event.preventDefault();
   const fd = new FormData(event.target);
-  await request('/api/projects', {
+  await request('/projects', {
     method: 'POST',
     body: JSON.stringify({
       name: fd.get('name'),
@@ -73,11 +73,11 @@ async function handleGridClick(event) {
 
   if (action === 'delete-project') {
     if (!confirm(`Delete project "${project.name}"?`)) return;
-    await request(`/api/projects/${projectId}`, { method: 'DELETE' });
+    await request(`/projects/${projectId}`, { method: 'DELETE' });
   }
 
   if (action === 'add-task') {
-    await request(`/api/projects/${projectId}/tasks`, {
+    await request(`/projects/${projectId}/tasks`, {
       method: 'POST',
       body: JSON.stringify({
         title: 'New task',
@@ -91,7 +91,7 @@ async function handleGridClick(event) {
   }
 
   if (action === 'delete-task') {
-    await request(`/api/projects/${projectId}/tasks/${taskId}`, { method: 'DELETE' });
+    await request(`/projects/${projectId}/tasks/${taskId}`, { method: 'DELETE' });
   }
 
   await refresh();
@@ -107,7 +107,7 @@ async function handleGridChange(event) {
 
   if (!taskId && field) {
     const payload = { [field]: input.value };
-    await request(`/api/projects/${projectId}`, {
+    await request(`/projects/${projectId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
     });
@@ -123,7 +123,7 @@ async function handleGridChange(event) {
     value = input.value.split(',').map(s => s.trim()).filter(Boolean);
   }
 
-  await request(`/api/projects/${projectId}/tasks/${taskId}`, {
+  await request(`/projects/${projectId}/tasks/${taskId}`, {
     method: 'PATCH',
     body: JSON.stringify({ [field]: value }),
   });

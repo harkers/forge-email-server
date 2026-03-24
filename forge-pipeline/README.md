@@ -21,12 +21,14 @@ It combines:
 - Provide a polished browser-based interface
 - Expose a proper shared data layer for MCP pipeline integration
 - Become the central operational board across multiple projects
+- Support straightforward Docker deployment
 
 ## Structure
 
 - `app/` — browser UI
 - `api/` — file-backed HTTP API and storage
-- `docs/` — overview, architecture, API, usage, and integration notes
+- `deploy/` — deployment configs such as Nginx
+- `docs/` — overview, architecture, API, usage, integration, and Docker docs
 - `notes/` — product notes, planning, and decisions
 - `scripts/` — helper scripts
 
@@ -49,7 +51,13 @@ It combines:
 - bulk import endpoint
 - intended MCP-friendly shared data layer
 
-## Run locally
+### Deployment
+- Docker API image
+- Docker web image
+- docker-compose setup
+- Nginx reverse proxy config for `/api`
+
+## Run locally without Docker
 
 ### API
 
@@ -69,6 +77,16 @@ python3 server.py
 - Web UI: `http://localhost:4173`
 - API: `http://localhost:4181`
 
+## Run with Docker
+
+```bash
+docker compose up --build
+```
+
+Then open:
+- Web UI: `http://localhost:4173`
+- API health via web proxy: `http://localhost:4173/api/health`
+
 ## Documentation
 
 - `docs/overview.md`
@@ -77,3 +95,4 @@ python3 server.py
 - `docs/usage.md`
 - `docs/mcp-integration.md`
 - `docs/data-model.md`
+- `docs/docker.md`
