@@ -1,0 +1,303 @@
+---
+title: "OpenClaw Session - Workspace Bootstrap & Tooling"
+session_id: "001"
+date: "2026-03-24"
+time_start: "14:47 GMT"
+time_end: "15:50 GMT"
+duration_minutes: 63
+model: "ollama/qwen3.5:397b-cloud"
+topics:
+  - Workspace Bootstrap
+  - PARA Templates
+  - Trilium Investigation
+  - Forge Pipeline Deployment
+  - Quarto CLI Installation
+tags:
+  - workspace-setup
+  - knowledge-management
+  - deployment
+  - tooling
+participants:
+  - role: "user"
+    name: "stu"
+  - role: "assistant"
+    name: "OpenClaw"
+outcomes:
+  - "Created PARA.md and WORKSPACE_MEMORY_SYSTEM.md templates"
+  - "Deployed templates to privacy-ops and discord-intake-layer workspaces"
+  - "Discovered Trilium ETAPI auth method (plain Authorization header)"
+  - "Created daily summary note in Trilium (noteId: 9foeB8Pvjar6)"
+  - "Installed Quarto CLI v1.4.557 with working test render"
+decisions:
+  - "Use ETAPI with plain Authorization header for Trilium (not Bearer)"
+  - "Forge Pipeline uses SQLite backend at api/storage/forge-pipeline.db"
+  - "Quarto installed to ~/.local/bin with bundled Deno runtime"
+---
+
+## Session Overview
+
+This session covered workspace bootstrap, template creation, Trilium server investigation, Forge Pipeline deployment verification, and Quarto CLI installation.
+
+---
+
+## 1. Workspace Bootstrap Templates
+
+### Created Templates
+
+**PARA.md** - Personal Knowledge Management Framework
+
+```markdown
+# PARA.md - Personal Knowledge Management
+
+## Projects
+Active endeavors with a goal and deadline
+
+## Areas
+Long-term responsibilities requiring ongoing attention
+
+## Resources
+Topics or interests that may be useful in the future
+
+## Archives
+Inactive items from the other three categories
+```
+
+**WORKSPACE_MEMORY_SYSTEM.md** - Workspace Memory Continuity Guide
+
+Key points:
+- Daily notes in `memory/YYYY-MM-DD.md`
+- Long-term memory in `MEMORY.md` (main session only)
+- Memory maintenance during heartbeats
+- Text > Brain: write to files, don't rely on mental notes
+
+### Deployment Targets
+
+| Workspace | Path | Action |
+|-----------|------|--------|
+| privacy-ops | `/home/stu/privacy-ops` | Selective add (no overwrite) |
+| discord-intake-layer | `/home/stu/discord-intake-layer` | Fresh workspace with full bootstrap |
+
+### Git Commits
+
+```bash
+# privacy-ops
+94343bd - Add PARA conventions
+dfa3fe7 - Add workspace memory system guide
+
+# discord-intake-layer
+3dc83b2 - Initial template set commit
+```
+
+---
+
+## 2. Trilium Server Investigation
+
+### Connection Details
+
+- **Host**: `192.168.10.5:8080`
+- **Version**: Trilium v0.58.7
+- **Token**: `x2aVxHZNg6HO_2GItibwJswEbIqRJDPerRW3LIk1MTquibcjXpVgvdHQ=`
+
+### Auth Discovery
+
+Initial attempts failed with various auth patterns:
+
+```bash
+# Failed: Bearer token
+curl -H "Authorization: Bearer <token>" ...
+
+# Failed: x-api-key
+curl -H "X-API-Key: <token>" ...
+
+# Failed: Password login
+curl -X POST ... -d "password=<token>"
+```
+
+**Success**: Plain Authorization header on ETAPI endpoints
+
+```bash
+# Working pattern
+curl http://192.168.10.5:8080/etapi/notes/root \
+  -H "Authorization: x2aVxHZNg6HO_2GItibwJswEbIqRJDPerRW3LIk1MTquibcjXpVgvdHQ="
+```
+
+### Structure Audit
+
+Root note inspection revealed:
+
+- **45 direct child notes** at root level (crowded)
+- Major folders: Servers, Proxmlex, domains, monitoring targets
+- Sample children: `_hidden`, `oylcO2Ghmd6E`, `NZaM0PUdt7wX`, etc.
+
+### Reorganisation Plan
+
+Proposed 6 top-level folders:
+
+1. 🏗️ Infrastructure (Servers, Proxmlex)
+2. 🌐 Domains (DNS, Hosting, Certificates)
+3. 📁 Code/Config (Scripts, dotfiles, Archives)
+4. 📝 TODOs (Daily, Weekly, Projects)
+5. 📊 Monitoring (Uptime, Logs, Alerts)
+6. 🧰 Tools (CLI Tools, Mobile Apps, Software)
+
+### Daily Summary Note Created
+
+```bash
+curl -X POST http://192.168.10.5:8080/etapi/create-note \
+  -H "Authorization: x2aVxHZNg6HO_2GItibwJswEbIqRJDPerRW3LIk1MTquibcjXpVgvdHQ=" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "parentNoteId":"root",
+    "title":"Daily Summary - 2026-03-24",
+    "type":"text"
+  }'
+```
+
+**Result**: Note created with `noteId: 9foeB8Pvjar6`
+
+---
+
+## 3. Forge Pipeline Deployment
+
+### Configuration Verified
+
+Files inspected:
+- `deploy/compose/docker-compose.prod.yml`
+- `docs/deploy.md`
+- `docs/image-publishing.md`
+
+### Deployment Stack
+
+| Component | Image | Status |
+|-----------|-------|--------|
+| API | `forge-pipeline-api:latest` | Ready |
+| Web | `forge-pipeline-web:latest` | Ready |
+| Storage | SQLite at `api/storage/forge-pipeline.db` | Configured |
+| Auth | `FORGE_PIPELINE_API_KEY` env var | Required |
+
+### MCP Gateway
+
+- Gateway status: Ready for deployment
+- Deployment method: Through MCP gateway (not local compose)
+- Healthcheck endpoints:
+  - API: `http://127.0.0.1:4181/api/health`
+  - Web: `http://127.0.0.1/`
+
+---
+
+## 4. Quarto CLI Installation
+
+### Download & Install
+
+```bash
+# Download v1.4.557 (June 2024 stable)
+curl -L -o quarto.tar.gz \
+  https://github.com/quarto-dev/quarto-cli/releases/download/v1.4.557/quarto-1.4.557-linux-amd64.tar.gz
+
+# Extract
+tar -xzf quarto.tar.gz
+
+# Install to user bin
+mkdir -p ~/.local/bin
+cp -r quarto-1.4.557 ~/.local/quarto
+cp ~/.local/quarto/bin/quarto ~/.local/bin/quarto
+chmod +x ~/.local/bin/quarto
+```
+
+### Version Check
+
+```bash
+$ quarto --version
+1.4.557
+```
+
+### Test Document
+
+Created `test-sample.qmd`:
+
+```markdown
+---
+title: "Quarto Test Document"
+author: "OpenClaw Assistant"
+date: "2026-03-24"
+format: html
+---
+
+## Welcome to Quarto
+
+This is a test document to verify the Quarto installation is working correctly.
+
+### R Code Example
+
+```r
+#| eval: false
+x <- 1:10
+mean(x)
+```
+
+### Python Code Example
+
+```python
+#| eval: false
+import numpy as np
+data = np.arange(1, 11)
+print(f"Mean: {data.mean()}")
+```
+```
+
+### Render Result
+
+```bash
+$ quarto render test-sample.qmd --to html
+
+Output created: test-sample.html
+```
+
+**Success**: 21KB HTML file generated with syntax highlighting
+
+---
+
+## 5. Conversation Archive Proposal
+
+### New Convention
+
+Store conversations as executable `.qmd` documents in:
+
+```
+memory/conversations/
+├── YYYY-MM-DD-session-NNN.qmd
+├── index.qmd
+└── render.sh
+```
+
+### Benefits
+
+- Executable documentation with re-runnable code
+- Multiple output formats (HTML, PDF, site)
+- Versioned, searchable knowledge archive
+- Structured metadata for filtering
+
+---
+
+## Key Technical Findings
+
+| System | Finding | Impact |
+|--------|---------|--------|
+| Trilium | ETAPI uses plain `Authorization` header | Auth pattern established |
+| Trilium | v0.58.7 has bundled Deno 2.3.1 | Version compatibility noted |
+| Quarto | Requires bundled Deno, not system Deno | Install complete package |
+| Forge | SQLite replaces flat JSON storage | Persistence architecture |
+| MCP | Gateway handles deployment context | Use gateway, not local compose |
+
+---
+
+## Next Steps
+
+1. **Trilium**: Implement reorganisation plan via ETAPI
+2. **Forge**: Execute deployment through MCP gateway
+3. **Quarto**: Create conversation archive index
+4. **Memory**: Establish heartbeat-based maintenance routine
+
+---
+
+*Session captured as executable Quarto document for future reference and re-execution.*
