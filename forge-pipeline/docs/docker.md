@@ -12,8 +12,7 @@ This keeps deployment simple:
 - one container for shared data/API logic
 - one container for static UI + reverse proxy
 - persisted SQLite storage mounted from the host
-
-It also serves the UI and API under the same web origin.
+- same-origin browser/API setup
 
 ## Files
 
@@ -23,11 +22,11 @@ It also serves the UI and API under the same web origin.
 - `deploy/nginx/default.conf`
 - `.env.example`
 
-## Run
+## Quick start
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up --build -d
 ```
 
 ## Default ports
@@ -35,6 +34,17 @@ docker compose up --build
 - UI: `http://localhost:4173`
 - API direct: `http://localhost:4181`
 - UI-routed API: `http://localhost:4173/api/health`
+
+## Healthchecks
+
+The compose file now includes healthchecks for:
+- `api`
+- `web`
+
+That helps with:
+- startup ordering
+- restart visibility
+- reverse-proxy confidence
 
 ## Auth
 
@@ -55,12 +65,56 @@ The API uses:
 Primary database file:
 - `forge-pipeline.db`
 
-## Migration note
+This directory should live on persistent storage.
 
-If legacy JSON files are present in `api/storage/`, the API migrates them into SQLite on startup.
+## Production-ish notes
 
-## Recommended next improvements before public exposure
+For a cleaner deployment:
 
+- keep `api/storage/` on persistent disk
+- place the stack behind your existing reverse proxy if exposing beyond localhost
+- do not expose direct API port publicly unless you mean to
+- keep the API key in `.env`, not hardcoded into scripts
+- monitor container health via `docker ps` or your host tooling
+
+## Suggested reverse-proxy pattern
+
+Expose only the web container externally and let Nginx inside it proxy `/api/` internally.
+
+That gives you:
+- one origin
+- simpler browser behavior
+- less CORS nonsense
+
+## Useful commands
+
+### Start
+
+```bash
+docker compose up --build -d
+```
+
+### Logs
+
+```bash
+docker compose logs -f
+```
+
+### Restart
+
+```bash
+docker compose restart
+```
+
+### Stop
+
+```bash
+docker compose down
+```
+
+## Recommended next improvements before wider exposure
+
+- webhook endpoint for external systems
 - stronger auth model if internet-exposed
-- richer audit/event views
-- request validation hardening
+- optional TLS/reverse-proxy examples
+- live UI refresh/polling if multiple writers are expected

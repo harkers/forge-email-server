@@ -76,6 +76,7 @@ It combines:
 - Docker API image
 - Docker web image
 - docker-compose setup
+- healthchecks for API and web containers
 - Nginx reverse proxy config for `/api`
 - `.env.example` for API key config
 
@@ -83,7 +84,7 @@ It combines:
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up --build -d
 ```
 
 Then open:
@@ -144,5 +145,4 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - `docs/data-model.md`
 - `docs/docker.md`
 - `docs/backup-and-restore.md`
-
 - `docs/scheduled-backups.md`
