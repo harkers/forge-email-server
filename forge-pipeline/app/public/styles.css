@@ -6,6 +6,7 @@
   --muted: #a8b1d1;
   --accent: #7c9cff;
   --accent-2: #56e0c5;
+  --danger: #ff7f98;
   --border: rgba(255,255,255,0.12);
   --shadow: 0 20px 60px rgba(0,0,0,0.35);
 }
@@ -16,35 +17,50 @@ body {
   background: radial-gradient(circle at top, #1a2450 0%, #0b1020 50%, #070b16 100%);
   color: var(--text);
 }
-.shell { max-width: 1200px; margin: 0 auto; padding: 32px; }
+.shell { max-width: 1400px; margin: 0 auto; padding: 32px; }
 .hero {
-  display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: center; margin-bottom: 28px;
+  display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: center; margin-bottom: 28px;
 }
 .eyebrow { color: var(--accent-2); letter-spacing: 0.16em; font-size: 12px; }
 h1 { font-size: 56px; margin: 8px 0 12px; }
 .sub { color: var(--muted); font-size: 18px; max-width: 650px; }
-.hero-card, .panel, .project-card, .task-item {
+.hero-card, .panel, .project-card, .task-item, input, textarea, select, button {
   background: var(--panel);
   border: 1px solid var(--border);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow);
   border-radius: 22px;
+  color: var(--text);
 }
 .hero-card {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px;
 }
 .metric { background: var(--panel-strong); border-radius: 18px; padding: 18px; text-align: center; }
 .metric span { display: block; font-size: 34px; font-weight: 700; }
 .metric label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
 .panel { padding: 22px; }
-.project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.sidebar { position: sticky; top: 24px; }
+.toolbar, .form-block { display: grid; gap: 12px; margin-top: 16px; }
+.form-block h3 { margin: 10px 0 0; }
+.project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; }
 .project-card { padding: 20px; }
-.project-card h3 { margin-top: 0; margin-bottom: 8px; }
-.project-card p { color: var(--muted); }
-.notes { margin-top: 14px; padding: 14px; border-radius: 16px; background: rgba(124,156,255,0.08); }
+.project-head, .project-actions, .task-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.project-name-input, .task-title-input { width: 100%; font-size: 20px; font-weight: 700; background: transparent; border: none; box-shadow: none; padding: 0; }
+.project-name-input:focus, .task-title-input:focus { outline: none; }
+.editor-label { display: grid; gap: 8px; color: var(--muted); margin-top: 14px; }
+textarea, input, select { width: 100%; padding: 12px 14px; font: inherit; }
+button { padding: 10px 14px; cursor: pointer; }
+button:hover { border-color: rgba(255,255,255,0.22); }
+.icon-button { width: auto; }
+.icon-button.small { font-size: 12px; padding: 8px 10px; }
+.icon-button.danger { background: rgba(255,127,152,0.12); border-color: rgba(255,127,152,0.2); }
+.project-meta, .panel-sub, .empty-state, .empty-tasks { color: var(--muted); }
 .task-list { margin-top: 16px; display: grid; gap: 10px; }
 .task-item { padding: 14px; border-radius: 16px; }
-.task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.task-edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+.task-edit-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+.task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .badge {
   display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px;
   background: rgba(86,224,197,0.14); color: #b9fff1; border: 1px solid rgba(86,224,197,0.2);
@@ -52,7 +68,16 @@ h1 { font-size: 56px; margin: 8px 0 12px; }
 .badge.priority-high { background: rgba(255,90,110,0.16); color: #ffd5db; }
 .badge.priority-medium { background: rgba(255,188,88,0.16); color: #ffe4b0; }
 .badge.priority-low { background: rgba(120,196,255,0.16); color: #d3edff; }
+.empty-state, .empty-tasks {
+  padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px dashed var(--border);
+}
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+}
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; }
+  .hero-card { grid-template-columns: repeat(2, 1fr); }
+  .project-grid, .task-edit-grid { grid-template-columns: 1fr; }
   h1 { font-size: 40px; }
 }
