@@ -9,29 +9,18 @@ docker-compose up -d --build
 
 ## Current Status
 
-**Built:** v1.0.0 (2026-03-24)
+**Built:** v1.0.1 (2026-03-24)
 - ForgeOrchestra design system integrated
 - Version control and timestamp display added
 - Obsidian Intelligence colour palette
 - Luminous Platinum Blue accent (#7AA6FF)
+- Port conflict resolved: now running on 4174
 
-## Port Conflict Resolution
+## Default Ports
 
-If you see `bind: address already in use` for port 4173:
-
-### Option 1: Stop host nginx (if you control the host)
-```bash
-sudo systemctl stop nginx
-docker-compose up -d
-```
-
-### Option 2: Use alternate port
-Edit `docker-compose.yml`:
-```yaml
-ports:
-  - "4174:80"  # Change from 4173 to 4174
-```
-Then access at `http://localhost:4174`
+- **UI:** `http://localhost:4174` (changed from 4173 to avoid host nginx conflict)
+- **API (direct):** `http://localhost:4181`
+- **API (via UI proxy):** `http://localhost:4174/api/health`
 
 ### Option 3: Configure host nginx as reverse proxy
 Add upstream in host nginx config:

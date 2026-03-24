@@ -1,9 +1,16 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.0.0** — 2026-03-24
+**v1.0.1** — 2026-03-24
 
 ## Changelog
+
+### v1.0.1 (2026-03-24)
+- Port conflict resolved
+  - Changed web container port from 4173 to 4174
+  - Host nginx was occupying 4173, blocking deployment
+  - Updated app.js API base URL to handle port change
+  - Updated DEPLOY.md with new default port
 
 ### v1.0.0 (2026-03-24)
 - ForgeOrchestra design system integration

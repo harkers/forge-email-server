@@ -28,7 +28,7 @@ services:
     container_name: forge-pipeline-web
     restart: unless-stopped
     ports:
-      - "4173:80"
+      - "4174:80"
     depends_on:
       api:
         condition: service_healthy
@@ -38,7 +38,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    # Note: If host nginx occupies 4173, either:
-    # 1) Stop host nginx: sudo systemctl stop nginx
-    # 2) Change this port: - "4174:80" and access via http://localhost:4174
-    # 3) Configure host nginx to proxy_pass to this container
