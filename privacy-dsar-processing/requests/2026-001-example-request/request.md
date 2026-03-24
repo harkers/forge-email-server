@@ -5,5 +5,9 @@
 - Requester:
 - Contact channel:
 - Jurisdiction:
-- Deadline:
+- Date received:
+- Standard deadline:
+- Extension invoked:
+- Extended deadline:
+- Final response date:
 - Summary:

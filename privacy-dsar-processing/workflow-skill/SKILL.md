@@ -45,3 +45,4 @@ Read these when needed:
 
 - `references/checklists.md` for the operational checklist
 - `references/case-template.md` for the standard case file layout
+- `references/uk-gdpr.md` for UK GDPR deadline tracking and response handling
