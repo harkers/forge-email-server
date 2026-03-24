@@ -1,0 +1,23 @@
+{
+  "projects": [
+    {
+      "id": "alpha",
+      "name": "Alpha Launch",
+      "description": "Prepare launch checklist and finish visual QA.",
+      "notes": "Focus on the remaining blockers, then polish the rollout notes.",
+      "tasks": [
+        {"title": "Final QA pass", "status": "in-progress", "priority": "high", "dueDate": "2026-03-28"},
+        {"title": "Write release notes", "status": "todo", "priority": "medium", "dueDate": "2026-03-29"}
+      ]
+    },
+    {
+      "id": "ops",
+      "name": "Ops Cleanup",
+      "description": "Reduce clutter and tidy recurring tasks.",
+      "notes": "Turn repeated tasks into templates where possible.",
+      "tasks": [
+        {"title": "Archive stale items", "status": "todo", "priority": "low", "dueDate": null}
+      ]
+    }
+  ]
+}
