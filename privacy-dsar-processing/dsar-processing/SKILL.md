@@ -39,6 +39,10 @@ For each case, maintain:
 - `review-notes.md`
 - `response.md`
 
+## Script
+
+Use `scripts/uk_gdpr_deadline.py <YYYY-MM-DD>` to calculate the standard one-month deadline and the outer extended deadline for UK GDPR cases.
+
 ## References
 
 Read these when needed:
