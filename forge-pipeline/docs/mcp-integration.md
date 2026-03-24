@@ -2,64 +2,57 @@
 
 Forge Pipeline is intended to be a shared board that other projects can update programmatically.
 
-## Good API usage patterns for MCP pipelines
+## Best integration path now
 
-### Create a project once
+Use the MCP-specific endpoints rather than raw CRUD whenever possible.
 
-When a new initiative begins, create a project and keep reusing its ID.
+Why:
+- fewer round-trips
+- less duplicate matching logic in external tools
+- easier idempotent-ish updates
+- better activity visibility via recorded events
 
-### Add tasks for milestones or next steps
+## Recommended endpoint usage
 
-Examples:
-- implementation milestone
-- blocker discovered
-- follow-up action required
-- deployment step
-- documentation gap
+### 1. `POST /api/mcp/project-upsert`
+Use when:
+- a project may or may not already exist
+- you want to ensure it exists with current metadata
 
-### Use PATCH for lightweight status changes
+### 2. `POST /api/mcp/task-upsert`
+Use when:
+- you want to create/update a task under a project
+- you want matching by task title or task id
 
-Examples:
-- mark task `in-progress`
-- mark task `blocked`
-- mark task `done`
-- update notes with fresh context
+### 3. `POST /api/mcp/project-update`
+Use when:
+- an external project wants to push a fresh summary
+- you want to append a note
+- you want to adjust project-level tags/status
 
-### Query for dashboards and triage
+### 4. `POST /api/mcp/event`
+Use when:
+- you want a lightweight audit-style event record
+- there is no direct project/task mutation
+- you want visibility into pipeline activity
 
-Useful calls:
-- `GET /api/summary`
-- `GET /api/tasks?status=blocked`
-- `GET /api/tasks?status=todo`
-- `GET /api/projects?q=display`
-
-## Recommended integration model
+## Suggested automation pattern
 
 For each external project or automation:
 
-1. resolve/create the relevant project in Forge Pipeline
-2. write important milestones as tasks
-3. update status as work moves
-4. append notes when context changes
-5. use tags to identify source and domain
+1. call project upsert
+2. call task upserts for major tasks/milestones
+3. call project update when status or summary changes
+4. optionally emit generic events for major syncs or failures
 
-## Practical convention suggestion
+## Event visibility
 
-Use tags to identify source pipelines.
+Recent events can be inspected via:
+- `GET /api/events`
 
-Examples:
-- `source:display-forge`
-- `source:privacy-dsar`
-- `source:mcp-pipeline`
+This gives a lightweight operational trail even before a full audit system exists.
 
-Even though tags are currently free-form strings, using a pseudo-namespaced convention now will make later filtering cleaner.
+## Caveat
 
-## Important current caveat
-
-This is currently a lightweight file-backed API.
-That is good for speed and portability, but not yet designed for high-concurrency write storms or hostile network exposure.
-
-Before exposing it broadly, add:
-- auth
-- request validation tightening
-- audit/event logging
+These endpoints are still file-backed and lightweight.
+They are suitable for modest automation and MCP usage, but not yet a high-concurrency event bus.

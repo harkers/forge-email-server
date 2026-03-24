@@ -9,7 +9,7 @@ This API is intended to become the shared data layer for Forge Pipeline so other
 
 ## Authentication
 
-Forge Pipeline now supports a simple API key for write operations.
+Forge Pipeline supports a simple API key for write operations.
 
 Environment variable:
 - `FORGE_PIPELINE_API_KEY`
@@ -22,25 +22,15 @@ Behaviour:
 - `POST`, `PUT`, `PATCH`, and `DELETE` require a valid API key **if** `FORGE_PIPELINE_API_KEY` is set
 - if no key is configured, the API behaves as open/writeable as before
 
-## Endpoints
+## Core endpoints
 
 ### Health
-
 - `GET /api/health`
 
 ### Summary
-
 - `GET /api/summary`
 
-Returns high-level counts:
-- projects
-- tasks
-- open tasks
-- done tasks
-- blocked tasks
-
 ### Projects
-
 - `GET /api/projects`
 - `POST /api/projects`
 - `GET /api/projects/{projectId}`
@@ -48,22 +38,7 @@ Returns high-level counts:
 - `PATCH /api/projects/{projectId}`
 - `DELETE /api/projects/{projectId}`
 
-Query params for list:
-- `q` — search text
-- `status` — filter by project status
-
-Project object fields:
-- `id`
-- `name`
-- `description`
-- `notes`
-- `status`
-- `tags[]`
-- `updatedAt`
-- `tasks[]`
-
 ### Tasks
-
 - `GET /api/tasks`
 - `GET /api/projects/{projectId}/tasks`
 - `POST /api/projects/{projectId}/tasks`
@@ -71,84 +46,103 @@ Project object fields:
 - `PATCH /api/projects/{projectId}/tasks/{taskId}`
 - `DELETE /api/projects/{projectId}/tasks/{taskId}`
 
-Query params for task list endpoints:
-- `q` — search text
-- `status` — filter by task status
-
-Task object fields:
-- `id`
-- `title`
-- `status`
-- `priority`
-- `dueDate`
-- `tags[]`
-- `notes`
-- `updatedAt`
-
-### Bulk import / replace
-
+### Bulk import
 - `POST /api/bulk/import`
 
-Body format:
+### Events
+- `GET /api/events?limit=50`
+
+Returns the latest recorded API/MCP activity entries.
+
+## MCP-friendly event/update endpoints
+
+These are intended to reduce friction for automation workflows.
+
+### Project upsert
+- `POST /api/mcp/project-upsert`
+
+Purpose:
+- create a project if it does not exist
+- update it if it already exists by `id` or `name`
+
+Example:
+
+```bash
+curl -X POST http://localhost:4181/api/mcp/project-upsert \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me' \
+  -d '{
+    "name": "MCP Pipeline",
+    "description": "Shared automation control plane",
+    "notes": "Feeds status into Forge Pipeline.",
+    "status": "active",
+    "tags": ["mcp", "automation"]
+  }'
+```
+
+### Task upsert
+- `POST /api/mcp/task-upsert`
+
+Purpose:
+- create/update a task under a project using `projectId` or `projectName`
+- match existing task by `id` or `title`
+
+Example:
+
+```bash
+curl -X POST http://localhost:4181/api/mcp/task-upsert \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me' \
+  -d '{
+    "projectName": "MCP Pipeline",
+    "title": "Define sync contract",
+    "status": "in-progress",
+    "priority": "high",
+    "tags": ["mcp", "api"],
+    "notes": "Need stable write/update semantics."
+  }'
+```
+
+### Project update event
+- `POST /api/mcp/project-update`
+
+Purpose:
+- append/update project-level state without replacing the whole object
+- useful for status snapshots from another system
+
+Supported fields:
+- `projectId`
+- `summary`
+- `note`
+- `status`
+- `tags[]`
+
+### Generic MCP event
+- `POST /api/mcp/event`
+
+Purpose:
+- record a general event even when it is not directly mapped to a project/task mutation
+
+Body example:
 
 ```json
 {
-  "projects": [ ... ]
+  "source": "display-forge",
+  "kind": "sync",
+  "payload": {
+    "message": "nightly sync complete",
+    "itemsUpdated": 12
+  }
 }
-```
-
-Use this carefully: it replaces the entire stored project list.
-
-## Example requests
-
-### Create project with API key
-
-```bash
-curl -X POST http://localhost:4181/api/projects \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me' \
-  -d '{
-    "name": "Forge Pipeline",
-    "description": "Central project board",
-    "notes": "Used to answer what is next.",
-    "status": "active",
-    "tags": ["hub", "planning"]
-  }'
-```
-
-### Add task to project with API key
-
-```bash
-curl -X POST http://localhost:4181/api/projects/<projectId>/tasks \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me' \
-  -d '{
-    "title": "Define MCP sync contract",
-    "status": "todo",
-    "priority": "high",
-    "dueDate": "2026-03-30",
-    "tags": ["api", "mcp"],
-    "notes": "Other projects should be able to push status updates here."
-  }'
-```
-
-### Patch task status with API key
-
-```bash
-curl -X PATCH http://localhost:4181/api/projects/<projectId>/tasks/<taskId> \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me' \
-  -d '{
-    "status": "done"
-  }'
 ```
 
 ## MCP / automation fit
 
 Good patterns for external tools:
 - create one project per tracked initiative
-- append/update tasks as milestones move
-- use tags for source system labels (`display-forge`, `privacy`, `mcp`, `ops`)
-- use `PATCH` for lightweight status changes
+- use `project-upsert` to avoid duplicate project creation
+- use `task-upsert` for milestone/task sync
+- use `project-update` for higher-level status snapshots
 - use `GET /api/summary` for dashboard rollups
 - use `GET /api/tasks?status=blocked` to identify blockers quickly
+- use `GET /api/events` to inspect recent automation activity

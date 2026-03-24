@@ -1,0 +1,36 @@
+{
+  "events": [
+    {
+      "id": "event-20260324102356280792",
+      "kind": "mcp.event.sync",
+      "createdAt": "2026-03-24T10:23:56+00:00",
+      "payload": {
+        "source": "mcp-pipeline",
+        "payload": {
+          "message": "sync complete"
+        }
+      }
+    },
+    {
+      "id": "event-20260324102356276696",
+      "kind": "mcp.task-upsert",
+      "createdAt": "2026-03-24T10:23:56+00:00",
+      "payload": {
+        "action": "created",
+        "projectId": "mcp-events",
+        "taskId": "task-20260324102356276533",
+        "title": "Push event payload"
+      }
+    },
+    {
+      "id": "event-20260324102356272460",
+      "kind": "mcp.project-upsert",
+      "createdAt": "2026-03-24T10:23:56+00:00",
+      "payload": {
+        "action": "created",
+        "projectId": "mcp-events",
+        "name": "MCP Events"
+      }
+    }
+  ]
+}

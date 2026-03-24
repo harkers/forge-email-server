@@ -1,6 +1,32 @@
 {
   "projects": [
     {
+      "id": "mcp-events",
+      "name": "MCP Events",
+      "description": "event test",
+      "notes": "",
+      "status": "active",
+      "tags": [
+        "mcp"
+      ],
+      "updatedAt": "2026-03-24T10:23:56+00:00",
+      "tasks": [
+        {
+          "id": "task-20260324102356276533",
+          "title": "Push event payload",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "mcp",
+            "event"
+          ],
+          "notes": "task upsert test",
+          "updatedAt": "2026-03-24T10:23:56+00:00"
+        }
+      ]
+    },
+    {
       "id": "project-20260324101744148637",
       "name": "Auth OK",
       "description": "secured write",

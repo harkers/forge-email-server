@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, urlparse
 ROOT = Path(__file__).resolve().parent
 STORAGE_DIR = ROOT / "storage"
 DATA_FILE = STORAGE_DIR / "forge-pipeline.json"
+EVENTS_FILE = STORAGE_DIR / "events.json"
 API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 
 DEFAULT_DATA = {
@@ -71,6 +72,8 @@ def ensure_store() -> None:
         data = DEFAULT_DATA
         touch_all(data)
         DATA_FILE.write_text(json.dumps(data, indent=2))
+    if not EVENTS_FILE.exists():
+        EVENTS_FILE.write_text(json.dumps({"events": []}, indent=2))
 
 
 def touch_all(data: dict) -> None:
@@ -97,16 +100,56 @@ def save_data(data: dict) -> None:
     DATA_FILE.write_text(json.dumps(data, indent=2))
 
 
+def load_events() -> dict:
+    ensure_store()
+    return json.loads(EVENTS_FILE.read_text())
+
+
+def save_events(data: dict) -> None:
+    EVENTS_FILE.write_text(json.dumps(data, indent=2))
+
+
+def record_event(kind: str, payload: dict) -> dict:
+    events = load_events()
+    entry = {
+        "id": new_id("event"),
+        "kind": kind,
+        "createdAt": now_iso(),
+        "payload": payload,
+    }
+    events.setdefault("events", []).insert(0, entry)
+    events["events"] = events["events"][:500]
+    save_events(events)
+    return entry
+
+
 def new_id(prefix: str) -> str:
     return f"{prefix}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}"
+
+
+def slugify(text: str) -> str:
+    out = ''.join(ch.lower() if ch.isalnum() else '-' for ch in text).strip('-')
+    while '--' in out:
+        out = out.replace('--', '-')
+    return out or new_id('project')
 
 
 def find_project(data: dict, project_id: str):
     return next((p for p in data.get("projects", []) if p.get("id") == project_id), None)
 
 
+def find_project_by_name(data: dict, name: str):
+    name = name.strip().lower()
+    return next((p for p in data.get("projects", []) if p.get("name", '').strip().lower() == name), None)
+
+
 def find_task(project: dict, task_id: str):
     return next((t for t in project.get("tasks", []) if t.get("id") == task_id), None)
+
+
+def find_task_by_title(project: dict, title: str):
+    title = title.strip().lower()
+    return next((t for t in project.get("tasks", []) if t.get("title", '').strip().lower() == title), None)
 
 
 def project_matches(project: dict, query: str | None, status: str | None) -> bool:
@@ -139,6 +182,65 @@ def task_matches(task: dict, query: str | None, status: str | None) -> bool:
     if status and task.get('status') != status:
         return False
     return True
+
+
+def upsert_project(data: dict, body: dict) -> tuple[dict, str]:
+    project = None
+    project_id = body.get('id')
+    name = body.get('name')
+    if project_id:
+        project = find_project(data, project_id)
+    if not project and name:
+        project = find_project_by_name(data, name)
+
+    if project:
+        project.update({k: v for k, v in body.items() if k != 'tasks'})
+        project['updatedAt'] = now_iso()
+        action = 'updated'
+    else:
+        project = {
+            'id': project_id or slugify(name or 'project'),
+            'name': name or 'Untitled project',
+            'description': body.get('description', ''),
+            'notes': body.get('notes', ''),
+            'status': body.get('status', 'active'),
+            'tags': body.get('tags', []),
+            'updatedAt': now_iso(),
+            'tasks': body.get('tasks', []),
+        }
+        data.setdefault('projects', []).insert(0, project)
+        action = 'created'
+    return project, action
+
+
+def upsert_task(project: dict, body: dict) -> tuple[dict, str]:
+    task = None
+    task_id = body.get('id')
+    title = body.get('title')
+    if task_id:
+        task = find_task(project, task_id)
+    if not task and title:
+        task = find_task_by_title(project, title)
+
+    if task:
+        task.update(body)
+        task['updatedAt'] = now_iso()
+        action = 'updated'
+    else:
+        task = {
+            'id': task_id or new_id('task'),
+            'title': title or 'Untitled task',
+            'status': body.get('status', 'todo'),
+            'priority': body.get('priority', 'medium'),
+            'dueDate': body.get('dueDate', ''),
+            'tags': body.get('tags', []),
+            'notes': body.get('notes', ''),
+            'updatedAt': now_iso(),
+        }
+        project.setdefault('tasks', []).insert(0, task)
+        action = 'created'
+    project['updatedAt'] = now_iso()
+    return task, action
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -236,6 +338,12 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(200, {'tasks': tasks})
             return
 
+        if parsed.path == '/api/events':
+            events = load_events().get('events', [])
+            limit = int(q.get('limit', ['50'])[0])
+            self.send_json(200, {'events': events[:limit]})
+            return
+
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
 
     def do_POST(self):
@@ -258,6 +366,7 @@ class Handler(BaseHTTPRequestHandler):
             }
             data.setdefault('projects', []).insert(0, project)
             save_data(data)
+            record_event('project.created', {'projectId': project['id'], 'name': project['name']})
             self.send_json(201, project)
             return
 
@@ -280,6 +389,7 @@ class Handler(BaseHTTPRequestHandler):
             project.setdefault('tasks', []).insert(0, task)
             project['updatedAt'] = now_iso()
             save_data(data)
+            record_event('task.created', {'projectId': project_id, 'taskId': task['id'], 'title': task['title']})
             self.send_json(201, task)
             return
 
@@ -290,7 +400,63 @@ class Handler(BaseHTTPRequestHandler):
                 return
             data['projects'] = projects
             save_data(data)
+            record_event('bulk.import', {'projectCount': len(projects)})
             self.send_json(200, {'ok': True, 'projectCount': len(projects)})
+            return
+
+        if parsed.path == '/api/mcp/project-upsert':
+            project, action = upsert_project(data, body)
+            save_data(data)
+            record_event('mcp.project-upsert', {'action': action, 'projectId': project['id'], 'name': project['name']})
+            self.send_json(200, {'ok': True, 'action': action, 'project': project})
+            return
+
+        if parsed.path == '/api/mcp/task-upsert':
+            project_id = body.get('projectId')
+            project_name = body.get('projectName')
+            project = find_project(data, project_id) if project_id else None
+            if not project and project_name:
+                project = find_project_by_name(data, project_name)
+            if not project:
+                self.send_json(404, {'error': 'project_not_found', 'projectId': project_id, 'projectName': project_name})
+                return
+            task, action = upsert_task(project, body)
+            save_data(data)
+            record_event('mcp.task-upsert', {'action': action, 'projectId': project['id'], 'taskId': task['id'], 'title': task['title']})
+            self.send_json(200, {'ok': True, 'action': action, 'projectId': project['id'], 'task': task})
+            return
+
+        if parsed.path == '/api/mcp/project-update':
+            project_id = body.get('projectId')
+            project = find_project(data, project_id) if project_id else None
+            if not project:
+                self.send_json(404, {'error': 'project_not_found', 'projectId': project_id})
+                return
+            summary = body.get('summary')
+            note = body.get('note')
+            status_value = body.get('status')
+            tags = body.get('tags')
+            if summary:
+                project['description'] = summary
+            if note:
+                project['notes'] = (project.get('notes', '') + '\n\n' + note).strip()
+            if status_value:
+                project['status'] = status_value
+            if isinstance(tags, list):
+                merged = set(project.get('tags', [])) | set(tags)
+                project['tags'] = sorted(merged)
+            project['updatedAt'] = now_iso()
+            save_data(data)
+            record_event('mcp.project-update', {'projectId': project['id'], 'status': project.get('status')})
+            self.send_json(200, {'ok': True, 'project': project})
+            return
+
+        if parsed.path == '/api/mcp/event':
+            source = body.get('source', 'unknown')
+            kind = body.get('kind', 'generic')
+            payload = body.get('payload', {})
+            entry = record_event(f'mcp.event.{kind}', {'source': source, 'payload': payload})
+            self.send_json(201, {'ok': True, 'event': entry})
             return
 
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
@@ -332,6 +498,7 @@ class Handler(BaseHTTPRequestHandler):
                 project.update(body)
                 project['updatedAt'] = now_iso()
             save_data(data)
+            record_event('project.updated', {'projectId': project_id})
             self.send_json(200, project)
             return
 
@@ -364,6 +531,7 @@ class Handler(BaseHTTPRequestHandler):
                 task['updatedAt'] = now_iso()
             project['updatedAt'] = now_iso()
             save_data(data)
+            record_event('task.updated', {'projectId': project_id, 'taskId': task_id})
             self.send_json(200, task)
             return
 
@@ -383,6 +551,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(404, {'error': 'project_not_found', 'id': project_id})
                 return
             save_data(data)
+            record_event('project.deleted', {'projectId': project_id})
             self.send_json(200, {'deleted': True, 'projectId': project_id})
             return
 
@@ -401,6 +570,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             project['updatedAt'] = now_iso()
             save_data(data)
+            record_event('task.deleted', {'projectId': project_id, 'taskId': task_id})
             self.send_json(200, {'deleted': True, 'projectId': project_id, 'taskId': task_id})
             return
 

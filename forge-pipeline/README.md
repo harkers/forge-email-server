@@ -23,6 +23,7 @@ It combines:
 - Become the central operational board across multiple projects
 - Support straightforward Docker deployment
 - Support API-key-protected write access for automations
+- Support MCP-friendly upsert/event endpoints
 
 ## Structure
 
@@ -51,7 +52,9 @@ It combines:
 - search/filter support
 - bulk import endpoint
 - optional API-key-protected write access
-- intended MCP-friendly shared data layer
+- MCP-friendly project/task upsert endpoints
+- MCP event/update endpoints
+- lightweight event log endpoint
 
 ### Deployment
 - Docker API image
