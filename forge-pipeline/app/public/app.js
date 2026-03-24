@@ -250,13 +250,112 @@ function renderEvents() {
     return;
   }
 
-  eventList.innerHTML = recentEvents.map(event => `
-    <article class="event-item">
-      <div class="event-kind">${escapeHtml(event.kind || 'event')}</div>
-      <div class="event-time">${escapeHtml(event.createdAt || '')}</div>
-      <pre class="event-payload">${escapeHtml(JSON.stringify(event.payload || {}, null, 2))}</pre>
-    </article>
-  `).join('');
+  eventList.innerHTML = recentEvents.map(event => {
+    const formatted = formatEvent(event);
+    return `
+      <article class="event-item">
+        <div class="event-kind">${escapeHtml(formatted.title)}</div>
+        <div class="event-time">${escapeHtml(formatRelativeTime(event.createdAt))}</div>
+        <div class="event-summary">${escapeHtml(formatted.summary)}</div>
+        ${formatted.meta.length ? `<div class="event-meta">${formatted.meta.map(m => `<span class="event-chip">${escapeHtml(m)}</span>`).join('')}</div>` : ''}
+      </article>
+    `;
+  }).join('');
+}
+
+function formatEvent(event) {
+  const kind = event.kind || 'event';
+  const payload = event.payload || {};
+
+  const mappings = {
+    'project.created': {
+      title: 'Project created',
+      summary: payload.name ? `Created project “${payload.name}”.` : 'Created a project.',
+      meta: [payload.projectId].filter(Boolean),
+    },
+    'project.updated': {
+      title: 'Project updated',
+      summary: 'Updated project details.',
+      meta: [payload.projectId].filter(Boolean),
+    },
+    'project.deleted': {
+      title: 'Project deleted',
+      summary: 'Removed a project.',
+      meta: [payload.projectId].filter(Boolean),
+    },
+    'task.created': {
+      title: 'Task created',
+      summary: payload.title ? `Created task “${payload.title}”.` : 'Created a task.',
+      meta: [payload.projectId, payload.taskId].filter(Boolean),
+    },
+    'task.updated': {
+      title: 'Task updated',
+      summary: 'Updated a task.',
+      meta: [payload.projectId, payload.taskId].filter(Boolean),
+    },
+    'task.deleted': {
+      title: 'Task deleted',
+      summary: 'Removed a task.',
+      meta: [payload.projectId, payload.taskId].filter(Boolean),
+    },
+    'bulk.import': {
+      title: 'Bulk import',
+      summary: `Imported ${payload.projectCount ?? 0} projects.`,
+      meta: [],
+    },
+    'mcp.project-upsert': {
+      title: 'MCP project sync',
+      summary: `${capitalize(payload.action || 'updated')} project${payload.name ? ` “${payload.name}”` : ''}.`,
+      meta: [payload.projectId, 'source:mcp'].filter(Boolean),
+    },
+    'mcp.task-upsert': {
+      title: 'MCP task sync',
+      summary: `${capitalize(payload.action || 'updated')} task${payload.title ? ` “${payload.title}”` : ''}.`,
+      meta: [payload.projectId, payload.taskId, 'source:mcp'].filter(Boolean),
+    },
+    'mcp.project-update': {
+      title: 'MCP project update',
+      summary: payload.status ? `Updated project status to ${payload.status}.` : 'Applied project update from MCP.',
+      meta: [payload.projectId, 'source:mcp'].filter(Boolean),
+    },
+  };
+
+  if (kind.startsWith('mcp.event.')) {
+    const shortKind = kind.replace('mcp.event.', '');
+    return {
+      title: `MCP event: ${shortKind}`,
+      summary: payload.payload?.message || 'Recorded an MCP event.',
+      meta: [payload.source ? `source:${payload.source}` : null].filter(Boolean),
+    };
+  }
+
+  return mappings[kind] || {
+    title: kind,
+    summary: 'Recorded an event.',
+    meta: Object.keys(payload).slice(0, 3).map(key => `${key}:${stringifyMeta(payload[key])}`),
+  };
+}
+
+function stringifyMeta(value) {
+  if (value == null) return 'null';
+  if (typeof value === 'object') return 'object';
+  return String(value);
+}
+
+function capitalize(value) {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+}
+
+function formatRelativeTime(isoString) {
+  if (!isoString) return 'unknown time';
+  const then = new Date(isoString).getTime();
+  const now = Date.now();
+  const diffSeconds = Math.round((now - then) / 1000);
+  const abs = Math.abs(diffSeconds);
+  if (abs < 60) return `${abs}s ago`;
+  if (abs < 3600) return `${Math.round(abs / 60)}m ago`;
+  if (abs < 86400) return `${Math.round(abs / 3600)}h ago`;
+  return `${Math.round(abs / 86400)}d ago`;
 }
 
 function escapeHtml(value) {

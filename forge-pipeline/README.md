@@ -44,7 +44,7 @@ It combines:
 - edit project notes and descriptions inline
 - search across projects/tasks/tags
 - filter by task status
-- view recent audit/activity events in the sidebar
+- view recent audit/activity events in a human-friendly sidebar feed
 
 ### API
 - health endpoint

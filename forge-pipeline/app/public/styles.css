@@ -90,5 +90,7 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 .event-item { padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
 .event-kind { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); }
 .event-time { margin-top: 6px; color: var(--muted); font-size: 12px; }
-.event-payload { margin: 10px 0 0; white-space: pre-wrap; font-size: 12px; color: #d7dfff; }
+.event-summary { margin-top: 8px; color: #e7ecff; font-size: 13px; line-height: 1.45; }
+.event-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.event-chip { padding: 4px 8px; border-radius: 999px; font-size: 11px; background: rgba(124,156,255,0.12); color: #d7e2ff; border: 1px solid rgba(124,156,255,0.16); }
 .small-button { padding: 8px 10px; border-radius: 12px; font-size: 12px; }

@@ -32,6 +32,8 @@ Use the web UI to:
 - filter by task status
 - inspect recent API/MCP activity in the sidebar audit log
 
+The recent activity feed is now rendered in a human-friendly format rather than as raw event JSON.
+
 ## Automation workflow
 
 Use the API to:
