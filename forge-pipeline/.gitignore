@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+
+# Generated backup/export artifacts
+backups/*.json
+!backups/.gitkeep
+
+# Local runtime files
+api/storage/*.db-shm
+api/storage/*.db-wal
