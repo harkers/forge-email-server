@@ -158,3 +158,4 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - `docs/webhooks.md`
 
 - `docs/deploy.md`
+- `docs/image-publishing.md`

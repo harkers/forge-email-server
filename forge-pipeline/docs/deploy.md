@@ -64,3 +64,7 @@ Use the included examples as a starting point.
 - verify healthchecks pass
 - test backup rotation after deployment
 - confirm webhook/MCP integrations can reach the deployed API
+
+## Related docs
+
+- `docs/image-publishing.md`
