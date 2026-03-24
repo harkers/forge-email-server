@@ -1,4 +1,4 @@
-const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin.replace(':4173', ':4174')}/api`;
+const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 const POLL_MS = 30000;
 const VERSION = '1.0.0';

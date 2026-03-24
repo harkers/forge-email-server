@@ -18,9 +18,19 @@ docker-compose up -d --build
 
 ## Default Ports
 
-- **UI:** `http://localhost:4174` (changed from 4173 to avoid host nginx conflict)
+- **UI:** `http://localhost:4174` (4173 occupied by host nginx)
 - **API (direct):** `http://localhost:4181`
 - **API (via UI proxy):** `http://localhost:4174/api/health`
+
+### Port 4173 Conflict
+
+Host nginx occupies 4173 (system service). To reclaim it:
+```bash
+sudo systemctl stop nginx
+# Then edit docker-compose.yml to use 4173:80
+```
+
+Or configure host nginx to proxy_pass to this container.
 
 ### Option 3: Configure host nginx as reverse proxy
 Add upstream in host nginx config:

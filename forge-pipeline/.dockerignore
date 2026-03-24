@@ -1,4 +1,35 @@
+# Git
 .git
-node_modules
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Python
 __pycache__
 *.pyc
+*.pyo
+
+# Node
+node_modules
+
+# API storage
+api/storage/*.db
+api/storage/*.json
+
+# Redis data (runtime, don't commit or include in builds)
+redis-data/
+*.rdb
+*.aof
+
+# Backups
+backups/
+
+# Logs
+*.log
+
+# Environment
+.env

@@ -10,3 +10,4 @@ backups/*.json
 # Local runtime files
 api/storage/*.db-shm
 api/storage/*.db-wal
+redis-data/

@@ -1,9 +1,16 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.0.1** — 2026-03-24
+**v1.0.3** — 2026-03-24
 
 ## Changelog
+
+### v1.0.3 (2026-03-24)
+- Redis cache layer deployed
+  - Summary endpoint cached (60s TTL)
+  - Cache invalidation on all write operations
+  - Redis health status in /api/health
+  - Dedicated redis:7-alpine service with AOF persistence
 
 ### v1.0.1 (2026-03-24)
 - Port conflict resolved
