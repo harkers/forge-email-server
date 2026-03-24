@@ -1,6 +1,7 @@
 const API = 'http://localhost:8000';
 let playlist = [];
 let index = 0;
+let timer = null;
 
 async function fetchPlaylist() {
   const res = await fetch(`${API}/api/screens/default/playlist`);
@@ -10,7 +11,11 @@ async function fetchPlaylist() {
 }
 
 function renderCurrent() {
-  if (!playlist.length) return;
+  if (!playlist.length) {
+    document.getElementById('title').textContent = 'No active campaigns';
+    document.getElementById('body').textContent = 'The fallback playlist is empty.';
+    return;
+  }
   const item = playlist[index % playlist.length];
   const screen = document.getElementById('screen');
   screen.classList.remove('loading');
@@ -22,13 +27,19 @@ function renderCurrent() {
 
   const duration = Math.max(3, Number(item.durationSeconds || 10)) * 1000;
   index += 1;
-  setTimeout(renderCurrent, duration);
+  clearTimeout(timer);
+  timer = setTimeout(renderCurrent, duration);
+}
+
+async function refreshPlaylist() {
+  await fetchPlaylist();
+  if (index >= playlist.length) index = 0;
 }
 
 async function boot() {
-  await fetchPlaylist();
+  await refreshPlaylist();
   renderCurrent();
-  setInterval(fetchPlaylist, 60000);
+  setInterval(refreshPlaylist, 30000);
 }
 
 boot().catch(err => {

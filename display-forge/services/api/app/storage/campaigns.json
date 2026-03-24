@@ -1,0 +1,58 @@
+{
+  "screenId": "default",
+  "campaigns": [
+    {
+      "id": "camp-001",
+      "title": "Spring Promotion",
+      "status": "active",
+      "priority": 90,
+      "durationSeconds": 12,
+      "template": "full-screen-image",
+      "body": "Fresh seasonal offer now running.",
+      "media": {
+        "type": "image",
+        "url": "https://picsum.photos/1600/900?random=11"
+      }
+    },
+    {
+      "id": "camp-002",
+      "title": "Community Events",
+      "status": "active",
+      "priority": 70,
+      "durationSeconds": 10,
+      "template": "rss-card",
+      "body": "Upcoming local events and venue notices.",
+      "media": {
+        "type": "image",
+        "url": "https://picsum.photos/1600/900?random=15"
+      }
+    },
+    {
+      "id": "camp-003",
+      "title": "Brand Fallback",
+      "status": "active",
+      "priority": 20,
+      "durationSeconds": 8,
+      "template": "announcement",
+      "body": "Display Forge keeps the screen alive even when everything else gets weird.",
+      "media": {
+        "type": "image",
+        "url": "https://picsum.photos/1600/900?random=19"
+      }
+    },
+    {
+      "id": "camp-004",
+      "title": "Test Campaign",
+      "status": "active",
+      "priority": 55,
+      "durationSeconds": 9,
+      "template": "announcement",
+      "body": "hello world",
+      "media": {
+        "type": "image",
+        "url": "https://picsum.photos/1600/900?random=41"
+      }
+    }
+  ],
+  "generatedAt": "2026-03-24T08:29:10+00:00"
+}

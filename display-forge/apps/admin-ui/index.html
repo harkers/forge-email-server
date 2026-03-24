@@ -11,18 +11,49 @@
     <header>
       <p class="eyebrow">DISPLAY FORGE / ADMIN</p>
       <h1>Control Surface</h1>
-      <p class="lede">MVP dashboard stub with live summary and active playlist preview.</p>
+      <p class="lede">MVP dashboard with live summary, campaign creation, and playlist preview.</p>
     </header>
 
     <section class="grid two-up">
       <article class="panel">
-        <h2>System Summary</h2>
-        <div id="summary" class="stats"></div>
+        <h2>Create Campaign</h2>
+        <form id="campaignForm" class="form">
+          <label>Title<input name="title" required placeholder="Spring campaign" /></label>
+          <label>Body<textarea name="body" rows="4" placeholder="Short on-screen message"></textarea></label>
+          <div class="row">
+            <label>Status
+              <select name="status">
+                <option value="draft">draft</option>
+                <option value="active" selected>active</option>
+              </select>
+            </label>
+            <label>Template
+              <select name="template">
+                <option value="announcement">announcement</option>
+                <option value="full-screen-image">full-screen-image</option>
+                <option value="rss-card">rss-card</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <label>Priority<input type="number" name="priority" value="50" min="0" max="100" /></label>
+            <label>Duration (s)<input type="number" name="durationSeconds" value="10" min="3" max="120" /></label>
+          </div>
+          <label>Image URL<input name="mediaUrl" placeholder="https://…" /></label>
+          <button type="submit">Create campaign</button>
+        </form>
       </article>
       <article class="panel">
-        <h2>Service Health</h2>
+        <h2>System Summary</h2>
+        <div id="summary" class="stats"></div>
+        <h3>Service Health</h3>
         <pre id="health">Loading…</pre>
       </article>
+    </section>
+
+    <section class="panel">
+      <h2>Campaign Library</h2>
+      <div id="campaignLibrary" class="playlist"></div>
     </section>
 
     <section class="panel">

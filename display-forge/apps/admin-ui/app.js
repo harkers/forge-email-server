@@ -1,8 +1,12 @@
 const API = 'http://localhost:8000';
 
-async function fetchJson(path) {
-  const res = await fetch(`${API}${path}`);
+async function fetchJson(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (res.status === 204) return null;
   return res.json();
 }
 
@@ -19,14 +23,15 @@ function renderSummary(summary) {
   `).join('');
 }
 
-function renderPlaylist(data) {
-  const el = document.getElementById('playlist');
-  el.innerHTML = (data.campaigns || []).map(item => `
+function renderCards(targetId, campaigns) {
+  const el = document.getElementById(targetId);
+  el.innerHTML = campaigns.map(item => `
     <article class="campaign">
       <img src="${item.media?.url || ''}" alt="" />
       <div class="copy">
         <h3>${item.title}</h3>
         <p>${item.body || ''}</p>
+        <span class="tag">${item.status}</span>
         <span class="tag">${item.template}</span>
         <span class="tag">${item.durationSeconds}s</span>
         <span class="tag">priority ${item.priority}</span>
@@ -35,17 +40,47 @@ function renderPlaylist(data) {
   `).join('');
 }
 
-async function boot() {
-  const [summary, health, playlist] = await Promise.all([
+async function refresh() {
+  const [summary, health, campaignData, playlist] = await Promise.all([
     fetchJson('/api/dashboard/summary'),
     fetchJson('/api/health'),
+    fetchJson('/api/campaigns'),
     fetchJson('/api/screens/default/playlist'),
   ]);
   renderSummary(summary);
   document.getElementById('health').textContent = JSON.stringify(health, null, 2);
-  renderPlaylist(playlist);
+  renderCards('campaignLibrary', campaignData.campaigns || []);
+  renderCards('playlist', playlist.campaigns || []);
 }
 
-boot().catch(err => {
+function bindForm() {
+  const form = document.getElementById('campaignForm');
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const fd = new FormData(form);
+    const mediaUrl = fd.get('mediaUrl') || 'https://picsum.photos/1600/900?random=31';
+    await fetchJson('/api/campaigns', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: fd.get('title'),
+        body: fd.get('body'),
+        status: fd.get('status'),
+        template: fd.get('template'),
+        priority: Number(fd.get('priority')),
+        durationSeconds: Number(fd.get('durationSeconds')),
+        media: { type: 'image', url: mediaUrl },
+      }),
+    });
+    form.reset();
+    form.querySelector('[name="status"]').value = 'active';
+    form.querySelector('[name="template"]').value = 'announcement';
+    form.querySelector('[name="priority"]').value = 50;
+    form.querySelector('[name="durationSeconds"]').value = 10;
+    refresh();
+  });
+}
+
+bindForm();
+refresh().catch(err => {
   document.body.innerHTML = `<pre style="padding:20px">Admin UI failed: ${err}</pre>`;
 });
