@@ -1,0 +1,44 @@
+{
+  "projects": [
+    {
+      "id": "privacy-dsar",
+      "name": "Privacy / DSAR",
+      "description": "Handle access requests and related compliance tasks.",
+      "notes": "Track deadlines carefully and maintain a full audit trail.",
+      "tasks": [
+        {
+          "id": "task-1",
+          "title": "Review intake template",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "2026-03-31",
+          "tags": ["privacy", "template"]
+        },
+        {
+          "id": "task-2",
+          "title": "Package DSAR skill",
+          "status": "done",
+          "priority": "medium",
+          "dueDate": null,
+          "tags": ["skill", "automation"]
+        }
+      ]
+    },
+    {
+      "id": "forge",
+      "name": "Forge Pipeline",
+      "description": "Build the project-oriented todo and notes dashboard.",
+      "notes": "Keep the UI elegant but practical.",
+      "tasks": [
+        {
+          "id": "task-3",
+          "title": "Design dashboard layout",
+          "status": "in-progress",
+          "priority": "high",
+          "dueDate": "2026-04-01",
+          "tags": ["ui", "design"]
+        }
+      ]
+    }
+  ]
+}

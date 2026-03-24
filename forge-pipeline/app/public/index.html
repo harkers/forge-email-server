@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forge Pipeline</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">PROJECT WORKSPACE</p>
+          <h1>Forge Pipeline</h1>
+          <p class="sub">Projects, actions, notes, and momentum in one clean view.</p>
+        </div>
+        <div class="hero-card">
+          <div class="metric"><span id="projectCount">0</span><label>Projects</label></div>
+          <div class="metric"><span id="taskCount">0</span><label>Tasks</label></div>
+          <div class="metric"><span id="openCount">0</span><label>Open</label></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="panel">
+          <h2>Projects</h2>
+          <div id="projectGrid" class="project-grid"></div>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

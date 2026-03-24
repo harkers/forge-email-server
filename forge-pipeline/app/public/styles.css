@@ -1,0 +1,58 @@
+:root {
+  --bg: #0b1020;
+  --panel: rgba(255,255,255,0.08);
+  --panel-strong: rgba(255,255,255,0.12);
+  --text: #eef2ff;
+  --muted: #a8b1d1;
+  --accent: #7c9cff;
+  --accent-2: #56e0c5;
+  --border: rgba(255,255,255,0.12);
+  --shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #1a2450 0%, #0b1020 50%, #070b16 100%);
+  color: var(--text);
+}
+.shell { max-width: 1200px; margin: 0 auto; padding: 32px; }
+.hero {
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: center; margin-bottom: 28px;
+}
+.eyebrow { color: var(--accent-2); letter-spacing: 0.16em; font-size: 12px; }
+h1 { font-size: 56px; margin: 8px 0 12px; }
+.sub { color: var(--muted); font-size: 18px; max-width: 650px; }
+.hero-card, .panel, .project-card, .task-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+  border-radius: 22px;
+}
+.hero-card {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px;
+}
+.metric { background: var(--panel-strong); border-radius: 18px; padding: 18px; text-align: center; }
+.metric span { display: block; font-size: 34px; font-weight: 700; }
+.metric label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.panel { padding: 22px; }
+.project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.project-card { padding: 20px; }
+.project-card h3 { margin-top: 0; margin-bottom: 8px; }
+.project-card p { color: var(--muted); }
+.notes { margin-top: 14px; padding: 14px; border-radius: 16px; background: rgba(124,156,255,0.08); }
+.task-list { margin-top: 16px; display: grid; gap: 10px; }
+.task-item { padding: 14px; border-radius: 16px; }
+.task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.badge {
+  display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px;
+  background: rgba(86,224,197,0.14); color: #b9fff1; border: 1px solid rgba(86,224,197,0.2);
+}
+.badge.priority-high { background: rgba(255,90,110,0.16); color: #ffd5db; }
+.badge.priority-medium { background: rgba(255,188,88,0.16); color: #ffe4b0; }
+.badge.priority-low { background: rgba(120,196,255,0.16); color: #d3edff; }
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+  h1 { font-size: 40px; }
+}
