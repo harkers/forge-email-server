@@ -64,6 +64,7 @@ It combines:
 - MCP-friendly project/task upsert endpoints
 - MCP event/update endpoints
 - lightweight event log endpoint
+- tighter request validation with clear error responses
 
 ### Storage
 - SQLite backend

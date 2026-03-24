@@ -16,6 +16,14 @@ LEGACY_JSON_FILE = STORAGE_DIR / "forge-pipeline.json"
 LEGACY_EVENTS_FILE = STORAGE_DIR / "events.json"
 API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 
+ALLOWED_PROJECT_STATUS = {'active', 'paused', 'blocked', 'done', 'archived'}
+ALLOWED_TASK_STATUS = {'todo', 'in-progress', 'blocked', 'done'}
+ALLOWED_PRIORITY = {'low', 'medium', 'high'}
+MAX_NAME = 200
+MAX_TEXT = 5000
+MAX_TAGS = 50
+MAX_TAG_LENGTH = 64
+
 DEFAULT_DATA = {
     "projects": [
         {
@@ -24,7 +32,7 @@ DEFAULT_DATA = {
             "description": "Handle access requests and related compliance tasks.",
             "notes": "Track deadlines carefully and maintain a full audit trail.",
             "status": "active",
-            "tags": ["privacy", "compliance"],
+            "tags": ["source:privacy-dsar", "privacy", "compliance"],
             "updatedAt": None,
             "tasks": [
                 {
@@ -33,7 +41,7 @@ DEFAULT_DATA = {
                     "status": "todo",
                     "priority": "high",
                     "dueDate": "2026-03-31",
-                    "tags": ["privacy", "template"],
+                    "tags": ["source:privacy-dsar", "privacy", "template"],
                     "notes": "Check wording and deadline language.",
                     "updatedAt": None,
                 }
@@ -45,7 +53,7 @@ DEFAULT_DATA = {
             "description": "Build the signage platform and playback stack.",
             "notes": "Focus on API, scheduling, playback resilience, and admin flow.",
             "status": "active",
-            "tags": ["signage", "platform"],
+            "tags": ["source:display-forge", "signage", "platform"],
             "updatedAt": None,
             "tasks": [
                 {
@@ -54,7 +62,7 @@ DEFAULT_DATA = {
                     "status": "in-progress",
                     "priority": "high",
                     "dueDate": "2026-03-28",
-                    "tags": ["api", "schedule"],
+                    "tags": ["source:display-forge", "api", "schedule"],
                     "notes": "Eligibility and expiry rules first.",
                     "updatedAt": None,
                 }
@@ -62,6 +70,13 @@ DEFAULT_DATA = {
         },
     ]
 }
+
+
+class ValidationError(Exception):
+    def __init__(self, message: str, field: str | None = None):
+        super().__init__(message)
+        self.message = message
+        self.field = field
 
 
 def now_iso() -> str:
@@ -116,6 +131,124 @@ def init_db() -> None:
     migrate_if_needed()
 
 
+def require_object(body):
+    if not isinstance(body, dict):
+        raise ValidationError('request body must be a JSON object')
+
+
+def clean_string(value, field, max_len=MAX_TEXT, allow_empty=True):
+    if value is None:
+        return '' if allow_empty else None
+    if not isinstance(value, str):
+        raise ValidationError('must be a string', field)
+    value = value.strip()
+    if not allow_empty and not value:
+        raise ValidationError('must not be empty', field)
+    if len(value) > max_len:
+        raise ValidationError(f'must be <= {max_len} chars', field)
+    return value
+
+
+def clean_tags(value, field='tags'):
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValidationError('must be a list of strings', field)
+    out = []
+    for item in value:
+        if not isinstance(item, str):
+            raise ValidationError('tags must be strings', field)
+        item = item.strip()
+        if not item:
+            continue
+        if len(item) > MAX_TAG_LENGTH:
+            raise ValidationError(f'tag too long (>{MAX_TAG_LENGTH})', field)
+        out.append(item)
+    if len(out) > MAX_TAGS:
+        raise ValidationError(f'too many tags (max {MAX_TAGS})', field)
+    return out
+
+
+def clean_project_status(value):
+    value = clean_string(value or 'active', 'status', max_len=32, allow_empty=False)
+    if value not in ALLOWED_PROJECT_STATUS:
+        raise ValidationError(f'invalid project status: {value}', 'status')
+    return value
+
+
+def clean_task_status(value):
+    value = clean_string(value or 'todo', 'status', max_len=32, allow_empty=False)
+    if value not in ALLOWED_TASK_STATUS:
+        raise ValidationError(f'invalid task status: {value}', 'status')
+    return value
+
+
+def clean_priority(value):
+    value = clean_string(value or 'medium', 'priority', max_len=32, allow_empty=False)
+    if value not in ALLOWED_PRIORITY:
+        raise ValidationError(f'invalid priority: {value}', 'priority')
+    return value
+
+
+def clean_due_date(value):
+    value = clean_string(value or '', 'dueDate', max_len=32, allow_empty=True)
+    if value and len(value) != 10:
+        raise ValidationError('dueDate must be YYYY-MM-DD', 'dueDate')
+    return value
+
+
+def validate_project_payload(body, partial=False):
+    require_object(body)
+    out = {}
+    if not partial or 'name' in body:
+        out['name'] = clean_string(body.get('name', ''), 'name', max_len=MAX_NAME, allow_empty=partial)
+        if not partial and not out['name']:
+            raise ValidationError('name is required', 'name')
+    if not partial or 'description' in body:
+        out['description'] = clean_string(body.get('description', ''), 'description')
+    if not partial or 'notes' in body:
+        out['notes'] = clean_string(body.get('notes', ''), 'notes')
+    if not partial or 'status' in body:
+        out['status'] = clean_project_status(body.get('status', 'active'))
+    if not partial or 'tags' in body:
+        out['tags'] = clean_tags(body.get('tags', []))
+    if 'id' in body and body['id'] is not None:
+        out['id'] = clean_string(body['id'], 'id', max_len=MAX_NAME, allow_empty=False)
+    return out
+
+
+def validate_task_payload(body, partial=False):
+    require_object(body)
+    out = {}
+    if not partial or 'title' in body:
+        out['title'] = clean_string(body.get('title', ''), 'title', max_len=MAX_NAME, allow_empty=partial)
+        if not partial and not out['title']:
+            raise ValidationError('title is required', 'title')
+    if not partial or 'status' in body:
+        out['status'] = clean_task_status(body.get('status', 'todo'))
+    if not partial or 'priority' in body:
+        out['priority'] = clean_priority(body.get('priority', 'medium'))
+    if not partial or 'dueDate' in body:
+        out['dueDate'] = clean_due_date(body.get('dueDate', ''))
+    if not partial or 'tags' in body:
+        out['tags'] = clean_tags(body.get('tags', []))
+    if not partial or 'notes' in body:
+        out['notes'] = clean_string(body.get('notes', ''), 'notes')
+    if 'id' in body and body['id'] is not None:
+        out['id'] = clean_string(body['id'], 'id', max_len=MAX_NAME, allow_empty=False)
+    return out
+
+
+def validate_event_payload(body):
+    require_object(body)
+    source = clean_string(body.get('source', 'unknown'), 'source', max_len=MAX_NAME, allow_empty=False)
+    kind = clean_string(body.get('kind', 'generic'), 'kind', max_len=MAX_NAME, allow_empty=False)
+    payload = body.get('payload', {})
+    if not isinstance(payload, dict):
+        raise ValidationError('payload must be an object', 'payload')
+    return {'source': source, 'kind': kind, 'payload': payload}
+
+
 def project_count(conn: sqlite3.Connection) -> int:
     return conn.execute('SELECT COUNT(*) FROM projects').fetchone()[0]
 
@@ -146,32 +279,17 @@ def migrate_if_needed() -> None:
 def import_projects(conn: sqlite3.Connection, projects: list[dict]) -> None:
     stamp = now_iso()
     for project in projects:
+        project = validate_project_payload(project, partial=True) | {'name': project.get('name', 'Untitled project')}
+        pid = project.get('id') or slugify(project.get('name', 'project'))
         conn.execute(
             'INSERT OR REPLACE INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (
-                project.get('id') or slugify(project.get('name', 'project')),
-                project.get('name', 'Untitled project'),
-                project.get('description', ''),
-                project.get('notes', ''),
-                project.get('status', 'active'),
-                json.dumps(project.get('tags', [])),
-                project.get('updatedAt') or stamp,
-            ),
+            (pid, project.get('name', 'Untitled project'), project.get('description', ''), project.get('notes', ''), project.get('status', 'active'), json.dumps(project.get('tags', [])), stamp),
         )
-        for task in project.get('tasks', []):
+        for task_raw in next((p.get('tasks', []) for p in projects if p.get('id', pid) == project.get('id', pid) or p.get('name') == project.get('name')), []):
+            task = validate_task_payload(task_raw, partial=True) | {'title': task_raw.get('title', 'Untitled task')}
             conn.execute(
                 'INSERT OR REPLACE INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                (
-                    task.get('id') or new_id('task'),
-                    project.get('id') or slugify(project.get('name', 'project')),
-                    task.get('title', 'Untitled task'),
-                    task.get('status', 'todo'),
-                    task.get('priority', 'medium'),
-                    task.get('dueDate', ''),
-                    json.dumps(task.get('tags', [])),
-                    task.get('notes', ''),
-                    task.get('updatedAt') or stamp,
-                ),
+                (task.get('id') or new_id('task'), pid, task.get('title', 'Untitled task'), task.get('status', 'todo'), task.get('priority', 'medium'), task.get('dueDate', ''), json.dumps(task.get('tags', [])), task.get('notes', ''), stamp),
             )
 
 
@@ -303,18 +421,15 @@ def task_matches(task: dict, query: str | None, status: str | None) -> bool:
 
 
 def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
-    project_id = body.get('id')
-    name = body.get('name')
+    clean = validate_project_payload(body, partial=True)
+    project_id = clean.get('id')
+    name = clean.get('name')
     project = get_project(conn, project_id) if project_id else None
     if not project and name:
         project = get_project_by_name(conn, name)
 
     if project:
-        merged = {
-            **project,
-            **{k: v for k, v in body.items() if k != 'tasks'},
-            'updatedAt': now_iso(),
-        }
+        merged = {**project, **clean, 'updatedAt': now_iso()}
         conn.execute(
             'UPDATE projects SET name = ?, description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
             (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'active'), json.dumps(merged.get('tags', [])), merged['updatedAt'], merged['id']),
@@ -324,24 +439,21 @@ def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
     pid = project_id or slugify(name or 'project')
     conn.execute(
         'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        (pid, name or 'Untitled project', body.get('description', ''), body.get('notes', ''), body.get('status', 'active'), json.dumps(body.get('tags', [])), now_iso()),
+        (pid, name or 'Untitled project', clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'active'), json.dumps(clean.get('tags', [])), now_iso()),
     )
     return get_project(conn, pid), 'created'
 
 
 def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[dict, str]:
-    task_id = body.get('id')
-    title = body.get('title')
+    clean = validate_task_payload(body, partial=True)
+    task_id = clean.get('id')
+    title = clean.get('title')
     task = get_task(conn, project_id, task_id) if task_id else None
     if not task and title:
         task = get_task_by_title(conn, project_id, title)
 
     if task:
-        merged = {
-            **task,
-            **body,
-            'updatedAt': now_iso(),
-        }
+        merged = {**task, **clean, 'updatedAt': now_iso()}
         conn.execute(
             'UPDATE tasks SET title = ?, status = ?, priority = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
             (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), merged['updatedAt'], merged['id'], project_id),
@@ -352,7 +464,7 @@ def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[
     tid = task_id or new_id('task')
     conn.execute(
         'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (tid, project_id, title or 'Untitled task', body.get('status', 'todo'), body.get('priority', 'medium'), body.get('dueDate', ''), json.dumps(body.get('tags', [])), body.get('notes', ''), now_iso()),
+        (tid, project_id, title or 'Untitled task', clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
     )
     conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
     return get_task(conn, project_id, tid), 'created'
@@ -370,11 +482,17 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def send_validation_error(self, err: ValidationError):
+        self.send_json(400, {'error': 'validation_error', 'message': err.message, 'field': err.field})
+
     def read_json(self):
         length = int(self.headers.get('Content-Length', '0'))
         if length <= 0:
             return {}
-        return json.loads(self.rfile.read(length).decode('utf-8'))
+        try:
+            return json.loads(self.rfile.read(length).decode('utf-8'))
+        except json.JSONDecodeError:
+            raise ValidationError('invalid JSON body')
 
     def api_key_ok(self) -> bool:
         if not API_KEY:
@@ -480,118 +598,127 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.require_api_key():
             return
-        parsed = urlparse(self.path)
-        body = self.read_json()
-        conn = db()
+        try:
+            parsed = urlparse(self.path)
+            body = self.read_json()
+            conn = db()
 
-        if parsed.path == '/api/projects':
-            pid = body.get('id') or new_id('project')
-            conn.execute(
-                'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                (pid, body.get('name', 'Untitled project'), body.get('description', ''), body.get('notes', ''), body.get('status', 'active'), json.dumps(body.get('tags', [])), now_iso()),
-            )
-            conn.commit()
-            project = get_project(conn, pid)
-            conn.close()
-            record_event('project.created', {'projectId': pid, 'name': project['name']})
-            self.send_json(201, project)
-            return
-
-        if parsed.path.startswith('/api/projects/') and parsed.path.endswith('/tasks'):
-            project_id = parsed.path.split('/')[3]
-            project = get_project(conn, project_id)
-            if not project:
+            if parsed.path == '/api/projects':
+                clean = validate_project_payload(body, partial=False)
+                pid = clean.get('id') or new_id('project')
+                conn.execute(
+                    'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    (pid, clean['name'], clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'active'), json.dumps(clean.get('tags', [])), now_iso()),
+                )
+                conn.commit()
+                project = get_project(conn, pid)
                 conn.close()
-                self.send_json(404, {'error': 'project_not_found', 'id': project_id})
+                record_event('project.created', {'projectId': pid, 'name': project['name']})
+                self.send_json(201, project)
                 return
-            tid = body.get('id') or new_id('task')
-            conn.execute(
-                'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                (tid, project_id, body.get('title', 'New task'), body.get('status', 'todo'), body.get('priority', 'medium'), body.get('dueDate', ''), json.dumps(body.get('tags', [])), body.get('notes', ''), now_iso()),
-            )
-            conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
-            conn.commit()
-            task = get_task(conn, project_id, tid)
-            conn.close()
-            record_event('task.created', {'projectId': project_id, 'taskId': tid, 'title': task['title']})
-            self.send_json(201, task)
-            return
 
-        if parsed.path == '/api/bulk/import':
-            projects = body.get('projects', [])
-            if not isinstance(projects, list):
+            if parsed.path.startswith('/api/projects/') and parsed.path.endswith('/tasks'):
+                project_id = parsed.path.split('/')[3]
+                project = get_project(conn, project_id)
+                if not project:
+                    conn.close()
+                    self.send_json(404, {'error': 'project_not_found', 'id': project_id})
+                    return
+                clean = validate_task_payload(body, partial=False)
+                tid = clean.get('id') or new_id('task')
+                conn.execute(
+                    'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    (tid, project_id, clean['title'], clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
+                )
+                conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
+                conn.commit()
+                task = get_task(conn, project_id, tid)
                 conn.close()
-                self.send_json(400, {'error': 'projects_must_be_list'})
+                record_event('task.created', {'projectId': project_id, 'taskId': tid, 'title': task['title']})
+                self.send_json(201, task)
                 return
-            conn.execute('DELETE FROM tasks')
-            conn.execute('DELETE FROM projects')
-            import_projects(conn, projects)
-            conn.commit()
-            conn.close()
-            record_event('bulk.import', {'projectCount': len(projects)})
-            self.send_json(200, {'ok': True, 'projectCount': len(projects)})
-            return
 
-        if parsed.path == '/api/mcp/project-upsert':
-            project, action = upsert_project(conn, body)
-            conn.commit()
-            conn.close()
-            record_event('mcp.project-upsert', {'action': action, 'projectId': project['id'], 'name': project['name']})
-            self.send_json(200, {'ok': True, 'action': action, 'project': project})
-            return
-
-        if parsed.path == '/api/mcp/task-upsert':
-            project_id = body.get('projectId')
-            project_name = body.get('projectName')
-            project = get_project(conn, project_id) if project_id else None
-            if not project and project_name:
-                project = get_project_by_name(conn, project_name)
-            if not project:
+            if parsed.path == '/api/bulk/import':
+                require_object(body)
+                projects = body.get('projects', [])
+                if not isinstance(projects, list):
+                    conn.close()
+                    raise ValidationError('projects must be a list', 'projects')
+                conn.execute('DELETE FROM tasks')
+                conn.execute('DELETE FROM projects')
+                import_projects(conn, projects)
+                conn.commit()
                 conn.close()
-                self.send_json(404, {'error': 'project_not_found', 'projectId': project_id, 'projectName': project_name})
+                record_event('bulk.import', {'projectCount': len(projects)})
+                self.send_json(200, {'ok': True, 'projectCount': len(projects)})
                 return
-            task, action = upsert_task(conn, project['id'], body)
-            conn.commit()
-            conn.close()
-            record_event('mcp.task-upsert', {'action': action, 'projectId': project['id'], 'taskId': task['id'], 'title': task['title']})
-            self.send_json(200, {'ok': True, 'action': action, 'projectId': project['id'], 'task': task})
-            return
 
-        if parsed.path == '/api/mcp/project-update':
-            project_id = body.get('projectId')
-            project = get_project(conn, project_id) if project_id else None
-            if not project:
+            if parsed.path == '/api/mcp/project-upsert':
+                project, action = upsert_project(conn, body)
+                conn.commit()
                 conn.close()
-                self.send_json(404, {'error': 'project_not_found', 'projectId': project_id})
+                record_event('mcp.project-upsert', {'action': action, 'projectId': project['id'], 'name': project['name']})
+                self.send_json(200, {'ok': True, 'action': action, 'project': project})
                 return
-            description = body.get('summary', project.get('description', ''))
-            notes = project.get('notes', '')
-            if body.get('note'):
-                notes = (notes + '\n\n' + body['note']).strip()
-            status_value = body.get('status', project.get('status', 'active'))
-            tags = sorted(set(project.get('tags', [])) | set(body.get('tags', []))) if isinstance(body.get('tags'), list) else project.get('tags', [])
-            conn.execute(
-                'UPDATE projects SET description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
-                (description, notes, status_value, json.dumps(tags), now_iso(), project_id),
-            )
-            conn.commit()
-            updated = get_project(conn, project_id)
-            conn.close()
-            record_event('mcp.project-update', {'projectId': project_id, 'status': updated.get('status')})
-            self.send_json(200, {'ok': True, 'project': updated})
-            return
 
-        if parsed.path == '/api/mcp/event':
-            conn.close()
-            source = body.get('source', 'unknown')
-            kind = body.get('kind', 'generic')
-            payload = body.get('payload', {})
-            entry = record_event(f'mcp.event.{kind}', {'source': source, 'payload': payload})
-            self.send_json(201, {'ok': True, 'event': entry})
-            return
+            if parsed.path == '/api/mcp/task-upsert':
+                require_object(body)
+                project_id = clean_string(body.get('projectId') or '', 'projectId', max_len=MAX_NAME, allow_empty=True)
+                project_name = clean_string(body.get('projectName') or '', 'projectName', max_len=MAX_NAME, allow_empty=True)
+                project = get_project(conn, project_id) if project_id else None
+                if not project and project_name:
+                    project = get_project_by_name(conn, project_name)
+                if not project:
+                    conn.close()
+                    self.send_json(404, {'error': 'project_not_found', 'projectId': project_id or None, 'projectName': project_name or None})
+                    return
+                task, action = upsert_task(conn, project['id'], body)
+                conn.commit()
+                conn.close()
+                record_event('mcp.task-upsert', {'action': action, 'projectId': project['id'], 'taskId': task['id'], 'title': task['title']})
+                self.send_json(200, {'ok': True, 'action': action, 'projectId': project['id'], 'task': task})
+                return
 
-        conn.close()
-        self.send_json(404, {'error': 'not_found', 'path': parsed.path})
+            if parsed.path == '/api/mcp/project-update':
+                require_object(body)
+                project_id = clean_string(body.get('projectId') or '', 'projectId', max_len=MAX_NAME, allow_empty=False)
+                project = get_project(conn, project_id)
+                if not project:
+                    conn.close()
+                    self.send_json(404, {'error': 'project_not_found', 'projectId': project_id})
+                    return
+                description = clean_string(body.get('summary', project.get('description', '')), 'summary')
+                notes = project.get('notes', '')
+                if body.get('note'):
+                    notes = (notes + '\n\n' + clean_string(body['note'], 'note')).strip()
+                status_value = clean_project_status(body.get('status', project.get('status', 'active'))) if 'status' in body else project.get('status', 'active')
+                tags = sorted(set(project.get('tags', [])) | set(clean_tags(body.get('tags', [])))) if 'tags' in body else project.get('tags', [])
+                conn.execute(
+                    'UPDATE projects SET description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
+                    (description, notes, status_value, json.dumps(tags), now_iso(), project_id),
+                )
+                conn.commit()
+                updated = get_project(conn, project_id)
+                conn.close()
+                record_event('mcp.project-update', {'projectId': project_id, 'status': updated.get('status')})
+                self.send_json(200, {'ok': True, 'project': updated})
+                return
+
+            if parsed.path == '/api/mcp/event':
+                clean = validate_event_payload(body)
+                conn.close()
+                entry = record_event(f'mcp.event.{clean["kind"]}', {'source': clean['source'], 'payload': clean['payload']})
+                self.send_json(201, {'ok': True, 'event': entry})
+                return
+
+            conn.close()
+            self.send_json(404, {'error': 'not_found', 'path': parsed.path})
+        except ValidationError as err:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self.send_validation_error(err)
 
     def do_PUT(self):
         if not self.require_api_key():
@@ -604,68 +731,76 @@ class Handler(BaseHTTPRequestHandler):
         self.handle_update(replace=False)
 
     def handle_update(self, replace: bool):
-        parsed = urlparse(self.path)
-        body = self.read_json()
-        conn = db()
+        conn = None
+        try:
+            parsed = urlparse(self.path)
+            body = self.read_json()
+            conn = db()
 
-        if parsed.path.startswith('/api/projects/') and '/tasks/' not in parsed.path and parsed.path.count('/') == 3:
-            project_id = parsed.path.split('/')[3]
-            project = get_project(conn, project_id)
-            if not project:
+            if parsed.path.startswith('/api/projects/') and '/tasks/' not in parsed.path and parsed.path.count('/') == 3:
+                project_id = parsed.path.split('/')[3]
+                project = get_project(conn, project_id)
+                if not project:
+                    conn.close()
+                    self.send_json(404, {'error': 'project_not_found', 'id': project_id})
+                    return
+                clean = validate_project_payload(body, partial=not replace)
+                merged = ({
+                    'id': project_id,
+                    'name': clean.get('name', 'Untitled project'),
+                    'description': clean.get('description', ''),
+                    'notes': clean.get('notes', ''),
+                    'status': clean.get('status', 'active'),
+                    'tags': clean.get('tags', []),
+                } if replace else {**project, **clean})
+                conn.execute(
+                    'UPDATE projects SET name = ?, description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
+                    (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'active'), json.dumps(merged.get('tags', [])), now_iso(), project_id),
+                )
+                conn.commit()
+                updated = get_project(conn, project_id)
                 conn.close()
-                self.send_json(404, {'error': 'project_not_found', 'id': project_id})
+                record_event('project.updated', {'projectId': project_id})
+                self.send_json(200, updated)
                 return
-            merged = ({
-                'id': project_id,
-                'name': body.get('name', 'Untitled project'),
-                'description': body.get('description', ''),
-                'notes': body.get('notes', ''),
-                'status': body.get('status', 'active'),
-                'tags': body.get('tags', []),
-            } if replace else {**project, **body})
-            conn.execute(
-                'UPDATE projects SET name = ?, description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
-                (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'active'), json.dumps(merged.get('tags', [])), now_iso(), project_id),
-            )
-            conn.commit()
-            updated = get_project(conn, project_id)
-            conn.close()
-            record_event('project.updated', {'projectId': project_id})
-            self.send_json(200, updated)
-            return
 
-        if '/tasks/' in parsed.path:
-            parts = parsed.path.split('/')
-            project_id = parts[3]
-            task_id = parts[5]
-            task = get_task(conn, project_id, task_id)
-            if not task:
+            if '/tasks/' in parsed.path:
+                parts = parsed.path.split('/')
+                project_id = parts[3]
+                task_id = parts[5]
+                task = get_task(conn, project_id, task_id)
+                if not task:
+                    conn.close()
+                    self.send_json(404, {'error': 'task_not_found', 'id': task_id})
+                    return
+                clean = validate_task_payload(body, partial=not replace)
+                merged = ({
+                    'id': task_id,
+                    'title': clean.get('title', 'Untitled task'),
+                    'status': clean.get('status', 'todo'),
+                    'priority': clean.get('priority', 'medium'),
+                    'dueDate': clean.get('dueDate', ''),
+                    'tags': clean.get('tags', []),
+                    'notes': clean.get('notes', ''),
+                } if replace else {**task, **clean})
+                conn.execute(
+                    'UPDATE tasks SET title = ?, status = ?, priority = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
+                    (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), now_iso(), task_id, project_id),
+                )
+                conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
+                conn.commit()
+                updated = get_task(conn, project_id, task_id)
                 conn.close()
-                self.send_json(404, {'error': 'task_not_found', 'id': task_id})
+                record_event('task.updated', {'projectId': project_id, 'taskId': task_id})
+                self.send_json(200, updated)
                 return
-            merged = ({
-                'id': task_id,
-                'title': body.get('title', 'Untitled task'),
-                'status': body.get('status', 'todo'),
-                'priority': body.get('priority', 'medium'),
-                'dueDate': body.get('dueDate', ''),
-                'tags': body.get('tags', []),
-                'notes': body.get('notes', ''),
-            } if replace else {**task, **body})
-            conn.execute(
-                'UPDATE tasks SET title = ?, status = ?, priority = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
-                (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), now_iso(), task_id, project_id),
-            )
-            conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
-            conn.commit()
-            updated = get_task(conn, project_id, task_id)
-            conn.close()
-            record_event('task.updated', {'projectId': project_id, 'taskId': task_id})
-            self.send_json(200, updated)
-            return
 
-        conn.close()
-        self.send_json(404, {'error': 'not_found', 'path': parsed.path})
+            conn.close()
+            self.send_json(404, {'error': 'not_found', 'path': parsed.path})
+        except ValidationError as err:
+            if conn:
+                conn.close()
+            self.send_validation_error(err)
 
     def do_DELETE(self):
         if not self.require_api_key():

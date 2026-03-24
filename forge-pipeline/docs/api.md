@@ -22,6 +22,39 @@ Behaviour:
 - `POST`, `PUT`, `PATCH`, and `DELETE` require a valid API key **if** `FORGE_PIPELINE_API_KEY` is set
 - if no key is configured, the API behaves as open/writeable as before
 
+## Validation rules
+
+The API now performs tighter request validation.
+
+### Project payloads
+- `name`: required on create, string, max 200 chars
+- `description`: string, max 5000 chars
+- `notes`: string, max 5000 chars
+- `status`: one of `active`, `paused`, `blocked`, `done`, `archived`
+- `tags`: list of strings, max 50 items, max 64 chars each
+
+### Task payloads
+- `title`: required on create, string, max 200 chars
+- `status`: one of `todo`, `in-progress`, `blocked`, `done`
+- `priority`: one of `low`, `medium`, `high`
+- `dueDate`: blank or `YYYY-MM-DD`
+- `tags`: list of strings, max 50 items, max 64 chars each
+- `notes`: string, max 5000 chars
+
+### Validation errors
+
+Invalid writes now return:
+
+```json
+{
+  "error": "validation_error",
+  "message": "...",
+  "field": "..."
+}
+```
+
+with HTTP status `400`.
+
 ## Core endpoints
 
 ### Health
@@ -52,97 +85,19 @@ Behaviour:
 ### Events
 - `GET /api/events?limit=50`
 
-Returns the latest recorded API/MCP activity entries.
+### Export
+- `GET /api/export`
 
 ## MCP-friendly event/update endpoints
-
-These are intended to reduce friction for automation workflows.
 
 ### Project upsert
 - `POST /api/mcp/project-upsert`
 
-Purpose:
-- create a project if it does not exist
-- update it if it already exists by `id` or `name`
-
-Example:
-
-```bash
-curl -X POST http://localhost:4181/api/mcp/project-upsert \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me' \
-  -d '{
-    "name": "MCP Pipeline",
-    "description": "Shared automation control plane",
-    "notes": "Feeds status into Forge Pipeline.",
-    "status": "active",
-    "tags": ["mcp", "automation"]
-  }'
-```
-
 ### Task upsert
 - `POST /api/mcp/task-upsert`
-
-Purpose:
-- create/update a task under a project using `projectId` or `projectName`
-- match existing task by `id` or `title`
-
-Example:
-
-```bash
-curl -X POST http://localhost:4181/api/mcp/task-upsert \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: change-me' \
-  -d '{
-    "projectName": "MCP Pipeline",
-    "title": "Define sync contract",
-    "status": "in-progress",
-    "priority": "high",
-    "tags": ["mcp", "api"],
-    "notes": "Need stable write/update semantics."
-  }'
-```
 
 ### Project update event
 - `POST /api/mcp/project-update`
 
-Purpose:
-- append/update project-level state without replacing the whole object
-- useful for status snapshots from another system
-
-Supported fields:
-- `projectId`
-- `summary`
-- `note`
-- `status`
-- `tags[]`
-
 ### Generic MCP event
 - `POST /api/mcp/event`
-
-Purpose:
-- record a general event even when it is not directly mapped to a project/task mutation
-
-Body example:
-
-```json
-{
-  "source": "display-forge",
-  "kind": "sync",
-  "payload": {
-    "message": "nightly sync complete",
-    "itemsUpdated": 12
-  }
-}
-```
-
-## MCP / automation fit
-
-Good patterns for external tools:
-- create one project per tracked initiative
-- use `project-upsert` to avoid duplicate project creation
-- use `task-upsert` for milestone/task sync
-- use `project-update` for higher-level status snapshots
-- use `GET /api/summary` for dashboard rollups
-- use `GET /api/tasks?status=blocked` to identify blockers quickly
-- use `GET /api/events` to inspect recent automation activity
