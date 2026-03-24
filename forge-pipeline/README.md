@@ -63,6 +63,7 @@ It combines:
 - optional API-key-protected write access
 - MCP-friendly project/task upsert endpoints
 - MCP event/update endpoints
+- automatic source tagging in MCP flows
 - lightweight event log endpoint
 - tighter request validation with clear error responses
 

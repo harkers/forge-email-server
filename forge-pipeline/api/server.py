@@ -197,6 +197,28 @@ def clean_due_date(value):
     return value
 
 
+def ensure_source_tag(tags, source):
+    tags = list(tags or [])
+    source = (source or '').strip()
+    if not source:
+        return tags
+    tag = source if source.startswith('source:') else f'source:{source}'
+    if tag not in tags:
+        tags.append(tag)
+    return tags
+
+
+def derive_source(body: dict) -> str:
+    if isinstance(body.get('source'), str) and body.get('source').strip():
+        return body['source'].strip()
+    tags = body.get('tags', [])
+    if isinstance(tags, list):
+        for tag in tags:
+            if isinstance(tag, str) and tag.startswith('source:'):
+                return tag.removeprefix('source:')
+    return ''
+
+
 def validate_project_payload(body, partial=False):
     require_object(body)
     out = {}
@@ -422,6 +444,8 @@ def task_matches(task: dict, query: str | None, status: str | None) -> bool:
 
 def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
     clean = validate_project_payload(body, partial=True)
+    source = derive_source(body)
+    clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
     project_id = clean.get('id')
     name = clean.get('name')
     project = get_project(conn, project_id) if project_id else None
@@ -446,6 +470,8 @@ def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
 
 def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[dict, str]:
     clean = validate_task_payload(body, partial=True)
+    source = derive_source(body)
+    clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
     task_id = clean.get('id')
     title = clean.get('title')
     task = get_task(conn, project_id, task_id) if task_id else None
@@ -605,6 +631,8 @@ class Handler(BaseHTTPRequestHandler):
 
             if parsed.path == '/api/projects':
                 clean = validate_project_payload(body, partial=False)
+                source = derive_source(body)
+                clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
                 pid = clean.get('id') or new_id('project')
                 conn.execute(
                     'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -625,6 +653,8 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json(404, {'error': 'project_not_found', 'id': project_id})
                     return
                 clean = validate_task_payload(body, partial=False)
+                source = derive_source(body)
+                clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
                 tid = clean.get('id') or new_id('task')
                 conn.execute(
                     'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -692,7 +722,9 @@ class Handler(BaseHTTPRequestHandler):
                 if body.get('note'):
                     notes = (notes + '\n\n' + clean_string(body['note'], 'note')).strip()
                 status_value = clean_project_status(body.get('status', project.get('status', 'active'))) if 'status' in body else project.get('status', 'active')
+                source = derive_source(body)
                 tags = sorted(set(project.get('tags', [])) | set(clean_tags(body.get('tags', [])))) if 'tags' in body else project.get('tags', [])
+                tags = ensure_source_tag(tags, source)
                 conn.execute(
                     'UPDATE projects SET description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
                     (description, notes, status_value, json.dumps(tags), now_iso(), project_id),
@@ -745,6 +777,10 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json(404, {'error': 'project_not_found', 'id': project_id})
                     return
                 clean = validate_project_payload(body, partial=not replace)
+                source = derive_source(body)
+                if source:
+                    base_tags = clean.get('tags', project.get('tags', [])) if not replace else clean.get('tags', [])
+                    clean['tags'] = ensure_source_tag(base_tags, source)
                 merged = ({
                     'id': project_id,
                     'name': clean.get('name', 'Untitled project'),
@@ -774,6 +810,10 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json(404, {'error': 'task_not_found', 'id': task_id})
                     return
                 clean = validate_task_payload(body, partial=not replace)
+                source = derive_source(body)
+                if source:
+                    base_tags = clean.get('tags', task.get('tags', [])) if not replace else clean.get('tags', [])
+                    clean['tags'] = ensure_source_tag(base_tags, source)
                 merged = ({
                     'id': task_id,
                     'title': clean.get('title', 'Untitled task'),

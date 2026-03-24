@@ -11,6 +11,7 @@ Why:
 - less duplicate matching logic in external tools
 - easier idempotent-ish updates
 - better activity visibility via recorded events
+- automatic source tagging now works when `source` is provided
 
 ## Recommended endpoint usage
 
@@ -36,27 +37,52 @@ Use when:
 - there is no direct project/task mutation
 - you want visibility into pipeline activity
 
-## Source-aware tagging convention
+## Automatic source tagging
 
-Forge Pipeline now supports source-aware filtering in the UI.
+Forge Pipeline now auto-applies source tags in MCP flows.
 
-Recommended convention:
-- add source tags like `source:display-forge`
-- add source tags like `source:mcp-pipeline`
-- attach them to projects and/or tasks
+If you send:
 
-This lets the board filter by origin and makes the dashboard, task views, and event feed much more usable.
+```json
+{
+  "source": "display-forge"
+}
+```
+
+then the API will add:
+
+- `source:display-forge`
+
+onto project/task tags where relevant.
+
+That means you do not need to manually duplicate both:
+- `source`
+- and `tags: ["source:..."]`
+
+though you still can if you want.
 
 ## Suggested automation pattern
 
 For each external project or automation:
 
-1. call project upsert
-2. include a stable source tag such as `source:display-forge`
-3. call task upserts for major tasks/milestones
-4. include the same source tag on tasks where useful
-5. call project update when status or summary changes
-6. optionally emit generic events for major syncs or failures
+1. call project upsert with `source`
+2. call task upserts with the same `source`
+3. call project update when status or summary changes
+4. optionally emit generic events for major syncs or failures
+
+Example:
+
+```json
+{
+  "projectName": "Display Forge",
+  "title": "Stabilise playback route",
+  "status": "in-progress",
+  "priority": "high",
+  "source": "display-forge"
+}
+```
+
+This will automatically result in source-aware tagging for filtering in the UI.
 
 ## Event visibility
 

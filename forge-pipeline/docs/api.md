@@ -24,7 +24,7 @@ Behaviour:
 
 ## Validation rules
 
-The API now performs tighter request validation.
+The API performs tighter request validation.
 
 ### Project payloads
 - `name`: required on create, string, max 200 chars
@@ -43,7 +43,7 @@ The API now performs tighter request validation.
 
 ### Validation errors
 
-Invalid writes now return:
+Invalid writes return:
 
 ```json
 {
@@ -54,6 +54,18 @@ Invalid writes now return:
 ```
 
 with HTTP status `400`.
+
+## Source tagging
+
+MCP-oriented write flows now support a `source` field.
+
+When provided, the API automatically applies a matching source tag:
+- `source:your-source`
+
+This is especially useful for:
+- `POST /api/mcp/project-upsert`
+- `POST /api/mcp/task-upsert`
+- `POST /api/mcp/project-update`
 
 ## Core endpoints
 
