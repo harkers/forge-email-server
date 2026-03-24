@@ -36,7 +36,7 @@ Use the web UI to:
   - **Blocked** — currently stuck work
   - **Recently changed** — freshest task movement
 
-The recent activity feed is rendered in a human-friendly format rather than as raw event JSON.
+The UI now also polls the API automatically, so the board refreshes itself regularly and shows a small live refresh status indicator.
 
 ## Automation workflow
 
@@ -48,6 +48,7 @@ Use the API to:
 - query open or blocked work
 - generate rollups via summary endpoint
 - emit MCP update events
+- push webhook updates from external systems
 
 ## Suggested conventions
 

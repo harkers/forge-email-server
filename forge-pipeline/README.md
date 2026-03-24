@@ -47,6 +47,8 @@ It combines:
 - search across projects/tasks/tags
 - filter by task status
 - filter by source tag
+- auto-refresh/polling against the API
+- live refresh status indicator
 - view recent audit/activity events in a human-friendly sidebar feed
 - dashboard sections for:
   - next up

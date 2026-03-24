@@ -106,3 +106,5 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 .mini-title { font-weight: 700; }
 .mini-sub { margin-top: 4px; color: var(--muted); font-size: 13px; }
 .mini-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+.live-status { margin-top: 12px; color: var(--accent-2); font-size: 13px; }

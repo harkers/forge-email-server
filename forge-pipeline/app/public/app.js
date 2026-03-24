@@ -1,13 +1,17 @@
 const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
+const POLL_MS = 30000;
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all', source: 'all' };
 let recentEvents = [];
+let isRefreshing = false;
+let lastRefreshAt = null;
 
 async function boot() {
   bindUI();
   await refresh();
+  startPolling();
 }
 
 async function request(path, options = {}) {
@@ -27,21 +31,52 @@ async function request(path, options = {}) {
 }
 
 async function refresh() {
-  const [summary, projectData, eventData] = await Promise.all([
-    request('/summary'),
-    request('/projects'),
-    request('/events?limit=12'),
-  ]);
-  state.projects = projectData.projects || [];
-  recentEvents = eventData.events || [];
+  if (isRefreshing) return;
+  isRefreshing = true;
+  setLiveStatus('Refreshing…');
+  try {
+    const [summary, projectData, eventData] = await Promise.all([
+      request('/summary'),
+      request('/projects'),
+      request('/events?limit=12'),
+    ]);
+    state.projects = projectData.projects || [];
+    recentEvents = eventData.events || [];
 
-  document.getElementById('projectCount').textContent = summary.projectCount;
-  document.getElementById('taskCount').textContent = summary.taskCount;
-  document.getElementById('openCount').textContent = summary.openTaskCount;
-  document.getElementById('doneCount').textContent = summary.doneTaskCount;
+    document.getElementById('projectCount').textContent = summary.projectCount;
+    document.getElementById('taskCount').textContent = summary.taskCount;
+    document.getElementById('openCount').textContent = summary.openTaskCount;
+    document.getElementById('doneCount').textContent = summary.doneTaskCount;
 
-  populateSourceFilter();
-  render();
+    lastRefreshAt = new Date();
+    populateSourceFilter();
+    render();
+    setLiveStatus(`Live refresh on · updated ${formatClockTime(lastRefreshAt)}`);
+  } catch (err) {
+    setLiveStatus(`Refresh failed · ${err}`);
+    throw err;
+  } finally {
+    isRefreshing = false;
+  }
+}
+
+function startPolling() {
+  setInterval(async () => {
+    try {
+      await refresh();
+    } catch (_) {
+      // status already updated in refresh()
+    }
+  }, POLL_MS);
+}
+
+function setLiveStatus(text) {
+  const el = document.getElementById('liveStatus');
+  if (el) el.textContent = text;
+}
+
+function formatClockTime(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function bindUI() {
@@ -452,13 +487,23 @@ function formatEvent(event) {
       summary: payload.status ? `Updated project status to ${payload.status}.` : 'Applied project update from MCP.',
       meta: [payload.projectId, 'source:mcp'].filter(Boolean),
     },
+    'webhook.project-upsert': {
+      title: 'Webhook project sync',
+      summary: `${capitalize(payload.action || 'updated')} project${payload.name ? ` “${payload.name}”` : ''}.`,
+      meta: [payload.projectId, payload.source ? `source:${payload.source}` : null].filter(Boolean),
+    },
+    'webhook.task-upsert': {
+      title: 'Webhook task sync',
+      summary: `${capitalize(payload.action || 'updated')} task${payload.title ? ` “${payload.title}”` : ''}.`,
+      meta: [payload.projectId, payload.taskId, payload.source ? `source:${payload.source}` : null].filter(Boolean),
+    },
   };
 
-  if (kind.startsWith('mcp.event.')) {
-    const shortKind = kind.replace('mcp.event.', '');
+  if (kind.startsWith('mcp.event.') || kind.startsWith('webhook.event.')) {
+    const shortKind = kind.split('.').slice(2).join('.');
     return {
-      title: `MCP event: ${shortKind}`,
-      summary: payload.payload?.message || 'Recorded an MCP event.',
+      title: `Event: ${shortKind}`,
+      summary: payload.payload?.message || 'Recorded an external event.',
       meta: [payload.source ? `source:${payload.source}` : null].filter(Boolean),
     };
   }
