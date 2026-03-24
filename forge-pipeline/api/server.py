@@ -467,6 +467,13 @@ class Handler(BaseHTTPRequestHandler):
             conn.close()
             return
 
+        if parsed.path == '/api/export':
+            projects = list_projects(conn)
+            events = list_events(conn, 500)
+            self.send_json(200, {'exportedAt': now_iso(), 'projects': projects, 'events': events})
+            conn.close()
+            return
+
         conn.close()
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
 

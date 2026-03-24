@@ -30,8 +30,9 @@ It combines:
 
 - `app/` — browser UI
 - `api/` — HTTP API and SQLite-backed storage
+- `backups/` — exported snapshots
 - `deploy/` — deployment configs such as Nginx
-- `docs/` — overview, architecture, API, usage, integration, and Docker docs
+- `docs/` — overview, architecture, API, usage, integration, Docker, and backup docs
 - `notes/` — product notes, planning, and decisions
 - `scripts/` — helper scripts
 
@@ -57,6 +58,7 @@ It combines:
 - task CRUD
 - search/filter support
 - bulk import endpoint
+- export endpoint
 - optional API-key-protected write access
 - MCP-friendly project/task upsert endpoints
 - MCP event/update endpoints
@@ -65,6 +67,7 @@ It combines:
 ### Storage
 - SQLite backend
 - migration from legacy JSON files on startup
+- export/import tooling
 
 ### Deployment
 - Docker API image
@@ -104,6 +107,24 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - Web UI: `http://localhost:4173`
 - API: `http://localhost:4181`
 
+## Backup / Export / Import
+
+### Export snapshot file
+
+```bash
+./scripts/export_db.py
+```
+
+### Import snapshot file
+
+```bash
+./scripts/import_db.py backups/<snapshot>.json
+```
+
+### API export
+
+- `GET /api/export`
+
 ## Documentation
 
 - `docs/overview.md`
@@ -113,3 +134,4 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - `docs/mcp-integration.md`
 - `docs/data-model.md`
 - `docs/docker.md`
+- `docs/backup-and-restore.md`
