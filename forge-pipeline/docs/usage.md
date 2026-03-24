@@ -47,6 +47,9 @@ Use the web UI to:
 - update task status, priority, due date, tags, and notes
 - search for tasks/projects
 - filter by task status
+- switch between:
+  - **Portfolio view**
+  - **Kanban view**
 - inspect recent API/MCP activity in the sidebar audit log
 - use dashboard sections for:
   - **Next up** — likely priority work to tackle next

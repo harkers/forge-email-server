@@ -12,9 +12,10 @@ const PROJECT_STATUSES = [
   ['overdue', 'Overdue'],
   ['cancelled', 'Cancelled'],
 ];
+const KANBAN_COLUMNS = ['todo', 'in-progress', 'blocked', 'done'];
 
 let state = { projects: [] };
-let filters = { search: '', status: 'all', source: 'all' };
+let filters = { search: '', status: 'all', source: 'all', viewMode: 'portfolio' };
 let recentEvents = [];
 let isRefreshing = false;
 let lastRefreshAt = null;
@@ -100,6 +101,10 @@ function bindUI() {
   });
   document.getElementById('sourceFilter').addEventListener('change', (e) => {
     filters.source = e.target.value;
+    render();
+  });
+  document.getElementById('viewMode').addEventListener('change', (e) => {
+    filters.viewMode = e.target.value;
     render();
   });
   document.getElementById('projectGrid').addEventListener('click', handleGridClick);
@@ -284,8 +289,25 @@ function portfolioSectionFor(project) {
 
 function render() {
   renderDashboard();
-  renderProjects();
+  renderMainPanelHeader();
+  if (filters.viewMode === 'kanban') {
+    renderKanban();
+  } else {
+    renderPortfolioProjects();
+  }
   renderEvents();
+}
+
+function renderMainPanelHeader() {
+  const title = document.getElementById('mainPanelTitle');
+  const subtitle = document.getElementById('mainPanelSubtitle');
+  if (filters.viewMode === 'kanban') {
+    title.textContent = 'Kanban Board';
+    subtitle.textContent = 'See tasks arranged by status columns across the visible portfolio.';
+  } else {
+    title.textContent = 'Projects';
+    subtitle.textContent = 'Track what’s moving, blocked, or done — and keep the notes close to the work.';
+  }
 }
 
 function renderDashboard() {
@@ -357,10 +379,14 @@ function projectStatusLabel(status) {
   return Object.fromEntries(PROJECT_STATUSES)[status] || status || 'Unknown';
 }
 
-function renderProjects() {
-  const filteredProjects = state.projects
+function visibleProjects() {
+  return state.projects
     .filter(project => project.status !== 'cancelled')
     .filter(projectMatches);
+}
+
+function renderPortfolioProjects() {
+  const filteredProjects = visibleProjects();
   const grid = document.getElementById('projectGrid');
 
   if (!filteredProjects.length) {
@@ -390,6 +416,46 @@ function renderProjects() {
         </div>
       </section>
     `).join('');
+}
+
+function renderKanban() {
+  const grid = document.getElementById('projectGrid');
+  const tasks = visibleProjects().flatMap(project =>
+    (project.tasks || []).filter(taskMatches).map(task => ({ ...task, projectName: project.name, projectTags: project.tags || [] }))
+  );
+
+  grid.innerHTML = `
+    <section class="kanban-board">
+      ${KANBAN_COLUMNS.map(column => {
+        const items = tasks.filter(task => task.status === column);
+        return `
+          <div class="kanban-column">
+            <div class="kanban-header">
+              <h3>${escapeHtml(column)}</h3>
+              <span class="kanban-count">${items.length}</span>
+            </div>
+            <div class="kanban-list">
+              ${items.length ? items.map(task => `
+                <article class="kanban-card">
+                  <div class="kanban-title">${escapeHtml(task.title)}</div>
+                  <div class="kanban-project">${escapeHtml(task.projectName || 'Unknown project')}</div>
+                  <div class="kanban-meta">
+                    <span class="badge priority-${escapeHtml(task.priority || 'medium')}">${escapeHtml(task.priority || 'medium')}</span>
+                    ${task.dueDate ? `<span class="badge">due ${escapeHtml(task.dueDate)}</span>` : ''}
+                  </div>
+                  ${task.notes ? `<div class="kanban-notes">${escapeHtml(task.notes)}</div>` : ''}
+                  <div class="kanban-tags">
+                    ${(task.tags || []).map(tag => `<span class="badge">#${escapeHtml(tag)}</span>`).join('')}
+                    ${collectSourceTags(task).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
+                  </div>
+                </article>
+              `).join('') : `<div class="empty-tasks">No tasks</div>`}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </section>
+  `;
 }
 
 function renderProjectCard(project) {

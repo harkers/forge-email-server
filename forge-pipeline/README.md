@@ -48,6 +48,7 @@ It combines:
 - search across projects/tasks/tags
 - filter by task status
 - filter by source tag
+- switch between portfolio and Kanban board views
 - auto-refresh/polling against the API
 - live refresh status indicator
 - hide cancelled projects from the default view

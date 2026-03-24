@@ -75,6 +75,7 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 }
 @media (max-width: 1100px) {
   .dashboard-grid { grid-template-columns: 1fr; }
+  .kanban-board { grid-template-columns: 1fr; }
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; }
 }
@@ -127,3 +128,15 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 .portfolio-header h3 { margin: 0; font-size: 24px; }
 .portfolio-count { color: var(--muted); font-size: 13px; }
 .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; }
+
+.kanban-board { display: grid; grid-template-columns: repeat(4, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+.kanban-column { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
+.kanban-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kanban-header h3 { margin: 0; text-transform: capitalize; }
+.kanban-count { color: var(--muted); font-size: 13px; }
+.kanban-list { display: grid; gap: 10px; }
+.kanban-card { padding: 14px; border-radius: 16px; background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.kanban-title { font-weight: 700; }
+.kanban-project { margin-top: 4px; color: var(--muted); font-size: 13px; }
+.kanban-meta, .kanban-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.kanban-notes { margin-top: 10px; color: #dce4ff; font-size: 13px; line-height: 1.45; }
