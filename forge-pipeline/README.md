@@ -24,6 +24,7 @@ It combines:
 - Support straightforward Docker deployment
 - Support API-key-protected write access for automations
 - Support MCP-friendly upsert/event endpoints
+- Support webhook ingestion from external systems
 - Surface recent activity directly in the UI
 
 ## Structure
@@ -32,7 +33,7 @@ It combines:
 - `api/` — HTTP API and SQLite-backed storage
 - `backups/` — exported snapshots
 - `deploy/` — deployment configs such as Nginx
-- `docs/` — overview, architecture, API, usage, integration, Docker, and backup docs
+- `docs/` — overview, architecture, API, usage, integration, Docker, backup, and webhook docs
 - `notes/` — product notes, planning, and decisions
 - `scripts/` — helper scripts
 
@@ -60,10 +61,11 @@ It combines:
 - search/filter support
 - bulk import endpoint
 - export endpoint
+- webhook endpoint for external systems
 - optional API-key-protected write access
 - MCP-friendly project/task upsert endpoints
 - MCP event/update endpoints
-- automatic source tagging in MCP flows
+- automatic source tagging in MCP/webhook flows
 - lightweight event log endpoint
 - tighter request validation with clear error responses
 
@@ -146,3 +148,4 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - `docs/docker.md`
 - `docs/backup-and-restore.md`
 - `docs/scheduled-backups.md`
+- `docs/webhooks.md`

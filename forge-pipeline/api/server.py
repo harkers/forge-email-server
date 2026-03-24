@@ -736,12 +736,72 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(200, {'ok': True, 'project': updated})
                 return
 
-            if parsed.path == '/api/mcp/event':
-                clean = validate_event_payload(body)
+            if parsed.path == '/api/webhook':
+                require_object(body)
+                action = clean_string(body.get('action', ''), 'action', max_len=100, allow_empty=False)
+                source = derive_source(body) or clean_string(body.get('source', 'external'), 'source', max_len=100, allow_empty=False)
+
+                if action == 'project_upsert':
+                    webhook_payload = {**body, 'source': source}
+                    project, act = upsert_project(conn, webhook_payload)
+                    conn.commit()
+                    conn.close()
+                    record_event('webhook.project-upsert', {'action': act, 'projectId': project['id'], 'name': project['name'], 'source': source})
+                    self.send_json(200, {'ok': True, 'action': act, 'project': project})
+                    return
+
+                if action == 'task_upsert':
+                    project_id = clean_string(body.get('projectId') or '', 'projectId', max_len=MAX_NAME, allow_empty=True)
+                    project_name = clean_string(body.get('projectName') or '', 'projectName', max_len=MAX_NAME, allow_empty=True)
+                    project = get_project(conn, project_id) if project_id else None
+                    if not project and project_name:
+                        project = get_project_by_name(conn, project_name)
+                    if not project:
+                        conn.close()
+                        self.send_json(404, {'error': 'project_not_found', 'projectId': project_id or None, 'projectName': project_name or None})
+                        return
+                    webhook_payload = {**body, 'source': source}
+                    task, act = upsert_task(conn, project['id'], webhook_payload)
+                    conn.commit()
+                    conn.close()
+                    record_event('webhook.task-upsert', {'action': act, 'projectId': project['id'], 'taskId': task['id'], 'title': task['title'], 'source': source})
+                    self.send_json(200, {'ok': True, 'action': act, 'projectId': project['id'], 'task': task})
+                    return
+
+                if action == 'project_update':
+                    project_id = clean_string(body.get('projectId') or '', 'projectId', max_len=MAX_NAME, allow_empty=False)
+                    project = get_project(conn, project_id)
+                    if not project:
+                        conn.close()
+                        self.send_json(404, {'error': 'project_not_found', 'projectId': project_id})
+                        return
+                    description = clean_string(body.get('summary', project.get('description', '')), 'summary')
+                    notes = project.get('notes', '')
+                    if body.get('note'):
+                        notes = (notes + '\n\n' + clean_string(body['note'], 'note')).strip()
+                    status_value = clean_project_status(body.get('status', project.get('status', 'active'))) if 'status' in body else project.get('status', 'active')
+                    tags = sorted(set(project.get('tags', [])) | set(clean_tags(body.get('tags', [])))) if 'tags' in body else project.get('tags', [])
+                    tags = ensure_source_tag(tags, source)
+                    conn.execute(
+                        'UPDATE projects SET description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
+                        (description, notes, status_value, json.dumps(tags), now_iso(), project_id),
+                    )
+                    conn.commit()
+                    updated = get_project(conn, project_id)
+                    conn.close()
+                    record_event('webhook.project-update', {'projectId': project_id, 'status': updated.get('status'), 'source': source})
+                    self.send_json(200, {'ok': True, 'project': updated})
+                    return
+
+                if action == 'event':
+                    event_body = validate_event_payload({'source': source, 'kind': body.get('kind', 'webhook'), 'payload': body.get('payload', {})})
+                    conn.close()
+                    entry = record_event(f'webhook.event.{event_body["kind"]}', {'source': event_body['source'], 'payload': event_body['payload']})
+                    self.send_json(201, {'ok': True, 'event': entry})
+                    return
+
                 conn.close()
-                entry = record_event(f'mcp.event.{clean["kind"]}', {'source': clean['source'], 'payload': clean['payload']})
-                self.send_json(201, {'ok': True, 'event': entry})
-                return
+                raise ValidationError('unsupported webhook action', 'action')
 
             conn.close()
             self.send_json(404, {'error': 'not_found', 'path': parsed.path})

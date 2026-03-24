@@ -57,15 +57,10 @@ with HTTP status `400`.
 
 ## Source tagging
 
-MCP-oriented write flows now support a `source` field.
+MCP and webhook-oriented write flows support a `source` field.
 
 When provided, the API automatically applies a matching source tag:
 - `source:your-source`
-
-This is especially useful for:
-- `POST /api/mcp/project-upsert`
-- `POST /api/mcp/task-upsert`
-- `POST /api/mcp/project-update`
 
 ## Core endpoints
 
@@ -99,6 +94,9 @@ This is especially useful for:
 
 ### Export
 - `GET /api/export`
+
+### Webhook
+- `POST /api/webhook`
 
 ## MCP-friendly event/update endpoints
 
