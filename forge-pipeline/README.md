@@ -24,6 +24,7 @@ It combines:
 - Support straightforward Docker deployment
 - Support API-key-protected write access for automations
 - Support MCP-friendly upsert/event endpoints
+- Surface recent activity directly in the UI
 
 ## Structure
 
@@ -43,6 +44,7 @@ It combines:
 - edit project notes and descriptions inline
 - search across projects/tasks/tags
 - filter by task status
+- view recent audit/activity events in the sidebar
 
 ### API
 - health endpoint

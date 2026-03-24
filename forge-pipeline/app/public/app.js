@@ -3,6 +3,7 @@ const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all' };
+let recentEvents = [];
 
 async function boot() {
   bindUI();
@@ -26,9 +27,13 @@ async function request(path, options = {}) {
 }
 
 async function refresh() {
-  const summary = await request('/summary');
-  const projectData = await request('/projects');
+  const [summary, projectData, eventData] = await Promise.all([
+    request('/summary'),
+    request('/projects'),
+    request('/events?limit=12'),
+  ]);
   state.projects = projectData.projects || [];
+  recentEvents = eventData.events || [];
 
   document.getElementById('projectCount').textContent = summary.projectCount;
   document.getElementById('taskCount').textContent = summary.taskCount;
@@ -50,6 +55,7 @@ function bindUI() {
   });
   document.getElementById('projectGrid').addEventListener('click', handleGridClick);
   document.getElementById('projectGrid').addEventListener('change', handleGridChange);
+  document.getElementById('refreshEventsButton').addEventListener('click', refresh);
 }
 
 async function onCreateProject(event) {
@@ -160,6 +166,11 @@ function projectMatches(project) {
 }
 
 function render() {
+  renderProjects();
+  renderEvents();
+}
+
+function renderProjects() {
   const filteredProjects = state.projects.filter(projectMatches);
   const grid = document.getElementById('projectGrid');
 
@@ -230,6 +241,22 @@ function render() {
       </article>
     `;
   }).join('');
+}
+
+function renderEvents() {
+  const eventList = document.getElementById('eventList');
+  if (!recentEvents.length) {
+    eventList.innerHTML = `<div class="empty-tasks">No recent activity yet.</div>`;
+    return;
+  }
+
+  eventList.innerHTML = recentEvents.map(event => `
+    <article class="event-item">
+      <div class="event-kind">${escapeHtml(event.kind || 'event')}</div>
+      <div class="event-time">${escapeHtml(event.createdAt || '')}</div>
+      <pre class="event-payload">${escapeHtml(JSON.stringify(event.payload || {}, null, 2))}</pre>
+    </article>
+  `).join('');
 }
 
 function escapeHtml(value) {

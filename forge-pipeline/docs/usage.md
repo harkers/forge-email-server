@@ -30,6 +30,7 @@ Use the web UI to:
 - update task status, priority, due date, tags, and notes
 - search for tasks/projects
 - filter by task status
+- inspect recent API/MCP activity in the sidebar audit log
 
 ## Automation workflow
 
@@ -40,6 +41,7 @@ Use the API to:
 - mark items blocked/done/in-progress
 - query open or blocked work
 - generate rollups via summary endpoint
+- emit MCP update events
 
 ## Suggested conventions
 

@@ -38,7 +38,7 @@
 
           <div class="api-note">
             <strong>API-backed mode</strong>
-            <span>This board now reads/writes shared project data through the Forge Pipeline API.</span>
+            <span>This board reads/writes shared project data through the Forge Pipeline API.</span>
           </div>
 
           <form id="projectForm" class="form-block">
@@ -48,6 +48,14 @@
             <label>Notes<textarea name="notes" rows="5" placeholder="Extensive notes, context, next steps…"></textarea></label>
             <button type="submit">Add project</button>
           </form>
+
+          <section class="audit-block">
+            <div class="audit-header">
+              <h3>Recent Activity</h3>
+              <button id="refreshEventsButton" class="small-button" type="button">Refresh</button>
+            </div>
+            <div id="eventList" class="event-list"></div>
+          </section>
         </aside>
 
         <section class="panel main-panel">
