@@ -2,9 +2,25 @@
 
 Base URL:
 
-- local default: `http://localhost:4181`
+- local default direct API: `http://localhost:4181`
+- via Docker web proxy: `http://localhost:4173/api`
 
 This API is intended to become the shared data layer for Forge Pipeline so other tools, automations, or MCP pipeline components can update project state.
+
+## Authentication
+
+Forge Pipeline now supports a simple API key for write operations.
+
+Environment variable:
+- `FORGE_PIPELINE_API_KEY`
+
+Header:
+- `X-API-Key: <your-key>`
+
+Behaviour:
+- `GET` endpoints remain open by default so the UI can read shared state
+- `POST`, `PUT`, `PATCH`, and `DELETE` require a valid API key **if** `FORGE_PIPELINE_API_KEY` is set
+- if no key is configured, the API behaves as open/writeable as before
 
 ## Endpoints
 
@@ -85,11 +101,12 @@ Use this carefully: it replaces the entire stored project list.
 
 ## Example requests
 
-### Create project
+### Create project with API key
 
 ```bash
 curl -X POST http://localhost:4181/api/projects \
   -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me' \
   -d '{
     "name": "Forge Pipeline",
     "description": "Central project board",
@@ -99,11 +116,12 @@ curl -X POST http://localhost:4181/api/projects \
   }'
 ```
 
-### Add task to project
+### Add task to project with API key
 
 ```bash
 curl -X POST http://localhost:4181/api/projects/<projectId>/tasks \
   -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me' \
   -d '{
     "title": "Define MCP sync contract",
     "status": "todo",
@@ -114,11 +132,12 @@ curl -X POST http://localhost:4181/api/projects/<projectId>/tasks \
   }'
 ```
 
-### Patch task status
+### Patch task status with API key
 
 ```bash
 curl -X PATCH http://localhost:4181/api/projects/<projectId>/tasks/<taskId> \
   -H 'Content-Type: application/json' \
+  -H 'X-API-Key: change-me' \
   -d '{
     "status": "done"
   }'

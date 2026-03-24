@@ -22,6 +22,7 @@ It combines:
 - Expose a proper shared data layer for MCP pipeline integration
 - Become the central operational board across multiple projects
 - Support straightforward Docker deployment
+- Support API-key-protected write access for automations
 
 ## Structure
 
@@ -49,6 +50,7 @@ It combines:
 - task CRUD
 - search/filter support
 - bulk import endpoint
+- optional API-key-protected write access
 - intended MCP-friendly shared data layer
 
 ### Deployment
@@ -56,6 +58,18 @@ It combines:
 - Docker web image
 - docker-compose setup
 - Nginx reverse proxy config for `/api`
+- `.env.example` for API key config
+
+## Run with Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Then open:
+- Web UI: `http://localhost:4173`
+- API health via web proxy: `http://localhost:4173/api/health`
 
 ## Run locally without Docker
 
@@ -63,7 +77,7 @@ It combines:
 
 ```bash
 cd api
-python3 server.py
+FORGE_PIPELINE_API_KEY=change-me python3 server.py
 ```
 
 ### Web UI
@@ -76,16 +90,6 @@ python3 server.py
 
 - Web UI: `http://localhost:4173`
 - API: `http://localhost:4181`
-
-## Run with Docker
-
-```bash
-docker compose up --build
-```
-
-Then open:
-- Web UI: `http://localhost:4173`
-- API health via web proxy: `http://localhost:4173/api/health`
 
 ## Documentation
 

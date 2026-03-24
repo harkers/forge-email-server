@@ -21,10 +21,12 @@ It also removes the earlier hardcoded localhost API assumption by serving the UI
 - `Dockerfile.web`
 - `docker-compose.yml`
 - `deploy/nginx/default.conf`
+- `.env.example`
 
 ## Run
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -33,6 +35,18 @@ docker compose up --build
 - UI: `http://localhost:4173`
 - API direct: `http://localhost:4181`
 - UI-routed API: `http://localhost:4173/api/health`
+
+## Auth
+
+Write protection is controlled by:
+
+- `FORGE_PIPELINE_API_KEY`
+
+If set:
+- reads stay open
+- writes require `X-API-Key`
+
+This is useful for MCP/automation writes without breaking dashboard reads.
 
 ## Persistence
 
@@ -53,7 +67,7 @@ For Proxmox or a VPS, the most likely next step is to put this behind:
 
 ## Recommended next improvements before public exposure
 
-- auth / API key support
+- stronger auth model if internet-exposed
 - audit/event log
 - request validation hardening
 - possible move from JSON file to SQLite if write volume grows

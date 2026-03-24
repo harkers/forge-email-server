@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -10,6 +11,7 @@ from urllib.parse import parse_qs, urlparse
 ROOT = Path(__file__).resolve().parent
 STORAGE_DIR = ROOT / "storage"
 DATA_FILE = STORAGE_DIR / "forge-pipeline.json"
+API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 
 DEFAULT_DATA = {
     "projects": [
@@ -147,7 +149,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
         self.end_headers()
         self.wfile.write(body)
 
@@ -156,6 +158,18 @@ class Handler(BaseHTTPRequestHandler):
         if length <= 0:
             return {}
         return json.loads(self.rfile.read(length).decode('utf-8'))
+
+    def api_key_ok(self) -> bool:
+        if not API_KEY:
+            return True
+        provided = self.headers.get('X-API-Key', '')
+        return provided == API_KEY
+
+    def require_api_key(self) -> bool:
+        if self.api_key_ok():
+            return True
+        self.send_json(401, {'error': 'unauthorized', 'message': 'valid X-API-Key required'})
+        return False
 
     def do_OPTIONS(self):
         self.send_json(204, {})
@@ -168,7 +182,11 @@ class Handler(BaseHTTPRequestHandler):
         data = load_data()
 
         if parsed.path == '/api/health':
-            self.send_json(200, {'status': 'ok', 'service': 'forge-pipeline-api'})
+            self.send_json(200, {
+                'status': 'ok',
+                'service': 'forge-pipeline-api',
+                'authEnabled': bool(API_KEY),
+            })
             return
 
         if parsed.path == '/api/summary':
@@ -221,6 +239,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
 
     def do_POST(self):
+        if not self.require_api_key():
+            return
         parsed = urlparse(self.path)
         data = load_data()
         body = self.read_json()
@@ -276,9 +296,13 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
 
     def do_PUT(self):
+        if not self.require_api_key():
+            return
         self.handle_update(replace=True)
 
     def do_PATCH(self):
+        if not self.require_api_key():
+            return
         self.handle_update(replace=False)
 
     def handle_update(self, replace: bool):
@@ -346,6 +370,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(404, {'error': 'not_found', 'path': parsed.path})
 
     def do_DELETE(self):
+        if not self.require_api_key():
+            return
         parsed = urlparse(self.path)
         data = load_data()
 
@@ -388,4 +414,5 @@ if __name__ == '__main__':
     ensure_store()
     server = HTTPServer(('0.0.0.0', 4181), Handler)
     print('Forge Pipeline API listening on :4181')
+    print(f'Auth enabled: {bool(API_KEY)}')
     server.serve_forever()

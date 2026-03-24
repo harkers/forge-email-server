@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     ports:
       - "4181:4181"
+    environment:
+      FORGE_PIPELINE_API_KEY: ${FORGE_PIPELINE_API_KEY:-}
     volumes:
       - ./api/storage:/app/storage
 

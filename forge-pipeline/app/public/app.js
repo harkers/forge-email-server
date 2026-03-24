@@ -1,4 +1,5 @@
 const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
+const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
 
 let state = { projects: [] };
 let filters = { search: '', status: 'all' };
@@ -9,9 +10,15 @@ async function boot() {
 }
 
 async function request(path, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  };
+  if (API_KEY) headers['X-API-Key'] = API_KEY;
+
   const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   if (res.status === 204) return null;
