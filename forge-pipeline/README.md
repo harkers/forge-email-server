@@ -11,8 +11,8 @@ It is designed to answer:
 
 It combines:
 - a polished browser UI for human use
-- a shared file-backed API for automation and MCP integration
-- a simple portable JSON storage model for early development
+- a shared API for automation and MCP integration
+- SQLite-backed persistent storage for projects, tasks, and events
 
 ## Goals
 
@@ -29,7 +29,7 @@ It combines:
 ## Structure
 
 - `app/` — browser UI
-- `api/` — file-backed HTTP API and storage
+- `api/` — HTTP API and SQLite-backed storage
 - `deploy/` — deployment configs such as Nginx
 - `docs/` — overview, architecture, API, usage, integration, and Docker docs
 - `notes/` — product notes, planning, and decisions
@@ -57,6 +57,10 @@ It combines:
 - MCP-friendly project/task upsert endpoints
 - MCP event/update endpoints
 - lightweight event log endpoint
+
+### Storage
+- SQLite backend
+- migration from legacy JSON files on startup
 
 ### Deployment
 - Docker API image

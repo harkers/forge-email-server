@@ -1,5 +1,12 @@
 # Forge Pipeline Data Model
 
+Forge Pipeline now stores data in SQLite.
+
+Primary persisted entities:
+- projects
+- tasks
+- events
+
 ## Project object
 
 ```json
@@ -51,3 +58,25 @@
 - `tags[]`: labels for grouping/filtering
 - `notes`: detailed task context
 - `updatedAt`: ISO timestamp
+
+## Event object
+
+```json
+{
+  "id": "event-123",
+  "kind": "mcp.task-upsert",
+  "createdAt": "2026-03-24T10:00:00+00:00",
+  "payload": {
+    "projectId": "display-forge",
+    "taskId": "task-123",
+    "action": "updated"
+  }
+}
+```
+
+### Fields
+
+- `id`: stable event identifier
+- `kind`: event type
+- `createdAt`: ISO timestamp
+- `payload`: structured event body
