@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  api:
+    image: forge-pipeline-api:latest
+    restart: unless-stopped
+    environment:
+      FORGE_PIPELINE_API_KEY: ${FORGE_PIPELINE_API_KEY:-}
+    volumes:
+      - ./api/storage:/app/storage
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4181/api/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web:
+    image: forge-pipeline-web:latest
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "4173:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

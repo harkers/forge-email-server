@@ -156,3 +156,5 @@ FORGE_PIPELINE_API_KEY=change-me python3 server.py
 - `docs/backup-and-restore.md`
 - `docs/scheduled-backups.md`
 - `docs/webhooks.md`
+
+- `docs/deploy.md`
