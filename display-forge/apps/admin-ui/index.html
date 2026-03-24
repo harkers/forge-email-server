@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Display Forge Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="eyebrow">DISPLAY FORGE / ADMIN</p>
+      <h1>Control Surface</h1>
+      <p class="lede">MVP dashboard stub with live summary and active playlist preview.</p>
+    </header>
+
+    <section class="grid two-up">
+      <article class="panel">
+        <h2>System Summary</h2>
+        <div id="summary" class="stats"></div>
+      </article>
+      <article class="panel">
+        <h2>Service Health</h2>
+        <pre id="health">Loading…</pre>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Active Playlist</h2>
+      <div id="playlist" class="playlist"></div>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

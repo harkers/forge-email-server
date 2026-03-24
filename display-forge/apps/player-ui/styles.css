@@ -1,0 +1,26 @@
+:root {
+  --bg: #050913;
+  --text: #f4f7ff;
+  --muted: #d8e0f8;
+  --accent: #73a7ff;
+  --panel: rgba(0,0,0,0.25);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; width:100%; height:100%; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+.screen {
+  width:100vw; height:100vh; position:relative; background-size:cover; background-position:center;
+  transition: background-image .6s ease-in-out;
+}
+.screen::after {
+  content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.48) 100%);
+}
+.overlay {
+  position:absolute; left:64px; right:64px; bottom:56px; z-index:1; padding:32px; border-radius:28px;
+  background: var(--panel); backdrop-filter: blur(16px);
+}
+.eyebrow { color: #8cffda; letter-spacing:.16em; font-size:14px; }
+h1 { font-size: 64px; margin: 10px 0 16px; max-width: 960px; }
+p { font-size: 28px; color: var(--muted); max-width: 980px; margin: 0; }
+.meta { margin-top: 22px; display:flex; gap:12px; }
+.badge { display:inline-block; padding:8px 14px; border-radius:999px; background: rgba(115,167,255,.16); color:#eef4ff; font-size:18px; }
+.loading { background-image: radial-gradient(circle at top, #1b2b52 0%, #08101e 70%); }

@@ -24,7 +24,7 @@ services:
     container_name: display-forge-api
     restart: unless-stopped
     working_dir: /app
-    command: bash -lc "python -m http.server 8000"
+    command: bash -lc "python app/main.py"
     environment:
       APP_ENV: ${APP_ENV}
       API_PORT: ${API_PORT}
