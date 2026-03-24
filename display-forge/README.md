@@ -38,3 +38,10 @@ A fresh workspace for a polished visual dashboard focused on projects, tasks, an
 - `config/` — config templates
 - `storage/` — media/cache/logs/backups
 - `tests/` — test suites
+
+
+## Runtime Baseline
+
+- `docker-compose.yml` — local/proxmox container baseline
+- `.env.example` — environment template
+- `docs/architecture/service-map.md` — service responsibilities and flow
