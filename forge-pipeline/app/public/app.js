@@ -165,9 +165,66 @@ function projectMatches(project) {
   return projectSearchHit || matchingTasks.length > 0;
 }
 
+function allTasksWithProject() {
+  return state.projects.flatMap(project =>
+    (project.tasks || []).map(task => ({ ...task, projectId: project.id, projectName: project.name }))
+  );
+}
+
 function render() {
+  renderDashboard();
   renderProjects();
   renderEvents();
+}
+
+function renderDashboard() {
+  const tasks = allTasksWithProject();
+
+  const nextUp = tasks
+    .filter(task => task.status === 'todo' || task.status === 'in-progress')
+    .sort((a, b) => scoreTask(b) - scoreTask(a))
+    .slice(0, 5);
+
+  const blocked = tasks
+    .filter(task => task.status === 'blocked')
+    .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+    .slice(0, 5);
+
+  const recent = tasks
+    .slice()
+    .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+    .slice(0, 5);
+
+  renderMiniList('nextUpList', nextUp, 'No obvious next tasks yet.');
+  renderMiniList('blockedList', blocked, 'Nothing blocked right now.');
+  renderMiniList('recentList', recent, 'Nothing changed recently.');
+}
+
+function scoreTask(task) {
+  const priorityScore = { high: 3, medium: 2, low: 1 }[task.priority] || 0;
+  const statusScore = task.status === 'in-progress' ? 3 : task.status === 'todo' ? 2 : 0;
+  const dueBonus = task.dueDate ? 2 : 0;
+  return priorityScore * 10 + statusScore * 5 + dueBonus;
+}
+
+function renderMiniList(targetId, items, emptyText) {
+  const el = document.getElementById(targetId);
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-tasks">${emptyText}</div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(item => `
+    <div class="mini-item">
+      <div class="mini-title">${escapeHtml(item.title)}</div>
+      <div class="mini-sub">${escapeHtml(item.projectName || 'Unknown project')}</div>
+      <div class="mini-meta">
+        <span class="badge">${escapeHtml(item.status || '')}</span>
+        <span class="badge priority-${escapeHtml(item.priority || 'medium')}">${escapeHtml(item.priority || 'medium')}</span>
+        ${item.dueDate ? `<span class="badge">due ${escapeHtml(item.dueDate)}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 function renderProjects() {

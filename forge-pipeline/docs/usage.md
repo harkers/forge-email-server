@@ -31,8 +31,12 @@ Use the web UI to:
 - search for tasks/projects
 - filter by task status
 - inspect recent API/MCP activity in the sidebar audit log
+- use dashboard sections for:
+  - **Next up** — likely priority work to tackle next
+  - **Blocked** — currently stuck work
+  - **Recently changed** — freshest task movement
 
-The recent activity feed is now rendered in a human-friendly format rather than as raw event JSON.
+The recent activity feed is rendered in a human-friendly format rather than as raw event JSON.
 
 ## Automation workflow
 

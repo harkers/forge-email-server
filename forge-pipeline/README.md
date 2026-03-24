@@ -45,6 +45,10 @@ It combines:
 - search across projects/tasks/tags
 - filter by task status
 - view recent audit/activity events in a human-friendly sidebar feed
+- dashboard sections for:
+  - next up
+  - blocked
+  - recently changed
 
 ### API
 - health endpoint

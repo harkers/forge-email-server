@@ -74,6 +74,7 @@ button:hover { border-color: rgba(255,255,255,0.22); }
   padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px dashed var(--border);
 }
 @media (max-width: 1100px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; }
 }
@@ -94,3 +95,14 @@ button:hover { border-color: rgba(255,255,255,0.22); }
 .event-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .event-chip { padding: 4px 8px; border-radius: 999px; font-size: 11px; background: rgba(124,156,255,0.12); color: #d7e2ff; border: 1px solid rgba(124,156,255,0.16); }
 .small-button { padding: 8px 10px; border-radius: 12px; font-size: 12px; }
+
+.dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 20px; }
+.dash-panel { padding: 18px; }
+.dash-head { display: grid; gap: 4px; margin-bottom: 12px; }
+.dash-head h2 { margin: 0; font-size: 22px; }
+.dash-note { color: var(--muted); font-size: 13px; }
+.mini-list { display: grid; gap: 10px; }
+.mini-item { padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+.mini-title { font-weight: 700; }
+.mini-sub { margin-top: 4px; color: var(--muted); font-size: 13px; }
+.mini-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
