@@ -1,69 +1,79 @@
 # Forge Pipeline
 
-Project workspace for a project-based todo system with a fancy web display, extensive notes, and the usual scaffolding.
+Forge Pipeline is the workspace's central project and task hub.
+
+It is designed to answer:
+
+- what is in flight?
+- what is blocked?
+- what should happen next?
+- what has already been completed?
+
+It combines:
+- a polished browser UI for human use
+- a shared file-backed API for automation and MCP integration
+- a simple portable JSON storage model for early development
 
 ## Goals
 
 - Track actions by project
 - Maintain rich notes alongside tasks
 - Provide a polished browser-based interface
-- Keep data simple and portable during early development
-- Become the central board for "where am I at and what do I do next?"
-- Expose a proper data/API layer for MCP pipeline integration
+- Expose a proper shared data layer for MCP pipeline integration
+- Become the central operational board across multiple projects
 
 ## Structure
 
-- `app/` — web app source
-- `app/data/` — original starter seed data
-- `api/` — file-backed Forge Pipeline API
-- `docs/` — API documentation and support docs
+- `app/` — browser UI
+- `api/` — file-backed HTTP API and storage
+- `docs/` — overview, architecture, API, usage, and integration notes
 - `notes/` — product notes, planning, and decisions
 - `scripts/` — helper scripts
 
-## Current Features
+## Current Capabilities
 
-### Web app
-- Project list with inline editing
-- Add/delete projects
-- Per-project task list
-- Add/delete tasks
-- Edit task title, status, priority, due date, tags, and notes
-- Rich project notes
-- Search across projects/tasks/tags
-- Filter tasks by status
-- API-backed shared data model
+### Web UI
+- create/edit/delete projects
+- create/edit/delete tasks
+- edit task status, priority, due date, tags, and notes
+- edit project notes and descriptions inline
+- search across projects/tasks/tags
+- filter by task status
 
 ### API
-- File-backed JSON data store
-- Project CRUD endpoints
-- Task CRUD endpoints
-- Summary endpoint
-- Search/filter support
-- Bulk import endpoint for automation workflows
-- Intended for MCP / pipeline integration
+- health endpoint
+- summary endpoint
+- project CRUD
+- task CRUD
+- search/filter support
+- bulk import endpoint
+- intended MCP-friendly shared data layer
 
-## Running It
+## Run locally
 
-### Start the API
+### API
 
 ```bash
 cd api
 python3 server.py
 ```
 
-### Start the web app
+### Web UI
 
 ```bash
 ./scripts/serve.sh
 ```
 
-Then open the app in a browser.
+### Default local URLs
 
-Default endpoints:
 - Web UI: `http://localhost:4173`
 - API: `http://localhost:4181`
 
-## API Docs
+## Documentation
 
-See:
+- `docs/overview.md`
+- `docs/architecture.md`
 - `docs/api.md`
+- `docs/usage.md`
+- `docs/mcp-integration.md`
+- `docs/data-model.md`
