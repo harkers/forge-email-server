@@ -8,6 +8,7 @@
 ### v2.0.0 (2026-03-25)
 - FP-090: Enhanced Focus Now recommendation engine with scoring
 - FP-093: Executive summary mode (Full View / Executive toggle)
+- FP-094: WebSocket infrastructure (disabled, polling fallback)
 
 **Focus Now Improvements:**
 - Task scoring algorithm (priority, status, risk, due date, staleness)
@@ -20,7 +21,13 @@
 - Project cards with key metrics (total/active/blocked/at-risk)
 - Highlight panels for blocked/critical/overdue
 - View mode toggle (Full View / Executive)
-- Click tasks in Focus Now to scroll and highlight
+
+**WebSocket (Infrastructure):**
+- websocket_server.py module for real-time push
+- Redis pub/sub for event broadcasting
+- Frontend WebSocket client with polling fallback
+- nginx proxy configuration for /ws endpoint
+- Note: WebSocket not enabled in docker-compose (polling remains active)
 
 ### v1.6.0 (2026-03-25)
 - FP-070-073: Design System Alignment

@@ -43,6 +43,8 @@ API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 LOG_REQUESTS = os.environ.get("FORGE_PIPELINE_LOG_REQUESTS", "false").lower() == "true"
+WS_PORT = int(os.environ.get("FORGE_PIPELINE_WS_PORT", 4182))
+WS_ENABLED = os.environ.get("FORGE_PIPELINE_WS_ENABLED", "true").lower() == "true"
 
 # PostgreSQL engine (lazy)
 _pg_engine = None
@@ -745,6 +747,18 @@ def record_event(kind: str, payload: dict) -> dict:
             "DELETE FROM events WHERE id NOT IN (SELECT id FROM events ORDER BY created_at DESC LIMIT 500)"
         )
         conn.commit()
+        
+        # Publish to WebSocket clients via Redis pub/sub
+        try:
+            redis = get_redis()
+            if redis:
+                redis.publish('forge-pipeline:events', json.dumps({
+                    'event': kind,
+                    'payload': payload,
+                }))
+        except Exception:
+            pass  # WebSocket publishing is optional
+        
         return entry
     finally:
         conn.close()

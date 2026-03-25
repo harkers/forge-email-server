@@ -1,8 +1,9 @@
 const API = window.FORGE_PIPELINE_API_BASE || `${window.location.origin}/api`;
 const API_KEY = window.FORGE_PIPELINE_API_KEY || '';
+const WS_URL = window.FORGE_PIPELINE_WS_URL || `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
 const POLL_MS = 30000;
-const VERSION = '1.0.0';
-const BUILD_DATE = '2026-03-24';
+const VERSION = '2.0.0';
+const BUILD_DATE = '2026-03-25';
 const PROJECT_STATUSES = [
   ['not-started', 'Not Started / Pending'],
   ['in-progress', 'In Progress / Active'],
@@ -21,11 +22,102 @@ let filters = { search: '', status: 'all', source: 'all', viewMode: 'portfolio',
 let recentEvents = [];
 let isRefreshing = false;
 let lastRefreshAt = null;
+let ws = null;
+let wsReconnectAttempts = 0;
+let wsMaxReconnectAttempts = 5;
+let wsReconnectDelay = 1000;
+
+// FP-094: WebSocket connection with graceful fallback
+function connectWebSocket() {
+  if (!window.WebSocket) {
+    console.log('[WS] WebSocket not supported, using polling');
+    return false;
+  }
+  
+  try {
+    ws = new WebSocket(WS_URL);
+    
+    ws.onopen = () => {
+      console.log('[WS] Connected');
+      wsReconnectAttempts = 0;
+      wsReconnectDelay = 1000;
+      setLiveStatus('Live (WebSocket)');
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'connected') {
+          console.log('[WS] Server confirmed connection');
+        } else if (data.type === 'pong') {
+          // Heartbeat response
+        } else {
+          // Data update event - refresh
+          console.log('[WS] Event:', data.type);
+          refresh();
+        }
+      } catch (e) {
+        console.error('[WS] Parse error:', e);
+      }
+    };
+    
+    ws.onclose = (event) => {
+      console.log('[WS] Disconnected:', event.code, event.reason);
+      ws = null;
+      // Fallback to polling
+      setLiveStatus('Live refresh on · polling');
+      startPolling();
+    };
+    
+    ws.onerror = (error) => {
+      console.error('[WS] Error:', error);
+      ws.close();
+    };
+    
+    return true;
+  } catch (e) {
+    console.error('[WS] Connection failed:', e);
+    return false;
+  }
+}
+
+function tryReconnectWebSocket() {
+  if (ws || wsReconnectAttempts >= wsMaxReconnectAttempts) {
+    return;
+  }
+  
+  wsReconnectAttempts++;
+  console.log(`[WS] Reconnecting (${wsReconnectAttempts}/${wsMaxReconnectAttempts})...`);
+  
+  setTimeout(() => {
+    if (!connectWebSocket()) {
+      tryReconnectWebSocket();
+    }
+  }, wsReconnectDelay);
+  
+  wsReconnectDelay = Math.min(wsReconnectDelay * 2, 30000);
+}
+
+// Heartbeat to keep connection alive
+function startHeartbeat() {
+  setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'ping' }));
+    }
+  }, 30000);
+}
 
 async function boot() {
   bindUI();
   await refresh();
-  startPolling();
+  
+  // FP-094: Try WebSocket first, fall back to polling
+  if (!connectWebSocket()) {
+    console.log('[WS] WebSocket unavailable, using polling');
+    startPolling();
+  } else {
+    startHeartbeat();
+  }
 }
 
 async function request(path, options = {}) {
