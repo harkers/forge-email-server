@@ -1,6 +1,6 @@
 Next job selected: CP-106
 Priority: P0
-Score: 42
+Score: 44
 Reason: Highest priority score
 Tie-break: none
 Estimated tokens: 42000

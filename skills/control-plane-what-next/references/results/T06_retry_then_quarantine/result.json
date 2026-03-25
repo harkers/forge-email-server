@@ -88,7 +88,7 @@
       "quarantined": true,
       "reason": "repeated_failure",
       "failedAttempts": 2,
-      "timestamp": "2026-03-25T14:53:51.233620+00:00"
+      "timestamp": "2026-03-25T18:35:02.198985+00:00"
     },
     "blocked_downstream": {
       "testId": "T06_retry_then_quarantine",

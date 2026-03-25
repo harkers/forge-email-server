@@ -15,24 +15,25 @@ services:
       retries: 3
       start_period: 5s
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: forge-pipeline-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: forge
-      POSTGRES_PASSWORD: forge-pipeline-secret
-      POSTGRES_DB: forgepipeline
-    expose:
-      - "5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U forge -d forgepipeline"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
+  # PostgreSQL disabled for now - connection pool needs proper handling
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: forge-pipeline-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: forge
+  #     POSTGRES_PASSWORD: forge-pipeline-secret
+  #     POSTGRES_DB: forgepipeline
+  #   expose:
+  #     - "5432"
+  #   volumes:
+  #     - ./postgres-data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U forge -d forgepipeline"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 3
+  #     start_period: 10s
 
   api:
     build:
@@ -47,13 +48,11 @@ services:
       FORGE_PIPELINE_API_KEY: ${FORGE_PIPELINE_API_KEY:-}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DATABASE_URL: postgresql://forge:forge-pipeline-secret@postgres:5432/forgepipeline
+      # DATABASE_URL: postgresql://forge:forge-pipeline-secret@postgres:5432/forgepipeline
     volumes:
       - ./api/storage:/app/storage
     depends_on:
       redis:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4181/api/health').read()"]

@@ -9,11 +9,11 @@
       "candidates": [
         {
           "jobId": "CP-106",
-          "priorityScore": 42,
+          "priorityScore": 44,
           "assignedPriority": "P0",
           "severity": 4,
           "blockingBreadth": 4,
-          "deadlineProximity": 4,
+          "deadlineProximity": 5,
           "businessImpact": 5,
           "executionReadiness": 4,
           "executionEffort": 4,
@@ -39,11 +39,11 @@
         },
         {
           "jobId": "CP-119",
-          "priorityScore": 25,
+          "priorityScore": 27,
           "assignedPriority": "P0",
           "severity": 3,
           "blockingBreadth": 0,
-          "deadlineProximity": 4,
+          "deadlineProximity": 5,
           "businessImpact": 3,
           "executionReadiness": 4,
           "executionEffort": 2,
@@ -82,9 +82,9 @@
       "riskyHeld": [],
       "tieBreakReason": null,
       "selectedPriority": "P0",
-      "selectedScore": 42
+      "selectedScore": 44
     },
-    "summary": "Next job selected: CP-106\nPriority: P0\nScore: 42\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 42000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
+    "summary": "Next job selected: CP-106\nPriority: P0\nScore: 44\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 42000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -106,7 +106,7 @@
           "CP-106"
         ],
         "lastDispatchedJobId": "CP-106",
-        "lastUpdatedAt": "2026-03-25T14:53:51.233083+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.198444+00:00"
       },
       "execution_metrics": {
         "testId": "T01_priority_p0_beats_all",
@@ -161,7 +161,7 @@
         "passed": true,
         "selectedJob": "CP-106",
         "selectedPriority": "P0",
-        "selectedScore": 42,
+        "selectedScore": 44,
         "errors": []
       }
     }
@@ -260,7 +260,7 @@
           "CP-202"
         ],
         "lastDispatchedJobId": "CP-202",
-        "lastUpdatedAt": "2026-03-25T14:53:51.233215+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.198578+00:00"
       },
       "execution_metrics": {
         "testId": "T02_tiebreak_deadline",
@@ -397,7 +397,7 @@
           "CP-301"
         ],
         "lastDispatchedJobId": "CP-301",
-        "lastUpdatedAt": "2026-03-25T14:53:51.233326+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.198686+00:00"
       },
       "execution_metrics": {
         "testId": "T03_jobs_window_decrements",
@@ -810,7 +810,7 @@
         "quarantined": true,
         "reason": "repeated_failure",
         "failedAttempts": 2,
-        "timestamp": "2026-03-25T14:53:51.233620+00:00"
+        "timestamp": "2026-03-25T18:35:02.198985+00:00"
       },
       "blocked_downstream": {
         "testId": "T06_retry_then_quarantine",
@@ -864,11 +864,11 @@
       "candidates": [
         {
           "jobId": "CP-701",
-          "priorityScore": 26,
+          "priorityScore": 28,
           "assignedPriority": "P0",
           "severity": 4,
           "blockingBreadth": 0,
-          "deadlineProximity": 4,
+          "deadlineProximity": 5,
           "businessImpact": 3,
           "executionReadiness": 4,
           "executionEffort": 4,
@@ -1096,7 +1096,7 @@
         "quarantined": true,
         "reason": "dependency_root_failure",
         "failedAttempts": 1,
-        "timestamp": "2026-03-25T14:53:51.233789+00:00"
+        "timestamp": "2026-03-25T18:35:02.199189+00:00"
       },
       "blocked_downstream": {
         "testId": "T08_dependency_failure_blocks_children",
@@ -1328,7 +1328,7 @@
           "CP-1004"
         ],
         "lastDispatchedJobId": "CP-1004",
-        "lastUpdatedAt": "2026-03-25T14:53:51.233987+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.199392+00:00"
       },
       "execution_metrics": {
         "testId": "T10_session_restart_state_recovery",
@@ -1443,11 +1443,11 @@
         },
         {
           "jobId": "CP-1104",
-          "priorityScore": 14,
-          "assignedPriority": "P2",
+          "priorityScore": 16,
+          "assignedPriority": "P1",
           "severity": 1,
           "blockingBreadth": 0,
-          "deadlineProximity": 4,
+          "deadlineProximity": 5,
           "businessImpact": 0,
           "executionReadiness": 4,
           "executionEffort": 1,
@@ -1495,7 +1495,7 @@
           "CP-1101"
         ],
         "lastDispatchedJobId": "CP-1101",
-        "lastUpdatedAt": "2026-03-25T14:53:51.234139+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.199538+00:00"
       },
       "execution_metrics": {
         "testId": "T11_e2e_normal_delivery",
@@ -1595,11 +1595,11 @@
         },
         {
           "jobId": "CP-1202",
-          "priorityScore": 14,
-          "assignedPriority": "P2",
+          "priorityScore": 16,
+          "assignedPriority": "P1",
           "severity": 1,
           "blockingBreadth": 0,
-          "deadlineProximity": 4,
+          "deadlineProximity": 5,
           "businessImpact": 0,
           "executionReadiness": 4,
           "executionEffort": 1,
@@ -1651,7 +1651,7 @@
           "CP-1201"
         ],
         "lastDispatchedJobId": "CP-1201",
-        "lastUpdatedAt": "2026-03-25T14:53:51.234253+00:00"
+        "lastUpdatedAt": "2026-03-25T18:35:02.199673+00:00"
       },
       "execution_metrics": {
         "testId": "T12_e2e_risky_job_mid_run",
@@ -1818,7 +1818,7 @@
         "quarantined": true,
         "reason": "repeated_failure",
         "failedAttempts": 2,
-        "timestamp": "2026-03-25T14:53:51.234362+00:00"
+        "timestamp": "2026-03-25T18:35:02.199787+00:00"
       },
       "blocked_downstream": {
         "testId": "T13_e2e_failure_chain",

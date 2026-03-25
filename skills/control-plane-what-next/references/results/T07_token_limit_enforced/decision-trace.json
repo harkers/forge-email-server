@@ -1,6 +1,6 @@
 {
   "testId": "T07_token_limit_enforced",
-  "timestamp": "2026-03-25T14:53:51.238710+00:00",
+  "timestamp": "2026-03-25T18:35:02.204272+00:00",
   "expected": {
     "selectedJob": null,
     "outcome": "blocked_token_limit"
@@ -13,11 +13,11 @@
   "candidates": [
     {
       "jobId": "CP-701",
-      "priorityScore": 26,
+      "priorityScore": 28,
       "assignedPriority": "P0",
       "severity": 4,
       "blockingBreadth": 0,
-      "deadlineProximity": 4,
+      "deadlineProximity": 5,
       "businessImpact": 3,
       "executionReadiness": 4,
       "executionEffort": 4,

@@ -53,11 +53,11 @@
       },
       {
         "jobId": "CP-1104",
-        "priorityScore": 14,
-        "assignedPriority": "P2",
+        "priorityScore": 16,
+        "assignedPriority": "P1",
         "severity": 1,
         "blockingBreadth": 0,
-        "deadlineProximity": 4,
+        "deadlineProximity": 5,
         "businessImpact": 0,
         "executionReadiness": 4,
         "executionEffort": 1,
@@ -105,7 +105,7 @@
         "CP-1101"
       ],
       "lastDispatchedJobId": "CP-1101",
-      "lastUpdatedAt": "2026-03-25T14:53:51.234139+00:00"
+      "lastUpdatedAt": "2026-03-25T18:35:02.199538+00:00"
     },
     "execution_metrics": {
       "testId": "T11_e2e_normal_delivery",

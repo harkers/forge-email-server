@@ -8,11 +8,11 @@
     "candidates": [
       {
         "jobId": "CP-701",
-        "priorityScore": 26,
+        "priorityScore": 28,
         "assignedPriority": "P0",
         "severity": 4,
         "blockingBreadth": 0,
-        "deadlineProximity": 4,
+        "deadlineProximity": 5,
         "businessImpact": 3,
         "executionReadiness": 4,
         "executionEffort": 4,

@@ -97,8 +97,11 @@ class PostgresConnection:
     def __init__(self, conn):
         self._conn = conn
         self._last_result = None
+        self._closed = False
     
     def execute(self, sql, params=()):
+        if self._closed:
+            raise RuntimeError("Connection is closed")
         # Convert ? placeholders to :param0, :param1, etc. for SQLAlchemy
         if params:
             if isinstance(params, (list, tuple)):
@@ -108,17 +111,27 @@ class PostgresConnection:
                 for i in range(len(params)):
                     new_sql = new_sql.replace('?', f':param{i}', 1)
                 self._last_result = self._conn.execute(text(new_sql), param_dict)
-            else:
+            elif isinstance(params, dict):
                 self._last_result = self._conn.execute(text(sql), params)
+            else:
+                self._last_result = self._conn.execute(text(sql))
         else:
             self._last_result = self._conn.execute(text(sql))
         return PostgresResult(self._last_result)
     
     def commit(self):
-        return self._conn.commit()
+        if not self._closed:
+            self._conn.commit()
     
     def close(self):
-        return self._conn.close()
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            # Return connection to pool by calling close on the SQLAlchemy connection
+            self._conn.close()
+        except Exception:
+            pass
     
     def __enter__(self):
         return self
@@ -139,16 +152,13 @@ class PostgresResult:
         if row is None:
             return None
         # Convert to Row-like object with dict access
-        return PostgresRow(row, self._result.keys())
+        keys = list(self._result.keys()) if hasattr(self._result, 'keys') else []
+        return PostgresRow(row, keys)
     
     def fetchall(self):
         rows = self._result.fetchall()
-        keys = self._result.keys()
+        keys = list(self._result.keys()) if hasattr(self._result, 'keys') else []
         return [PostgresRow(row, keys) for row in rows]
-    
-    def fetchone_direct(self):
-        """Fetch one row from the underlying result."""
-        return self._result.fetchone()
 
 
 class PostgresRow:
@@ -156,8 +166,8 @@ class PostgresRow:
     
     def __init__(self, row, keys):
         self._row = row
-        self._keys = list(keys)
-        self._dict = {k: v for k, v in zip(self._keys, row)}
+        self._keys = keys
+        self._dict = {k: v for k, v in zip(keys, row)} if keys else {}
     
     def __getitem__(self, key):
         return self._dict[key]
@@ -604,30 +614,32 @@ def _get_summary_cached(conn) -> dict:
 
 def migrate_if_needed() -> None:
     conn = db()
-    # Add risk_state column to tasks if missing (v1.1.0)
     try:
-        conn.execute('ALTER TABLE tasks ADD COLUMN risk_state TEXT NOT NULL DEFAULT "none"')
-    except sqlite3.OperationalError:
-        pass  # Column already exists
+        # Add risk_state column to tasks if missing (v1.1.0)
+        try:
+            conn.execute('ALTER TABLE tasks ADD COLUMN risk_state TEXT NOT NULL DEFAULT "none"')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
 
-    # Add critical to priority if needed (v1.1.0)
-    # Note: SQLite doesn't enforce CHECK constraints dynamically, so no migration needed
+        # Add critical to priority if needed (v1.1.0)
+        # Note: SQLite doesn't enforce CHECK constraints dynamically, so no migration needed
 
-    if project_count(conn) == 0:
-        if LEGACY_JSON_FILE.exists():
-            data = json.loads(LEGACY_JSON_FILE.read_text())
-        else:
-            data = DEFAULT_DATA
-        import_projects(conn, data.get('projects', []))
-    if event_count(conn) == 0 and LEGACY_EVENTS_FILE.exists():
-        data = json.loads(LEGACY_EVENTS_FILE.read_text())
-        for event in data.get('events', []):
-            conn.execute(
-                'INSERT OR REPLACE INTO events (id, kind, created_at, payload_json) VALUES (?, ?, ?, ?)',
-                (event.get('id') or new_id('event'), event.get('kind', 'legacy.event'), event.get('createdAt', now_iso()), json.dumps(event.get('payload', {}))),
-            )
-    conn.commit()
-    conn.close()
+        if project_count(conn) == 0:
+            if LEGACY_JSON_FILE.exists():
+                data = json.loads(LEGACY_JSON_FILE.read_text())
+            else:
+                data = DEFAULT_DATA
+            import_projects(conn, data.get('projects', []))
+        if event_count(conn) == 0 and LEGACY_EVENTS_FILE.exists():
+            data = json.loads(LEGACY_EVENTS_FILE.read_text())
+            for event in data.get('events', []):
+                conn.execute(
+                    'INSERT OR REPLACE INTO events (id, kind, created_at, payload_json) VALUES (?, ?, ?, ?)',
+                    (event.get('id') or new_id('event'), event.get('kind', 'legacy.event'), event.get('createdAt', now_iso()), json.dumps(event.get('payload', {}))),
+                )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def import_projects(conn: sqlite3.Connection, projects: list[dict]) -> None:
@@ -718,22 +730,24 @@ def list_events(conn: sqlite3.Connection, limit: int = 50, offset: int = 0) -> l
 
 def record_event(kind: str, payload: dict) -> dict:
     conn = db()
-    entry = {
-        'id': new_id('event'),
-        'kind': kind,
-        'createdAt': now_iso(),
-        'payload': payload,
-    }
-    conn.execute(
-        'INSERT INTO events (id, kind, created_at, payload_json) VALUES (?, ?, ?, ?)',
-        (entry['id'], entry['kind'], entry['createdAt'], json.dumps(entry['payload'])),
-    )
-    conn.execute(
-        "DELETE FROM events WHERE id NOT IN (SELECT id FROM events ORDER BY created_at DESC LIMIT 500)"
-    )
-    conn.commit()
-    conn.close()
-    return entry
+    try:
+        entry = {
+            'id': new_id('event'),
+            'kind': kind,
+            'createdAt': now_iso(),
+            'payload': payload,
+        }
+        conn.execute(
+            'INSERT INTO events (id, kind, created_at, payload_json) VALUES (?, ?, ?, ?)',
+            (entry['id'], entry['kind'], entry['createdAt'], json.dumps(entry['payload'])),
+        )
+        conn.execute(
+            "DELETE FROM events WHERE id NOT IN (SELECT id FROM events ORDER BY created_at DESC LIMIT 500)"
+        )
+        conn.commit()
+        return entry
+    finally:
+        conn.close()
 
 
 def new_id(prefix: str) -> str:
@@ -882,30 +896,88 @@ class Handler(BaseHTTPRequestHandler):
         status = q.get('status', [None])[0]
         conn = db()
 
-        if parsed.path == '/api/health':
-            redis_status = 'unknown'
-            redis = get_redis()
-            if redis:
-                try:
-                    redis.ping()
-                    redis_status = 'connected'
-                except Exception:
-                    redis_status = 'disconnected'
-            else:
-                redis_status = 'not_available'
-            
-            storage_type = 'postgresql' if USE_POSTGRES else 'sqlite'
-            self.send_json(200, {
-                'status': 'ok',
-                'service': 'forge-pipeline-api',
-                'authEnabled': bool(API_KEY),
-                'storage': storage_type,
-                'redis': redis_status,
-                'redisAvailable': REDIS_AVAILABLE,
-            })
-            self.log_request_done(200)
+        try:
+            if parsed.path == '/api/health':
+                redis_status = 'unknown'
+                redis = get_redis()
+                if redis:
+                    try:
+                        redis.ping()
+                        redis_status = 'connected'
+                    except Exception:
+                        redis_status = 'disconnected'
+                else:
+                    redis_status = 'not_available'
+                
+                storage_type = 'postgresql' if USE_POSTGRES else 'sqlite'
+                self.send_json(200, {
+                    'status': 'ok',
+                    'service': 'forge-pipeline-api',
+                    'authEnabled': bool(API_KEY),
+                    'storage': storage_type,
+                    'redis': redis_status,
+                    'redisAvailable': REDIS_AVAILABLE,
+                })
+                self.log_request_done(200)
+                return
+
+            if parsed.path == '/api/summary':
+                # Use cached summary (60s TTL)
+                summary = _get_summary_cached(conn)
+                self.send_json(200, summary)
+                self.log_request_done(200)
+                return
+
+            if parsed.path == '/api/projects':
+                limit = int(q.get('limit', ['100'])[0])
+                offset = int(q.get('offset', ['0'])[0])
+                total = count_projects(conn)
+                projects = [p for p in list_projects(conn, limit=limit, offset=offset) if project_matches(p, query, status)]
+                has_more = offset + limit < total
+                self.send_json(200, {'projects': projects, 'total': total, 'limit': limit, 'offset': offset, 'hasMore': has_more})
+                self.log_request_done(200)
+                return
+
+            if parsed.path.startswith('/api/projects/') and '/tasks' not in parsed.path:
+                project_id = parsed.path.split('/')[3]
+                project = get_project(conn, project_id)
+                if not project:
+                    self.send_json(404, {'error': 'project_not_found', 'id': project_id})
+                    return
+                self.send_json(200, project)
+                return
+
+            if parsed.path == '/api/tasks':
+                limit = int(q.get('limit', ['100'])[0])
+                offset = int(q.get('offset', ['0'])[0])
+                status_filter = q.get('status', [None])[0]
+                priority_filter = q.get('priority', [None])[0]
+                query_text = q.get('q', [None])[0]
+                
+                all_tasks = []
+                for project in list_projects(conn):
+                    for task in project.get('tasks', []):
+                        if status_filter and task.get('status') != status_filter:
+                            continue
+                        if priority_filter and task.get('priority') != priority_filter:
+                            continue
+                        if query_text and query_text.lower() not in task.get('title', '').lower():
+                            continue
+                        all_tasks.append({**task, 'projectId': project['id'], 'projectName': project['name']})
+                
+                self.send_json(200, {'tasks': all_tasks, 'total': len(all_tasks)})
+                return
+
+            if parsed.path == '/api/events':
+                limit = int(q.get('limit', ['50'])[0])
+                offset = int(q.get('offset', ['0'])[0])
+                events = list_events(conn, limit=limit, offset=offset)
+                self.send_json(200, {'events': events})
+                return
+
+            self.send_json(404, {'error': 'not_found', 'path': parsed.path})
+        finally:
             conn.close()
-            return
 
         if parsed.path == '/api/summary':
             # Use cached summary (60s TTL)
@@ -989,11 +1061,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.require_api_key():
             return
+        parsed = urlparse(self.path)
+        body = self.read_json()
+        conn = db()
         try:
-            parsed = urlparse(self.path)
-            body = self.read_json()
-            conn = db()
-
             if parsed.path == '/api/projects':
                 clean = validate_project_payload(body, partial=False)
                 source = derive_source(body)
@@ -1005,7 +1076,6 @@ class Handler(BaseHTTPRequestHandler):
                 )
                 conn.commit()
                 project = get_project(conn, pid)
-                conn.close()
                 record_event('project.created', {'projectId': pid, 'name': project['name']})
                 invalidate_cache('summary')
                 self.send_json(201, project)
@@ -1015,7 +1085,6 @@ class Handler(BaseHTTPRequestHandler):
                 project_id = parsed.path.split('/')[3]
                 project = get_project(conn, project_id)
                 if not project:
-                    conn.close()
                     self.send_json(404, {'error': 'project_not_found', 'id': project_id})
                     return
                 clean = validate_task_payload(body, partial=False)
@@ -1029,7 +1098,6 @@ class Handler(BaseHTTPRequestHandler):
                 conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
                 conn.commit()
                 task = get_task(conn, project_id, tid)
-                conn.close()
                 record_event('task.created', {'projectId': project_id, 'taskId': tid, 'title': task['title']})
                 invalidate_cache('summary')
                 self.send_json(201, task)
@@ -1039,13 +1107,11 @@ class Handler(BaseHTTPRequestHandler):
                 require_object(body)
                 projects = body.get('projects', [])
                 if not isinstance(projects, list):
-                    conn.close()
                     raise ValidationError('projects must be a list', 'projects')
                 conn.execute('DELETE FROM tasks')
                 conn.execute('DELETE FROM projects')
                 import_projects(conn, projects)
                 conn.commit()
-                conn.close()
                 record_event('bulk.import', {'projectCount': len(projects)})
                 self.send_json(200, {'ok': True, 'projectCount': len(projects)})
                 return
@@ -1053,7 +1119,6 @@ class Handler(BaseHTTPRequestHandler):
             if parsed.path == '/api/mcp/project-upsert':
                 project, action = upsert_project(conn, body)
                 conn.commit()
-                conn.close()
                 record_event('mcp.project-upsert', {'action': action, 'projectId': project['id'], 'name': project['name']})
                 self.send_json(200, {'ok': True, 'action': action, 'project': project})
                 return

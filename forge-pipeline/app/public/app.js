@@ -176,6 +176,138 @@ function bindUI() {
   document.getElementById('projectGrid').addEventListener('click', handleGridClick);
   document.getElementById('projectGrid').addEventListener('change', handleGridChange);
   document.getElementById('refreshEventsButton').addEventListener('click', refresh);
+  
+  // FP-061: Task Detail Drawer
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerCancel').addEventListener('click', closeDrawer);
+  document.getElementById('drawerSave').addEventListener('click', saveDrawerChanges);
+}
+
+// FP-061: Task Detail Drawer
+let currentDrawerTask = null;
+let currentDrawerProject = null;
+
+function openTaskDrawer(projectId, taskId) {
+  const project = state.projects.find(p => p.id === projectId);
+  if (!project) return;
+  const task = project.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  
+  currentDrawerTask = task;
+  currentDrawerProject = project;
+  
+  const drawer = document.getElementById('taskDrawer');
+  const title = document.getElementById('drawerTitle');
+  const content = document.getElementById('drawerContent');
+  
+  title.textContent = task.title || 'Task Details';
+  content.innerHTML = `
+    <div class="drawer-field">
+      <label>Title</label>
+      <input id="drawerTitleInput" value="${escapeHtml(task.title || '')}" />
+    </div>
+    <div class="drawer-field">
+      <label>Status</label>
+      <select id="drawerStatusInput">
+        ${['todo','in-progress','blocked','done'].map(s => `<option value="${s}" ${task.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="drawer-field">
+      <label>Priority</label>
+      <select id="drawerPriorityInput">
+        ${['low','medium','high','critical'].map(s => `<option value="${s}" ${task.priority === s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="drawer-field">
+      <label>Risk State</label>
+      <select id="drawerRiskInput">
+        ${['none','watch','at-risk','critical'].map(s => `<option value="${s}" ${(task.riskState || 'none') === s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="drawer-field">
+      <label>Due Date</label>
+      <input type="date" id="drawerDueInput" value="${task.dueDate || ''}" />
+    </div>
+    <div class="drawer-field">
+      <label>Tags</label>
+      <input id="drawerTagsInput" value="${escapeHtml((task.tags || []).join(', '))}" placeholder="source:x, component:y" />
+    </div>
+    <div class="drawer-field">
+      <label>Notes</label>
+      <textarea id="drawerNotesInput" rows="4">${escapeHtml(task.notes || '')}</textarea>
+    </div>
+  `;
+  
+  drawer.style.display = 'flex';
+}
+
+function closeDrawer() {
+  document.getElementById('taskDrawer').style.display = 'none';
+  currentDrawerTask = null;
+  currentDrawerProject = null;
+}
+
+async function saveDrawerChanges() {
+  if (!currentDrawerTask || !currentDrawerProject) return;
+  
+  const payload = {
+    title: document.getElementById('drawerTitleInput').value,
+    status: document.getElementById('drawerStatusInput').value,
+    priority: document.getElementById('drawerPriorityInput').value,
+    riskState: document.getElementById('drawerRiskInput').value,
+    dueDate: document.getElementById('drawerDueInput').value,
+    tags: document.getElementById('drawerTagsInput').value.split(',').map(s => s.trim()).filter(Boolean),
+    notes: document.getElementById('drawerNotesInput').value,
+  };
+  
+  await request(`/projects/${currentDrawerProject.id}/tasks/${currentDrawerTask.id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+  
+  closeDrawer();
+  await refresh();
+}
+
+// FP-062: Quick Actions
+function handleQuickAction(action, projectId, taskId) {
+  const project = state.projects.find(p => p.id === projectId);
+  if (!project) return;
+  const task = project.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  
+  switch (action) {
+    case 'edit':
+      openTaskDrawer(projectId, taskId);
+      break;
+    case 'done':
+      quickUpdateTask(projectId, taskId, { status: 'done' });
+      break;
+    case 'block':
+      quickUpdateTask(projectId, taskId, { status: 'blocked' });
+      break;
+    case 'start':
+      quickUpdateTask(projectId, taskId, { status: 'in-progress' });
+      break;
+    case 'delete':
+      if (confirm(`Delete task "${task.title}"?`)) {
+        deleteTask(projectId, taskId);
+      }
+      break;
+  }
+}
+
+async function quickUpdateTask(projectId, taskId, updates) {
+  await request(`/projects/${projectId}/tasks/${taskId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+  await refresh();
+}
+
+async function deleteTask(projectId, taskId) {
+  await request(`/projects/${projectId}/tasks/${taskId}`, { method: 'DELETE' });
+  await refresh();
 }
 
 async function onCreateProject(event) {
@@ -227,6 +359,19 @@ async function handleGridClick(event) {
 
   if (action === 'delete-task') {
     await request(`/projects/${projectId}/tasks/${taskId}`, { method: 'DELETE' });
+  }
+
+  // FP-062: Quick actions
+  if (action === 'quick-edit') {
+    openTaskDrawer(projectId, taskId);
+    return;
+  }
+
+  if (action === 'quick-done') {
+    await request(`/projects/${projectId}/tasks/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'done' }),
+    });
   }
 
   await refresh();
@@ -857,7 +1002,11 @@ function renderProjectCard(project) {
           <div class="${taskClasses}">
             <div class="task-top">
               <input class="task-title-input" data-project-id="${project.id}" data-task-id="${task.id}" data-field="title" value="${escapeHtml(task.title || '')}" />
-              <button class="icon-button danger small" data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}">Delete</button>
+              <div class="quick-actions">
+                <button class="quick-btn" data-action="quick-edit" data-project-id="${project.id}" data-task-id="${task.id}" title="Edit">✎</button>
+                <button class="quick-btn" data-action="quick-done" data-project-id="${project.id}" data-task-id="${task.id}" title="Mark done">✓</button>
+                <button class="quick-btn danger" data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="Delete">×</button>
+              </div>
             </div>
             <div class="task-edit-grid">
               <label>Status

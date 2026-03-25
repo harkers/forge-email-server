@@ -1,6 +1,6 @@
 {
   "testId": "T02_tiebreak_deadline",
-  "timestamp": "2026-03-25T14:53:51.236373+00:00",
+  "timestamp": "2026-03-25T18:35:02.201783+00:00",
   "expected": {
     "selectedJob": "CP-202",
     "outcome": "dispatch"

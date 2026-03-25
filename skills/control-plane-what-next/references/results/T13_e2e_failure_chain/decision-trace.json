@@ -1,6 +1,6 @@
 {
   "testId": "T13_e2e_failure_chain",
-  "timestamp": "2026-03-25T14:53:51.241838+00:00",
+  "timestamp": "2026-03-25T18:35:02.207490+00:00",
   "expected": {
     "selectedJob": "CP-1301",
     "outcome": "failure_chain_paused"

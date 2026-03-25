@@ -1,6 +1,6 @@
 {
   "testId": "T01_priority_p0_beats_all",
-  "timestamp": "2026-03-25T14:53:51.235728+00:00",
+  "timestamp": "2026-03-25T18:35:02.201169+00:00",
   "expected": {
     "selectedJob": "CP-106",
     "outcome": "dispatch"
@@ -13,11 +13,11 @@
   "candidates": [
     {
       "jobId": "CP-106",
-      "priorityScore": 42,
+      "priorityScore": 44,
       "assignedPriority": "P0",
       "severity": 4,
       "blockingBreadth": 4,
-      "deadlineProximity": 4,
+      "deadlineProximity": 5,
       "businessImpact": 5,
       "executionReadiness": 4,
       "executionEffort": 4,
@@ -43,11 +43,11 @@
     },
     {
       "jobId": "CP-119",
-      "priorityScore": 25,
+      "priorityScore": 27,
       "assignedPriority": "P0",
       "severity": 3,
       "blockingBreadth": 0,
-      "deadlineProximity": 4,
+      "deadlineProximity": 5,
       "businessImpact": 3,
       "executionReadiness": 4,
       "executionEffort": 2,
