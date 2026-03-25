@@ -1,9 +1,20 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.0.3** — 2026-03-24
+**v1.1.0** — 2026-03-25
 
 ## Changelog
+
+### v1.1.0 (2026-03-25)
+- FP-001: Add `critical` priority to tasks
+  - ALLOWED_PRIORITY now includes: low, medium, high, critical
+- FP-002: Add `risk_state` to tasks
+  - ALLOWED_RISK_STATE: none, watch, at-risk, critical
+  - Database migration for existing tables
+  - Full CRUD support for risk_state
+- Fix default project status bug
+  - Changed invalid `'active'` default to `'not-started'`
+  - Fixed all status validation errors on POST requests
 
 ### v1.0.3 (2026-03-24)
 - Redis cache layer deployed

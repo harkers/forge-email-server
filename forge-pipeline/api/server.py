@@ -46,7 +46,8 @@ def get_redis() -> Redis | None:
 
 ALLOWED_PROJECT_STATUS = {'on-track', 'at-risk', 'off-track', 'not-started', 'in-progress', 'blocked', 'completed', 'overdue', 'cancelled'}
 ALLOWED_TASK_STATUS = {'todo', 'in-progress', 'blocked', 'done'}
-ALLOWED_PRIORITY = {'low', 'medium', 'high'}
+ALLOWED_PRIORITY = {'low', 'medium', 'high', 'critical'}
+ALLOWED_RISK_STATE = {'none', 'watch', 'at-risk', 'critical'}
 MAX_NAME = 200
 MAX_TEXT = 5000
 MAX_TAGS = 50
@@ -59,7 +60,7 @@ DEFAULT_DATA = {
             "name": "Privacy / DSAR",
             "description": "Handle access requests and related compliance tasks.",
             "notes": "Track deadlines carefully and maintain a full audit trail.",
-            "status": "active",
+            "status": "not-started",
             "tags": ["source:privacy-dsar", "privacy", "compliance"],
             "updatedAt": None,
             "tasks": [
@@ -80,7 +81,7 @@ DEFAULT_DATA = {
             "name": "Display Forge",
             "description": "Build the signage platform and playback stack.",
             "notes": "Focus on API, scheduling, playback resilience, and admin flow.",
-            "status": "active",
+            "status": "not-started",
             "tags": ["source:display-forge", "signage", "platform"],
             "updatedAt": None,
             "tasks": [
@@ -185,6 +186,7 @@ def init_db() -> None:
             title TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'todo',
             priority TEXT NOT NULL DEFAULT 'medium',
+            risk_state TEXT NOT NULL DEFAULT 'none',
             due_date TEXT NOT NULL DEFAULT '',
             tags_json TEXT NOT NULL DEFAULT '[]',
             notes TEXT NOT NULL DEFAULT '',
@@ -264,6 +266,13 @@ def clean_priority(value):
     return value
 
 
+def clean_risk_state(value):
+    value = clean_string(value or 'none', 'risk_state', max_len=32, allow_empty=False)
+    if value not in ALLOWED_RISK_STATE:
+        raise ValidationError(f'invalid risk_state: {value}', 'risk_state')
+    return value
+
+
 def clean_due_date(value):
     value = clean_string(value or '', 'dueDate', max_len=32, allow_empty=True)
     if value and len(value) != 10:
@@ -324,6 +333,8 @@ def validate_task_payload(body, partial=False):
         out['status'] = clean_task_status(body.get('status', 'todo'))
     if not partial or 'priority' in body:
         out['priority'] = clean_priority(body.get('priority', 'medium'))
+    if not partial or 'riskState' in body:
+        out['riskState'] = clean_risk_state(body.get('riskState', 'none'))
     if not partial or 'dueDate' in body:
         out['dueDate'] = clean_due_date(body.get('dueDate', ''))
     if not partial or 'tags' in body:
@@ -385,6 +396,15 @@ def _get_summary_cached(conn: sqlite3.Connection) -> dict:
 
 def migrate_if_needed() -> None:
     conn = db()
+    # Add risk_state column to tasks if missing (v1.1.0)
+    try:
+        conn.execute('ALTER TABLE tasks ADD COLUMN risk_state TEXT NOT NULL DEFAULT "none"')
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    # Add critical to priority if needed (v1.1.0)
+    # Note: SQLite doesn't enforce CHECK constraints dynamically, so no migration needed
+
     if project_count(conn) == 0:
         if LEGACY_JSON_FILE.exists():
             data = json.loads(LEGACY_JSON_FILE.read_text())
@@ -414,8 +434,8 @@ def import_projects(conn: sqlite3.Connection, projects: list[dict]) -> None:
         for task_raw in next((p.get('tasks', []) for p in projects if p.get('id', pid) == project.get('id', pid) or p.get('name') == project.get('name')), []):
             task = validate_task_payload(task_raw, partial=True) | {'title': task_raw.get('title', 'Untitled task')}
             conn.execute(
-                'INSERT OR REPLACE INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                (task.get('id') or new_id('task'), pid, task.get('title', 'Untitled task'), task.get('status', 'todo'), task.get('priority', 'medium'), task.get('dueDate', ''), json.dumps(task.get('tags', [])), task.get('notes', ''), stamp),
+                'INSERT OR REPLACE INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                (task.get('id') or new_id('task'), pid, task.get('title', 'Untitled task'), task.get('status', 'todo'), task.get('priority', 'medium'), task.get('riskState', 'none'), task.get('dueDate', ''), json.dumps(task.get('tags', [])), task.get('notes', ''), stamp),
             )
 
 
@@ -438,6 +458,7 @@ def row_to_task(row: sqlite3.Row) -> dict:
         'title': row['title'],
         'status': row['status'],
         'priority': row['priority'],
+        'riskState': row['risk_state'] if 'risk_state' in row.keys() else 'none',
         'dueDate': row['due_date'],
         'tags': json.loads(row['tags_json'] or '[]'),
         'notes': row['notes'],
@@ -589,16 +610,16 @@ def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[
     if task:
         merged = {**task, **clean, 'updatedAt': now_iso()}
         conn.execute(
-            'UPDATE tasks SET title = ?, status = ?, priority = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
-            (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), merged['updatedAt'], merged['id'], project_id),
+            'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
+            (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), merged['updatedAt'], merged['id'], project_id),
         )
         conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
         return get_task(conn, project_id, merged['id']), 'updated'
 
     tid = task_id or new_id('task')
     conn.execute(
-        'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (tid, project_id, title or 'Untitled task', clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
+        'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (tid, project_id, title or 'Untitled task', clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
     )
     conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
     return get_task(conn, project_id, tid), 'created'
@@ -793,8 +814,8 @@ class Handler(BaseHTTPRequestHandler):
                 clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
                 tid = clean.get('id') or new_id('task')
                 conn.execute(
-                    'INSERT INTO tasks (id, project_id, title, status, priority, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    (tid, project_id, clean['title'], clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
+                    'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    (tid, project_id, clean['title'], clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
                 )
                 conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
                 conn.commit()
@@ -1017,13 +1038,14 @@ class Handler(BaseHTTPRequestHandler):
                     'title': clean.get('title', 'Untitled task'),
                     'status': clean.get('status', 'todo'),
                     'priority': clean.get('priority', 'medium'),
+                    'riskState': clean.get('riskState', 'none'),
                     'dueDate': clean.get('dueDate', ''),
                     'tags': clean.get('tags', []),
                     'notes': clean.get('notes', ''),
                 } if replace else {**task, **clean})
                 conn.execute(
-                    'UPDATE tasks SET title = ?, status = ?, priority = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
-                    (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), now_iso(), task_id, project_id),
+                    'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
+                    (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), now_iso(), task_id, project_id),
                 )
                 conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
                 conn.commit()
