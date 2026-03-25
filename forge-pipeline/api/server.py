@@ -174,7 +174,7 @@ def init_db() -> None:
             name TEXT NOT NULL,
             description TEXT NOT NULL DEFAULT '',
             notes TEXT NOT NULL DEFAULT '',
-            status TEXT NOT NULL DEFAULT 'active',
+            status TEXT NOT NULL DEFAULT 'not-started',
             tags_json TEXT NOT NULL DEFAULT '[]',
             updated_at TEXT NOT NULL
         );
@@ -244,7 +244,7 @@ def clean_tags(value, field='tags'):
 
 
 def clean_project_status(value):
-    value = clean_string(value or 'active', 'status', max_len=32, allow_empty=False)
+    value = clean_string(value or 'not-started', 'status', max_len=32, allow_empty=False)
     if value not in ALLOWED_PROJECT_STATUS:
         raise ValidationError(f'invalid project status: {value}', 'status')
     return value
@@ -305,7 +305,7 @@ def validate_project_payload(body, partial=False):
     if not partial or 'notes' in body:
         out['notes'] = clean_string(body.get('notes', ''), 'notes')
     if not partial or 'status' in body:
-        out['status'] = clean_project_status(body.get('status', 'active'))
+        out['status'] = clean_project_status(body.get('status', 'not-started'))
     if not partial or 'tags' in body:
         out['tags'] = clean_tags(body.get('tags', []))
     if 'id' in body and body['id'] is not None:
@@ -409,7 +409,7 @@ def import_projects(conn: sqlite3.Connection, projects: list[dict]) -> None:
         pid = project.get('id') or slugify(project.get('name', 'project'))
         conn.execute(
             'INSERT OR REPLACE INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (pid, project.get('name', 'Untitled project'), project.get('description', ''), project.get('notes', ''), project.get('status', 'active'), json.dumps(project.get('tags', [])), stamp),
+            (pid, project.get('name', 'Untitled project'), project.get('description', ''), project.get('notes', ''), project.get('status', 'not-started'), json.dumps(project.get('tags', [])), stamp),
         )
         for task_raw in next((p.get('tasks', []) for p in projects if p.get('id', pid) == project.get('id', pid) or p.get('name') == project.get('name')), []):
             task = validate_task_payload(task_raw, partial=True) | {'title': task_raw.get('title', 'Untitled task')}
@@ -564,14 +564,14 @@ def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
         merged = {**project, **clean, 'updatedAt': now_iso()}
         conn.execute(
             'UPDATE projects SET name = ?, description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
-            (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'active'), json.dumps(merged.get('tags', [])), merged['updatedAt'], merged['id']),
+            (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'not-started'), json.dumps(merged.get('tags', [])), merged['updatedAt'], merged['id']),
         )
         return get_project(conn, merged['id']), 'updated'
 
     pid = project_id or slugify(name or 'project')
     conn.execute(
         'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        (pid, name or 'Untitled project', clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'active'), json.dumps(clean.get('tags', [])), now_iso()),
+        (pid, name or 'Untitled project', clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'not-started'), json.dumps(clean.get('tags', [])), now_iso()),
     )
     return get_project(conn, pid), 'created'
 
@@ -771,7 +771,7 @@ class Handler(BaseHTTPRequestHandler):
                 pid = clean.get('id') or new_id('project')
                 conn.execute(
                     'INSERT INTO projects (id, name, description, notes, status, tags_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    (pid, clean['name'], clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'active'), json.dumps(clean.get('tags', [])), now_iso()),
+                    (pid, clean['name'], clean.get('description', ''), clean.get('notes', ''), clean.get('status', 'not-started'), json.dumps(clean.get('tags', [])), now_iso()),
                 )
                 conn.commit()
                 project = get_project(conn, pid)
@@ -858,7 +858,7 @@ class Handler(BaseHTTPRequestHandler):
                 notes = project.get('notes', '')
                 if body.get('note'):
                     notes = (notes + '\n\n' + clean_string(body['note'], 'note')).strip()
-                status_value = clean_project_status(body.get('status', project.get('status', 'active'))) if 'status' in body else project.get('status', 'active')
+                status_value = clean_project_status(body.get('status', project.get('status', 'not-started'))) if 'status' in body else project.get('status', 'not-started')
                 source = derive_source(body)
                 tags = sorted(set(project.get('tags', [])) | set(clean_tags(body.get('tags', [])))) if 'tags' in body else project.get('tags', [])
                 tags = ensure_source_tag(tags, source)
@@ -916,7 +916,7 @@ class Handler(BaseHTTPRequestHandler):
                     notes = project.get('notes', '')
                     if body.get('note'):
                         notes = (notes + '\n\n' + clean_string(body['note'], 'note')).strip()
-                    status_value = clean_project_status(body.get('status', project.get('status', 'active'))) if 'status' in body else project.get('status', 'active')
+                    status_value = clean_project_status(body.get('status', project.get('status', 'not-started'))) if 'status' in body else project.get('status', 'not-started')
                     tags = sorted(set(project.get('tags', [])) | set(clean_tags(body.get('tags', [])))) if 'tags' in body else project.get('tags', [])
                     tags = ensure_source_tag(tags, source)
                     conn.execute(
@@ -983,12 +983,12 @@ class Handler(BaseHTTPRequestHandler):
                     'name': clean.get('name', 'Untitled project'),
                     'description': clean.get('description', ''),
                     'notes': clean.get('notes', ''),
-                    'status': clean.get('status', 'active'),
+                    'status': clean.get('status', 'not-started'),
                     'tags': clean.get('tags', []),
                 } if replace else {**project, **clean})
                 conn.execute(
                     'UPDATE projects SET name = ?, description = ?, notes = ?, status = ?, tags_json = ?, updated_at = ? WHERE id = ?',
-                    (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'active'), json.dumps(merged.get('tags', [])), now_iso(), project_id),
+                    (merged['name'], merged.get('description', ''), merged.get('notes', ''), merged.get('status', 'not-started'), json.dumps(merged.get('tags', [])), now_iso(), project_id),
                 )
                 conn.commit()
                 updated = get_project(conn, project_id)
