@@ -40,3 +40,6 @@ Each work unit should include:
 
 ## Handoff
 Route plans back to manager or to the assigned worker owner.
+
+## References
+Read `references/examples.md` for decomposition examples and anti-patterns.

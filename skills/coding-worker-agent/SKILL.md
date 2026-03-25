@@ -36,3 +36,6 @@ If validation could not be run, say so explicitly.
 
 ## Handoff
 Route back to manager or reviewer.
+
+## References
+Read `references/examples.md` for strong vs weak completion packets.

@@ -24,3 +24,6 @@ Return:
 - risk notes
 - ownership/boundary corrections
 - recommended next changes
+
+## References
+Read `references/examples.md` for architecture review focus and example findings.

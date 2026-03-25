@@ -26,3 +26,6 @@ Return:
 - citations or source references
 - unresolved questions
 - recommendation for downstream drafting or review
+
+## References
+Read `references/examples.md` for evidence-backed research output patterns.

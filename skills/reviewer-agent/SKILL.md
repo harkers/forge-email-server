@@ -32,3 +32,6 @@ A useful review points to:
 - concrete behaviors
 - concrete mismatches
 - actionable next fixes
+
+## References
+Read `references/examples.md` for examples of strong and weak review findings.

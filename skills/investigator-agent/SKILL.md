@@ -28,3 +28,6 @@ Return:
 - likely cause(s)
 - unresolved questions
 - next recommended action
+
+## References
+Read `references/examples.md` for good vs weak investigation outputs.

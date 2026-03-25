@@ -28,3 +28,6 @@ Turn structured findings into clean deliverables.
 
 ## Handoff
 Route back to manager or reviewer for approval.
+
+## References
+Read `references/examples.md` for drafting quality expectations and anti-patterns.

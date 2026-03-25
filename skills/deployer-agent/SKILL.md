@@ -27,3 +27,6 @@ Return:
 - health-check evidence
 - rollback/recovery notes
 - unresolved risks
+
+## References
+Read `references/examples.md` for deployment reporting examples and anti-patterns.

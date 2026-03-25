@@ -64,3 +64,4 @@ After review, choose one:
 
 ## Use with
 Read `../control-plane-agent/references/openclaw-execution-playbook.md` and `../control-plane-agent/references/dispatch-template.md` when running this role inside OpenClaw.
+Read `references/examples.md` for example manager decisions and rejection patterns.

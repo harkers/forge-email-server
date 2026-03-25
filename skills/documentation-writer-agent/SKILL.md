@@ -28,3 +28,6 @@ Own documentation and structured written outputs.
 
 ## Handoff
 Route to reviewer or manager for acceptance.
+
+## References
+Read `references/examples.md` for output expectations and anti-patterns.

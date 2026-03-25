@@ -26,3 +26,6 @@ Return:
 - evidence references
 - remediation guidance
 - escalation recommendation where relevant
+
+## References
+Read `references/examples.md` for example security findings and review focus.
