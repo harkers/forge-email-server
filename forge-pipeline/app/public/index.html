@@ -95,13 +95,40 @@
               <option value="blocked">blocked</option>
               <option value="done">done</option>
             </select>
+            <select id="priorityFilter">
+              <option value="all">All priorities</option>
+              <option value="critical">critical</option>
+              <option value="high">high</option>
+              <option value="medium">medium</option>
+              <option value="low">low</option>
+            </select>
+            <select id="riskFilter">
+              <option value="all">All risk levels</option>
+              <option value="none">none</option>
+              <option value="watch">watch</option>
+              <option value="at-risk">at-risk</option>
+              <option value="critical">critical</option>
+            </select>
             <select id="sourceFilter">
               <option value="all">All sources</option>
+            </select>
+            <select id="sortOrder">
+              <option value="priority-desc">Priority (high→low)</option>
+              <option value="priority-asc">Priority (low→high)</option>
+              <option value="due-asc">Due date (soonest)</option>
+              <option value="due-desc">Due date (latest)</option>
+              <option value="updated-desc">Recently updated</option>
+              <option value="updated-asc">Least recent</option>
             </select>
             <select id="viewMode">
               <option value="portfolio">Portfolio view</option>
               <option value="kanban">Kanban view</option>
             </select>
+            <div class="density-toggle">
+              <button id="densityComfortable" class="density-btn active" title="Comfortable">☰</button>
+              <button id="densityCompact" class="density-btn" title="Compact">≡</button>
+              <button id="densityTight" class="density-btn" title="Tight">▦</button>
+            </div>
           </div>
 
           <div class="api-note">

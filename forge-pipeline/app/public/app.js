@@ -17,7 +17,7 @@ const PROJECT_STATUSES = [
 const KANBAN_COLUMNS = ['todo', 'in-progress', 'blocked', 'done'];
 
 let state = { projects: [] };
-let filters = { search: '', status: 'all', source: 'all', viewMode: 'portfolio' };
+let filters = { search: '', status: 'all', source: 'all', viewMode: 'portfolio', priority: 'all', risk: 'all', sort: 'priority-desc', density: 'comfortable' };
 let recentEvents = [];
 let isRefreshing = false;
 let lastRefreshAt = null;
@@ -150,6 +150,28 @@ function bindUI() {
   document.getElementById('viewMode').addEventListener('change', (e) => {
     filters.viewMode = e.target.value;
     render();
+  });
+  document.getElementById('priorityFilter').addEventListener('change', (e) => {
+    filters.priority = e.target.value;
+    render();
+  });
+  document.getElementById('riskFilter').addEventListener('change', (e) => {
+    filters.risk = e.target.value;
+    render();
+  });
+  document.getElementById('sortOrder').addEventListener('change', (e) => {
+    filters.sort = e.target.value;
+    render();
+  });
+  // FP-064: Density toggle
+  document.querySelectorAll('.density-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.density-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      filters.density = e.target.id.replace('density', '').toLowerCase();
+      document.body.dataset.density = filters.density;
+      render();
+    });
   });
   document.getElementById('projectGrid').addEventListener('click', handleGridClick);
   document.getElementById('projectGrid').addEventListener('change', handleGridChange);
@@ -302,7 +324,9 @@ function taskMatches(task) {
   const matchesSearch = !filters.search || searchBlob.includes(filters.search);
   const matchesStatus = filters.status === 'all' || task.status === filters.status;
   const matchesSource = filters.source === 'all' || (task.tags || []).includes(filters.source);
-  return matchesSearch && matchesStatus && matchesSource;
+  const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
+  const matchesRisk = filters.risk === 'all' || (task.riskState || 'none') === filters.risk;
+  return matchesSearch && matchesStatus && matchesSource && matchesPriority && matchesRisk;
 }
 
 function projectMatches(project) {
@@ -579,6 +603,34 @@ function scoreTask(task) {
   return priorityScore * 10 + riskScore * 5 + statusScore * 3 + dueBonus;
 }
 
+// FP-063: Sorting logic
+function sortTasks(tasks) {
+  const sorted = [...tasks];
+  const [field, direction] = (filters.sort || 'priority-desc').split('-');
+  
+  sorted.sort((a, b) => {
+    let cmp = 0;
+    
+    if (field === 'priority') {
+      const pa = { critical: 4, high: 3, medium: 2, low: 1 }[a.priority] || 0;
+      const pb = { critical: 4, high: 3, medium: 2, low: 1 }[b.priority] || 0;
+      cmp = pa - pb;
+    } else if (field === 'due') {
+      const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      cmp = da - db;
+    } else if (field === 'updated') {
+      const ua = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const ub = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      cmp = ua - ub;
+    }
+    
+    return direction === 'desc' ? -cmp : cmp;
+  });
+  
+  return sorted;
+}
+
 function renderMiniList(targetId, items, emptyText) {
   const el = document.getElementById(targetId);
   if (!items.length) {
@@ -719,9 +771,9 @@ function renderPortfolioProjects() {
 
 function renderKanban() {
   const grid = document.getElementById('projectGrid');
-  const tasks = visibleProjects().flatMap(project =>
+  const tasks = sortTasks(visibleProjects().flatMap(project =>
     (project.tasks || []).filter(taskMatches).map(task => ({ ...task, projectName: project.name, projectTags: project.tags || [] }))
-  );
+  ));
 
   grid.innerHTML = `
     <section class="kanban-board">
