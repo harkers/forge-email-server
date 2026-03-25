@@ -415,6 +415,30 @@ body[data-density="tight"] .badge { padding: 2px 6px; font-size: 10px; }
 .font-mono { font-family: var(--font-mono); }
 .text-gradient { background: linear-gradient(135deg, var(--accent-light) 0%, var(--violet) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
+/* FP-091: Dependency Panel */
+.dependency-panel { padding: 20px; border-radius: var(--radius-lg); background: var(--panel-strong); border: 1px solid var(--border); margin-bottom: 20px; }
+.dependency-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.dependency-header h2 { margin: 0; font-size: 18px; }
+.dependency-content { display: grid; gap: 16px; }
+.dependency-section h4 { margin: 0 0 8px 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.dependency-list { display: grid; gap: 8px; }
+.dependency-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
+.dependency-item:hover { border-color: var(--accent); }
+.dependency-item.blocked { border-left: 3px solid var(--danger); }
+.dependency-item.done { border-left: 3px solid var(--success); }
+.dependency-item.missing { border-left: 3px solid var(--muted); opacity: 0.6; }
+.dep-icon { font-size: 14px; }
+.dep-title { flex: 1; font-weight: 500; }
+.dep-project { color: var(--muted); font-size: 12px; }
+.dep-status { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+.dep-status.done { background: rgba(86,224,197,0.15); color: #caffee; }
+.dep-status.blocked { background: rgba(255,127,152,0.15); color: #ffd5df; }
+.dep-status.active { background: rgba(122,166,255,0.15); color: #dbe3ff; }
+.dep-status.missing { background: rgba(168,177,209,0.15); color: var(--muted); }
+.dependency-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+.dependency-hint { font-size: 13px; margin-top: 8px; }
+.dependency-none { color: var(--muted); font-size: 13px; font-style: italic; }
+
 .kanban-board { display: grid; grid-template-columns: 1.15fr 0.85fr 1fr 1fr; gap: 16px; align-items: start; }
 .kanban-column { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
 .kanban-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

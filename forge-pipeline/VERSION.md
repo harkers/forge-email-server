@@ -7,8 +7,16 @@
 
 ### v2.0.0 (2026-03-25)
 - FP-090: Enhanced Focus Now recommendation engine with scoring
+- FP-091: Task dependency visualization (blockedBy, blocking fields)
 - FP-093: Executive summary mode (Full View / Executive toggle)
 - FP-094: WebSocket infrastructure (disabled, polling fallback)
+
+**Task Dependencies (FP-091):**
+- Added `blockedBy` and `blocking` fields to task schema
+- Database migration for dependency columns
+- Dependency graph API endpoint (`/api/dependencies`)
+- Dependency panel UI with clickable task links
+- Visual indicators for blocked/done/active status
 
 **Focus Now Improvements:**
 - Task scoring algorithm (priority, status, risk, due date, staleness)
@@ -27,7 +35,6 @@
 - Redis pub/sub for event broadcasting
 - Frontend WebSocket client with polling fallback
 - nginx proxy configuration for /ws endpoint
-- Note: WebSocket not enabled in docker-compose (polling remains active)
 
 ### v1.6.0 (2026-03-25)
 - FP-070-073: Design System Alignment

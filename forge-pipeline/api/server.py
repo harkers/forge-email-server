@@ -365,9 +365,9 @@ def init_db() -> None:
             risk_state TEXT NOT NULL DEFAULT 'none',
             due_date TEXT NOT NULL DEFAULT '',
             tags_json TEXT NOT NULL DEFAULT '[]',
-            notes TEXT NOT NULL DEFAULT '',
             updated_at TEXT NOT NULL,
-            FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+            blocked_by TEXT NOT NULL DEFAULT '[]',
+            blocking TEXT NOT NULL DEFAULT '[]'
         );
 
         CREATE TABLE IF NOT EXISTS events (
@@ -623,6 +623,16 @@ def migrate_if_needed() -> None:
         except sqlite3.OperationalError:
             pass  # Column already exists
 
+        # Add blocked_by and blocking columns for dependencies (v2.0.0)
+        try:
+            conn.execute('ALTER TABLE tasks ADD COLUMN blocked_by TEXT NOT NULL DEFAULT "[]"')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute('ALTER TABLE tasks ADD COLUMN blocking TEXT NOT NULL DEFAULT "[]"')
+        except sqlite3.OperationalError:
+            pass
+
         # Add critical to priority if needed (v1.1.0)
         # Note: SQLite doesn't enforce CHECK constraints dynamically, so no migration needed
 
@@ -685,6 +695,8 @@ def row_to_task(row: sqlite3.Row) -> dict:
         'tags': json.loads(row['tags_json'] or '[]'),
         'notes': row['notes'],
         'updatedAt': row['updated_at'],
+        'blockedBy': json.loads(row['blocked_by'] if 'blocked_by' in row.keys() else '[]'),
+        'blocking': json.loads(row['blocking'] if 'blocking' in row.keys() else '[]'),
     }
 
 
@@ -846,16 +858,16 @@ def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[
     if task:
         merged = {**task, **clean, 'updatedAt': now_iso()}
         conn.execute(
-            'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
-            (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), merged['updatedAt'], merged['id'], project_id),
+            'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, blocked_by = ?, blocking = ?, updated_at = ? WHERE id = ? AND project_id = ?',
+            (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), json.dumps(merged.get('blockedBy', [])), json.dumps(merged.get('blocking', [])), merged['updatedAt'], merged['id'], project_id),
         )
         conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
         return get_task(conn, project_id, merged['id']), 'updated'
 
     tid = task_id or new_id('task')
     conn.execute(
-        'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (tid, project_id, title or 'Untitled task', clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
+        'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, blocked_by, blocking, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (tid, project_id, title or 'Untitled task', clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), json.dumps(clean.get('blockedBy', [])), json.dumps(clean.get('blocking', [])), now_iso()),
     )
     conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
     return get_task(conn, project_id, tid), 'created'
@@ -1039,6 +1051,51 @@ class Handler(BaseHTTPRequestHandler):
             conn.close()
             return
 
+        # FP-091: Dependency graph endpoint
+        if parsed.path == '/api/dependencies':
+            # Build a dependency graph from all tasks
+            graph = {'nodes': [], 'edges': []}
+            task_map = {}  # Map task_id to task info
+            
+            for project in list_projects(conn, limit=1000, offset=0):
+                for task in project.get('tasks', []):
+                    task_id = f"{project['id']}:{task['id']}"
+                    task_map[task_id] = {
+                        'id': task_id,
+                        'taskId': task['id'],
+                        'projectId': project['id'],
+                        'projectName': project['name'],
+                        'title': task['title'],
+                        'status': task.get('status', 'todo'),
+                        'priority': task.get('priority', 'medium'),
+                        'blockedBy': task.get('blockedBy', []),
+                        'blocking': task.get('blocking', []),
+                    }
+                    graph['nodes'].append({
+                        'id': task_id,
+                        'label': task['title'],
+                        'status': task.get('status', 'todo'),
+                        'priority': task.get('priority', 'medium'),
+                        'project': project['name'],
+                    })
+            
+            # Build edges from blockedBy/blocking references
+            for task_id, task_info in task_map.items():
+                for blocked_id in task_info.get('blockedBy', []):
+                    # Find the blocking task
+                    for tid, t in task_map.items():
+                        if t['taskId'] == blocked_id or tid == blocked_id:
+                            graph['edges'].append({'source': tid, 'target': task_id, 'type': 'blocks'})
+                for blocking_id in task_info.get('blocking', []):
+                    for tid, t in task_map.items():
+                        if t['taskId'] == blocking_id or tid == blocking_id:
+                            graph['edges'].append({'source': task_id, 'target': tid, 'type': 'blocked-by'})
+            
+            self.send_json(200, graph)
+            self.log_request_done(200)
+            conn.close()
+            return
+
         if parsed.path.startswith('/api/projects/') and parsed.path.endswith('/tasks'):
             project_id = parsed.path.split('/')[3]
             project = get_project(conn, project_id)
@@ -1106,8 +1163,8 @@ class Handler(BaseHTTPRequestHandler):
                 clean['tags'] = ensure_source_tag(clean.get('tags', []), source)
                 tid = clean.get('id') or new_id('task')
                 conn.execute(
-                    'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    (tid, project_id, clean['title'], clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), now_iso()),
+                    'INSERT INTO tasks (id, project_id, title, status, priority, risk_state, due_date, tags_json, notes, blocked_by, blocking, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    (tid, project_id, clean['title'], clean.get('status', 'todo'), clean.get('priority', 'medium'), clean.get('riskState', 'none'), clean.get('dueDate', ''), json.dumps(clean.get('tags', [])), clean.get('notes', ''), json.dumps(clean.get('blockedBy', [])), json.dumps(clean.get('blocking', [])), now_iso()),
                 )
                 conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
                 conn.commit()
@@ -1330,10 +1387,12 @@ class Handler(BaseHTTPRequestHandler):
                     'dueDate': clean.get('dueDate', ''),
                     'tags': clean.get('tags', []),
                     'notes': clean.get('notes', ''),
+                    'blockedBy': clean.get('blockedBy', task.get('blockedBy', [])),
+                    'blocking': clean.get('blocking', task.get('blocking', [])),
                 } if replace else {**task, **clean})
                 conn.execute(
-                    'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, updated_at = ? WHERE id = ? AND project_id = ?',
-                    (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), now_iso(), task_id, project_id),
+                    'UPDATE tasks SET title = ?, status = ?, priority = ?, risk_state = ?, due_date = ?, tags_json = ?, notes = ?, blocked_by = ?, blocking = ?, updated_at = ? WHERE id = ? AND project_id = ?',
+                    (merged['title'], merged.get('status', 'todo'), merged.get('priority', 'medium'), merged.get('riskState', 'none'), merged.get('dueDate', ''), json.dumps(merged.get('tags', [])), merged.get('notes', ''), json.dumps(merged.get('blockedBy', [])), json.dumps(merged.get('blocking', [])), now_iso(), task_id, project_id),
                 )
                 conn.execute('UPDATE projects SET updated_at = ? WHERE id = ?', (now_iso(), project_id))
                 conn.commit()

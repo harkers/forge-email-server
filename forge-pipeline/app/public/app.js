@@ -274,6 +274,9 @@ function bindUI() {
   document.getElementById('drawerCancel').addEventListener('click', closeDrawer);
   document.getElementById('drawerSave').addEventListener('click', saveDrawerChanges);
   
+  // FP-091: Dependency Panel
+  document.getElementById('closeDependencyBtn').addEventListener('click', closeDependencyPanel);
+  
   // FP-093: View mode toggle
   setupViewModeToggle();
 }
@@ -1489,4 +1492,65 @@ function setupViewModeToggle() {
       }
     });
   });
+}
+
+// FP-091: Dependency Visualization
+function showDependencyGraph(projectId, taskId) {
+  const panel = document.getElementById('dependencyPanel');
+  const content = document.getElementById('dependencyContent');
+  const task = allTasksWithProject().find(t => t.projectId === projectId && t.id === taskId);
+  
+  if (!task) return;
+  
+  const blockedBy = task.blockedBy || [];
+  const blocking = task.blocking || [];
+  
+  if (blockedBy.length === 0 && blocking.length === 0) {
+    content.innerHTML = `
+      <div class="dependency-empty">
+        <p>No dependencies configured for this task.</p>
+        <p class="dependency-hint">Add task IDs to "blockedBy" or "blocking" fields to show dependencies.</p>
+      </div>
+    `;
+  } else {
+    content.innerHTML = `
+      <div class="dependency-section">
+        <h4>Blocked By (${blockedBy.length})</h4>
+        <div class="dependency-list">
+          ${blockedBy.length ? blockedBy.map(id => renderDependencyItem(id, 'blocked-by')).join('') : '<p class="dependency-none">None</p>'}
+        </div>
+      </div>
+      <div class="dependency-section">
+        <h4>Blocking (${blocking.length})</h4>
+        <div class="dependency-list">
+          ${blocking.length ? blocking.map(id => renderDependencyItem(id, 'blocking')).join('') : '<p class="dependency-none">None</p>'}
+        </div>
+      </div>
+    `;
+  }
+  
+  panel.style.display = 'block';
+}
+
+function renderDependencyItem(taskId, type) {
+  const task = allTasksWithProject().find(t => t.id === taskId || t.id.endsWith(taskId));
+  if (!task) {
+    return `<div class="dependency-item missing"><span class="dep-id">${escapeHtml(taskId)}</span><span class="dep-status missing">Not found</span></div>`;
+  }
+  
+  const statusClass = task.status === 'done' ? 'done' : task.status === 'blocked' ? 'blocked' : 'active';
+  const icon = type === 'blocked-by' ? '⬆️' : '⬇️';
+  
+  return `
+    <div class="dependency-item ${statusClass}" onclick="scrollToTask('${task.projectId}', '${task.id}')">
+      <span class="dep-icon">${icon}</span>
+      <span class="dep-title">${escapeHtml(task.title)}</span>
+      <span class="dep-project">${escapeHtml(task.projectName)}</span>
+      <span class="dep-status ${statusClass}">${escapeHtml(task.status)}</span>
+    </div>
+  `;
+}
+
+function closeDependencyPanel() {
+  document.getElementById('dependencyPanel').style.display = 'none';
 }
