@@ -129,9 +129,9 @@ Map agents to models based on task characteristics, complexity, and escalation n
 ---
 
 ### investigator-agent
-**Default:** `ollama/deepseek-r1:14b` or `ollama/phi4-reasoning:14b`
+**Default:** `ollama/gemma3:12b` or `ollama/qwen3:14b`
 
-**Why:** Reasoning-focused models for diagnosis and root-cause analysis.
+**Why:** Diagnosis needs solid reasoning but thinking models produce verbose output that can interfere with structured handoffs. Standard models are cleaner for subagent output.
 
 **Escalation:**
 - When diagnosis remains ambiguous after one pass → escalate to `ollama/qwen3.5:397b-cloud`
@@ -140,6 +140,8 @@ Map agents to models based on task characteristics, complexity, and escalation n
 **Codex handoff:**
 - Production incidents
 - Complex multi-system failures
+
+**Note:** Avoid `deepseek-r1` and `phi4-reasoning` for subagents — their thinking output format may not be captured correctly by the subagent harness.
 
 ---
 
@@ -291,9 +293,9 @@ Map agents to models based on task characteristics, complexity, and escalation n
 ---
 
 ### deployment-diagnosis-agent
-**Default:** `ollama/deepseek-r1:14b` or `ollama/phi4-reasoning:14b`
+**Default:** `ollama/gemma3:12b` or `ollama/qwen3:14b`
 
-**Why:** Diagnosis benefits from reasoning-focused models.
+**Why:** Diagnosis needs solid reasoning but thinking models produce verbose output that can interfere with structured handoffs. Standard models are cleaner for subagent output.
 
 **Escalation:**
 - Complex multi-system diagnosis → escalate to `ollama/qwen3.5:397b-cloud`
@@ -302,6 +304,8 @@ Map agents to models based on task characteristics, complexity, and escalation n
 **Codex handoff:**
 - Production incidents
 - Complex runtime failures
+
+**Note:** Avoid `deepseek-r1` and `phi4-reasoning` for subagents — their thinking output format may not be captured correctly by the subagent harness.
 
 ---
 
@@ -388,7 +392,7 @@ Map agents to models based on task characteristics, complexity, and escalation n
 | planner-agent | `qwen3.5:397b-cloud` | Codex | Portfolio-level, architecture packs |
 | coding-worker-agent | `qwen3-coder-next:cloud` | Codex | Security-critical, architectural refactors |
 | reviewer-agent | `qwen3.5:397b-cloud` | Codex | High-severity findings, production reviews |
-| investigator-agent | `deepseek-r1:14b` | `qwen3.5` | Production incidents, complex failures |
+| investigator-agent | `gemma3:12b` | `qwen3.5` | Production incidents, complex failures |
 | documentation-writer-agent | `gemma3:12b` | `qwen3.5` | External strategic docs |
 | architecture-reviewer-agent | `qwen3.5:397b-cloud` | Codex | Production architecture, security boundaries |
 | security-reviewer-agent | `openai-codex/gpt-5.4` | — | Always |
@@ -400,7 +404,7 @@ Map agents to models based on task characteristics, complexity, and escalation n
 | forge-pipeline-operator-agent | `glm-5:cloud` | `qwen3.5` | Portfolio-level updates |
 | workspace-governor-agent | `glm-5:cloud` | `qwen3.5` | Major governance changes |
 | forge-wordpress-suite-agent | `qwen3.5:397b-cloud` | Codex | Suite-wide architectural decisions |
-| deployment-diagnosis-agent | `deepseek-r1:14b` | `qwen3.5` / Codex | Production incidents |
+| deployment-diagnosis-agent | `gemma3:12b` | `qwen3.5` / Codex | Production incidents |
 | portfolio-planning-agent | `qwen3.5:397b-cloud` | Codex | Strategic roadmap decisions |
 
 ---
@@ -417,3 +421,15 @@ For control-plane orchestration:
 - Manager can override defaults per dispatch
 - Include escalation budget in task packets
 - Mark tasks as production/staging/dev to influence model choice
+
+### Thinking models and subagents
+
+Some models (deepseek-r1, phi4-reasoning, gpt-oss, qwen3 when in thinking mode) produce special thinking tokens before the final answer. The subagent harness may capture this content but not extract the final output correctly.
+
+**For subagents, prefer:**
+- Standard output models (`gemma3`, `qwen3-coder-next`, `qwen2.5-coder`, `llama3.1`, `mistral-nemo`)
+- Or use thinking models but with explicit instruction to produce structured output after thinking
+
+**Avoid for subagent work:**
+- `deepseek-r1:14b` — extremely verbose thinking, may not produce structured output
+- `phi4-reasoning:14b` — similar issue
