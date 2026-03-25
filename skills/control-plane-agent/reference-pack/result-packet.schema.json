@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenClaw Result Packet",
+  "type": "object",
+  "required": [
+    "task_id",
+    "agent",
+    "status",
+    "completed_at",
+    "summary",
+    "outputs",
+    "review_required",
+    "confidence"
+  ],
+  "properties": {
+    "task_id": { "type": "string" },
+    "agent": { "type": "string" },
+    "status": { "type": "string", "enum": ["completed", "failed", "partial"] },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "summary": { "type": "string" },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "review_required": { "type": "boolean" },
+    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "issues": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

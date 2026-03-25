@@ -1,0 +1,19 @@
+{
+  "task_id": "TASK-000123",
+  "agent": "vendor-assessor",
+  "status": "completed",
+  "completed_at": "2026-03-25T10:41:12Z",
+  "summary": "Vendor indicates EU production hosting with unresolved support access locations outside the EEA.",
+  "outputs": {
+    "report_path": "/srv/forgeorchestrate/artifacts/TASK-000123/assessment.md",
+    "evidence_paths": [
+      "/srv/forgeorchestrate/artifacts/TASK-000123/extracted-notes.json"
+    ]
+  },
+  "review_required": true,
+  "confidence": "medium",
+  "issues": [
+    "Support/admin access countries not fully confirmed",
+    "Subprocessor schedule appears incomplete"
+  ]
+}

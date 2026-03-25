@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenClaw Task Packet",
+  "type": "object",
+  "required": [
+    "task_id",
+    "assigned_agent",
+    "created_at",
+    "priority",
+    "objective",
+    "inputs",
+    "constraints",
+    "expected_output",
+    "status"
+  ],
+  "properties": {
+    "task_id": { "type": "string" },
+    "parent_task_id": { "type": ["string", "null"] },
+    "assigned_agent": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+    "objective": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "expected_output": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "claimed", "processing", "completed", "failed", "rejected"]
+    }
+  },
+  "additionalProperties": true
+}

@@ -21,9 +21,16 @@ Do not let worker agents self-certify completion.
 
 Use these roles:
 - **control plane** — planner, dispatcher, verifier, state owner
+- **manager agent** — the concrete orchestration authority when the control plane is implemented as an agent role
 - **worker agent** — executes one bounded task
 - **review agent** — checks correctness/risk without owning implementation
 - **human** — final arbiter for ambiguous, risky, or strategic decisions
+
+The manager/control-plane role decides:
+- which specialist receives work
+- what output shape is required
+- whether returned work is accepted, revised, rejected, or rerouted
+- whether anything is ready for external release
 
 Keep one write owner per scope wherever possible.
 
@@ -33,8 +40,11 @@ Examples of valid write scopes:
 - one plugin
 - one document pack
 - one deployment target
+- one queue task and its artifact directory
 
 Allow parallelism only when write scopes do not overlap.
+
+Prefer structured handoff over freeform agent-to-agent chat for deterministic workflows.
 
 ## Standard workflow
 
@@ -170,6 +180,20 @@ NEXT RECOMMENDED ACTION:
 
 Apply the smallest useful gate set for the work type.
 
+If using packet-based orchestration, require both:
+- a task packet defining the contract
+- a result packet defining what came back
+
+Result packets should carry at minimum:
+- work/task id
+- owner/agent id
+- status
+- summary
+- artifact locations
+- whether review is required
+- confidence level
+- known issues/open questions
+
 ### Build / fix
 Check:
 - expected files exist
@@ -238,12 +262,14 @@ Prefer:
 - separate read-only reviewers
 - explicit validation steps
 - evidence-first completion criteria
+- file-backed task packets for repeatable orchestration
 
 Avoid:
 - vague “run with this” delegation
 - multiple writers in one directory
 - reporting success before independent checks
 - burying blockers under a positive summary
+- freeform autonomous worker cross-talk as the primary handoff path
 
 ## State tracking
 
@@ -259,7 +285,25 @@ Minimum useful fields:
 - last verification result
 - next action
 
+Useful queue-style statuses:
+- queued
+- claimed
+- processing
+- needs_review
+- accepted
+- rejected
+- failed
+- done
+
 Use lightweight markdown or JSON. Keep it easy to inspect.
+
+For file-based orchestration, prefer this lifecycle:
+1. control plane creates task in `inbox/`
+2. worker claims into `claimed/`
+3. worker processes in bounded scope
+4. worker writes artifacts under a task-specific artifact directory
+5. worker writes result packet to `done/` or `failed/`
+6. manager/control plane reviews and decides next routing
 
 ## Output style for the control plane
 
@@ -280,3 +324,14 @@ Read these when creating or refining the workflow:
 - `references/handoff-packet.md` — reusable handoff schema
 - `references/work-state-template.md` — lightweight state model
 - `references/dispatch-template.md` — prompt contract template for worker agents
+- `references/packet-schemas.md` — deterministic JSON packet model for queue-based handoff
+
+Read these when designing a fuller OpenClaw multi-agent implementation, especially for Docker-isolated specialist estates:
+- `reference-pack/openclaw-agent-pack-architecture.md`
+- `reference-pack/openclaw-agent-pack-implementation-plan.md`
+- `reference-pack/openclaw-agent-pack-security-model.md`
+- `reference-pack/routing-map.md`
+- `reference-pack/task-example.json`
+- `reference-pack/result-example.json`
+- `reference-pack/task-packet.schema.json`
+- `reference-pack/result-packet.schema.json`
