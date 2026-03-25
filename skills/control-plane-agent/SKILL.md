@@ -46,6 +46,36 @@ Allow parallelism only when write scopes do not overlap.
 
 Prefer structured handoff over freeform agent-to-agent chat for deterministic workflows.
 
+## Agent scaffolding
+
+Use a small explicit catalog of agents instead of improvising new roles every run.
+
+Recommended baseline roles:
+- manager
+- planner
+- coding-worker
+- reviewer
+- investigator
+- documentation-writer
+- architecture-reviewer
+- security-reviewer
+- deployer
+
+Add domain specialists only where repeated work or distinct risk justifies them.
+Examples:
+- privacy-incident
+- vendor-assessor
+- research
+- drafting
+- Forge- or workspace-specific specialists
+
+Selection rule:
+- route by dominant risk and ownership boundary, not by who sounds most capable
+- if two roles would write the same scope, choose one owner and make the other a reviewer
+
+Read `references/agent-catalog.md` for role definitions.
+Read `references/use-case-scaffolds.md` for recommended agent sets by workflow family.
+
 ## Standard workflow
 
 ### 1. Intake
@@ -321,6 +351,8 @@ Good phrasing:
 ## References
 
 Read these when creating or refining the workflow:
+- `references/agent-catalog.md` — specialist agent definitions, ownership boundaries, and selection rules
+- `references/use-case-scaffolds.md` — recommended agent sets by workflow family
 - `references/handoff-packet.md` — reusable handoff schema
 - `references/work-state-template.md` — lightweight state model
 - `references/dispatch-template.md` — prompt contract template for worker agents
