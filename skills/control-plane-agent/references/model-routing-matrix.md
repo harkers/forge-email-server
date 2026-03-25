@@ -129,9 +129,9 @@ Map agents to models based on task characteristics, complexity, and escalation n
 ---
 
 ### investigator-agent
-**Default:** `ollama/gemma3:12b` or `ollama/qwen3:14b`
+**Default:** `ollama/qwen3:14b` or `ollama/llama3.1:8b`
 
-**Why:** Diagnosis needs solid reasoning but thinking models produce verbose output that can interfere with structured handoffs. Standard models are cleaner for subagent output.
+**Why:** Diagnosis needs solid reasoning and tool support. Must use models that support tools for subagent dispatch.
 
 **Escalation:**
 - When diagnosis remains ambiguous after one pass → escalate to `ollama/qwen3.5:397b-cloud`
@@ -141,7 +141,7 @@ Map agents to models based on task characteristics, complexity, and escalation n
 - Production incidents
 - Complex multi-system failures
 
-**Note:** Avoid `deepseek-r1` and `phi4-reasoning` for subagents — their thinking output format may not be captured correctly by the subagent harness.
+**Note:** `gemma3:12b` and `deepseek-r1:14b` do NOT support tools and cannot be used for subagents.
 
 ---
 
@@ -293,9 +293,9 @@ Map agents to models based on task characteristics, complexity, and escalation n
 ---
 
 ### deployment-diagnosis-agent
-**Default:** `ollama/gemma3:12b` or `ollama/qwen3:14b`
+**Default:** `ollama/qwen3:14b` or `ollama/llama3.1:8b`
 
-**Why:** Diagnosis needs solid reasoning but thinking models produce verbose output that can interfere with structured handoffs. Standard models are cleaner for subagent output.
+**Why:** Diagnosis needs solid reasoning and tool support. Must use models that support tools for subagent dispatch.
 
 **Escalation:**
 - Complex multi-system diagnosis → escalate to `ollama/qwen3.5:397b-cloud`
@@ -305,7 +305,7 @@ Map agents to models based on task characteristics, complexity, and escalation n
 - Production incidents
 - Complex runtime failures
 
-**Note:** Avoid `deepseek-r1` and `phi4-reasoning` for subagents — their thinking output format may not be captured correctly by the subagent harness.
+**Note:** `gemma3:12b` and `deepseek-r1:14b` do NOT support tools and cannot be used for subagents.
 
 ---
 
@@ -392,19 +392,19 @@ Map agents to models based on task characteristics, complexity, and escalation n
 | planner-agent | `qwen3.5:397b-cloud` | Codex | Portfolio-level, architecture packs |
 | coding-worker-agent | `qwen3-coder-next:cloud` | Codex | Security-critical, architectural refactors |
 | reviewer-agent | `qwen3.5:397b-cloud` | Codex | High-severity findings, production reviews |
-| investigator-agent | `gemma3:12b` | `qwen3.5` | Production incidents, complex failures |
-| documentation-writer-agent | `gemma3:12b` | `qwen3.5` | External strategic docs |
+| investigator-agent | `qwen3:14b` | `qwen3.5` | Production incidents, complex failures |
+| documentation-writer-agent | `llama3.1:8b` | `qwen3.5` | External strategic docs |
 | architecture-reviewer-agent | `qwen3.5:397b-cloud` | Codex | Production architecture, security boundaries |
 | security-reviewer-agent | `openai-codex/gpt-5.4` | — | Always |
 | deployer-agent | `qwen3-coder-next:cloud` | Codex | Production deployments |
 | researcher-agent | `qwen3:14b` | `qwen3.5` | Strategic research |
-| drafting-agent | `gemma3:12b` | `qwen3.5` | External strategic docs |
+| drafting-agent | `llama3.1:8b` | `qwen3.5` | External strategic docs |
 | privacy-incident-agent | `qwen3.5:397b-cloud` | Codex | Notifiable incidents, regulatory |
 | vendor-assessor-agent | `qwen3.5:397b-cloud` | Codex | Critical vendor decisions |
 | forge-pipeline-operator-agent | `glm-5:cloud` | `qwen3.5` | Portfolio-level updates |
 | workspace-governor-agent | `glm-5:cloud` | `qwen3.5` | Major governance changes |
 | forge-wordpress-suite-agent | `qwen3.5:397b-cloud` | Codex | Suite-wide architectural decisions |
-| deployment-diagnosis-agent | `gemma3:12b` | `qwen3.5` / Codex | Production incidents |
+| deployment-diagnosis-agent | `qwen3:14b` | `qwen3.5` / Codex | Production incidents |
 | portfolio-planning-agent | `qwen3.5:397b-cloud` | Codex | Strategic roadmap decisions |
 
 ---
@@ -422,14 +422,49 @@ For control-plane orchestration:
 - Include escalation budget in task packets
 - Mark tasks as production/staging/dev to influence model choice
 
-### Thinking models and subagents
+### Tool support requirement for subagents
 
-Some models (deepseek-r1, phi4-reasoning, gpt-oss, qwen3 when in thinking mode) produce special thinking tokens before the final answer. The subagent harness may capture this content but not extract the final output correctly.
+**CRITICAL**: Subagents require models with tool calling support. The following models **DO NOT support tools** and will fail silently:
 
-**For subagents, prefer:**
-- Standard output models (`gemma3`, `qwen3-coder-next`, `qwen2.5-coder`, `llama3.1`, `mistral-nemo`)
-- Or use thinking models but with explicit instruction to produce structured output after thinking
+| Model | Tool Support |
+|-------|-------------|
+| `gemma3:12b` | ❌ NO |
+| `deepseek-r1:14b` | ❌ NO |
+| `phi4-reasoning:14b` | ❌ NO |
+| `codegemma:latest` | ❌ NO |
+| `starcoder2:15b` | ❌ NO |
+| `llava:13b` | ❌ NO |
+| `phi3:medium` | ❌ NO |
+| `olmo2:13b` | ❌ NO |
+| `llama2:13b` | ❌ NO |
+| `deepseek-coder-v2:latest` | ❌ NO |
+| `x/llama3.2-vision:latest` | ❌ NO |
 
-**Avoid for subagent work:**
-- `deepseek-r1:14b` — extremely verbose thinking, may not produce structured output
-- `phi4-reasoning:14b` — similar issue
+**Models WITH tool support (safe for subagents):**
+
+| Model | Tool Support |
+|-------|-------------|
+| `gpt-oss:20b` | ✅ YES |
+| `qwen3-coder-next:cloud` | ✅ YES |
+| `qwen3.5:397b-cloud` | ✅ YES |
+| `qwen3:14b` | ✅ YES |
+| `qwen2.5-coder:7b` | ✅ YES |
+| `qwen2.5:14b` | ✅ YES |
+| `deepseek-v3.2:cloud` | ✅ YES |
+| `llama3.1:8b` | ✅ YES |
+| `llama3.2:latest` | ✅ YES |
+| `llama3.2:3b` | ✅ YES |
+| `hermes3:8b` | ✅ YES |
+| `granite3-dense:8b` | ✅ YES |
+| `mistral-nemo:latest` | ✅ YES |
+| `devstral-small-2:24b` | ✅ YES |
+| `glm-4.7-flash:latest` | ✅ YES |
+
+### Recommended subagent models
+
+For subagent work, use models with tool support:
+- `qwen2.5-coder:7b` — efficient, tool support, coding
+- `llama3.1:8b` — efficient, tool support, general
+- `qwen3:14b` — capable, tool support
+- `qwen3-coder-next:cloud` — strong coding, tool support
+- `gpt-oss:20b` — capable, tool support, good reasoning
