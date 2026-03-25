@@ -20,6 +20,18 @@ Use when:
 - a manager needs evidence-driven routing and acceptance
 - handoffs must be structured and independently verified
 
+### `control-plane-what-next`
+Role:
+- pipeline-driven work selection
+- auto-approve window management
+- priority evaluation
+- token/model tracking
+
+Use when:
+- control-plane finishes work and needs next item
+- user wants to set auto-approve windows
+- need to query Forge Pipeline for pending tasks
+
 ### `manager-agent`
 Role:
 - concrete orchestration authority

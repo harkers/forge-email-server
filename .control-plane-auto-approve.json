@@ -1,7 +1,7 @@
 {
-  "mode": null,
-  "started": null,
+  "mode": "jobs",
+  "started": "2026-03-25T09:00:00Z",
   "expires": null,
-  "jobsRemaining": null,
+  "jobsRemaining": 5,
   "completedJobs": []
 }
