@@ -46,13 +46,13 @@
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-001 | Add `critical` priority to data model | 1h | TODO |
-| FP-002 | Add risk state enum (none, watch, at_risk, critical) | 1h | TODO |
-| FP-010 | Rename KPI labels: Open → Active tasks, add At risk | 1h | TODO |
-| FP-011 | Add KPI deltas (compare to yesterday/last week) | 2h | TODO |
-| FP-020 | Reduce metadata chip overload in cards | 1h | TODO |
-| FP-030 | Improve empty-state treatment | 1h | TODO |
-| FP-003 | Add source health to status line | 2h | TODO |
+| FP-001 | Add `critical` priority to data model | 1h | ✅ DONE |
+| FP-002 | Add risk state enum (none, watch, at_risk, critical) | 1h | ✅ DONE |
+| FP-010 | Rename KPI labels: Open → Active tasks, add At risk | 1h | ✅ DONE |
+| FP-011 | Add KPI deltas (compare to yesterday/last week) | 2h | ✅ DONE |
+| FP-020 | Reduce metadata chip overload in cards | 1h | ✅ DONE |
+| FP-030 | Improve empty-state treatment | 1h | ✅ DONE |
+| FP-003 | Add source health to status line | 2h | ✅ DONE |
 
 **Deliverables:**
 - Updated data models (priority, risk, source state)

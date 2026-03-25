@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lock Schema",
+  "description": "Schema for resource locks used in conflict detection for parallel dispatch",
+  "type": "object",
+  "required": [
+    "lockId",
+    "jobId",
+    "type",
+    "value",
+    "acquiredAt"
+  ],
+  "properties": {
+    "lockId": {
+      "type": "string",
+      "description": "Unique lock identifier"
+    },
+    "jobId": {
+      "type": "string",
+      "description": "Job ID holding this lock"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["file", "service", "environment", "deployment"],
+      "description": "Type of resource being locked"
+    },
+    "value": {
+      "type": "string",
+      "description": "Resource identifier (file path, service name, environment name, deployment target)"
+    },
+    "acquiredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when lock was acquired"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["exclusive", "shared"],
+      "default": "exclusive",
+      "description": "Lock mode - exclusive blocks all others, shared allows concurrent shared locks"
+    },
+    "expiresAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Optional expiration timestamp for the lock"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional lock metadata"
+    }
+  },
+  "definitions": {
+    "lockType": {
+      "type": "string",
+      "enum": ["file", "service", "environment", "deployment"],
+      "description": "Lock type enumeration"
+    },
+    "lockMode": {
+      "type": "string",
+      "enum": ["exclusive", "shared"],
+      "description": "Lock mode enumeration"
+    }
+  },
+  "examples": [
+    {
+      "lockId": "lock-001",
+      "jobId": "CP-106",
+      "type": "file",
+      "value": "src/auth/middleware.ts",
+      "acquiredAt": "2026-03-25T14:30:00Z",
+      "mode": "exclusive"
+    },
+    {
+      "lockId": "lock-002",
+      "jobId": "CP-107",
+      "type": "service",
+      "value": "postgres-primary",
+      "acquiredAt": "2026-03-25T14:35:00Z",
+      "mode": "shared"
+    },
+    {
+      "lockId": "lock-003",
+      "jobId": "CP-108",
+      "type": "deployment",
+      "value": "production-api",
+      "acquiredAt": "2026-03-25T14:40:00Z",
+      "mode": "exclusive",
+      "expiresAt": "2026-03-25T16:40:00Z"
+    }
+  ]
+}

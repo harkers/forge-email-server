@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operator Summary Schema",
+  "description": "Schema for operator-facing dispatch summary output",
+  "type": "object",
+  "required": [
+    "cycleId",
+    "approvalWindow",
+    "activeDispatches",
+    "blockedJobs",
+    "poolUtilisation",
+    "activeLocks"
+  ],
+  "properties": {
+    "cycleId": {
+      "type": "string",
+      "description": "Unique identifier for this dispatch cycle"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When summary was generated"
+    },
+    "approvalWindow": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["time", "jobs", "until-empty", "none"],
+          "description": "Window mode"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "expired", "exhausted", "revoked", "idle"],
+          "description": "Window status"
+        },
+        "remaining": {
+          "type": ["integer", "null"],
+          "description": "Remaining slots (jobs mode) or null"
+        },
+        "expiresAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Expiration time (time mode) or null"
+        },
+        "tokensUsed": {
+          "type": "integer",
+          "description": "Tokens consumed in this window"
+        },
+        "tokensRemaining": {
+          "type": "integer",
+          "description": "Tokens remaining in budget"
+        }
+      },
+      "description": "Approval window state summary"
+    },
+    "selectedJob": {
+      "type": ["object", "null"],
+      "properties": {
+        "jobId": { "type": "string" },
+        "title": { "type": "string" },
+        "priority": { "type": "string" },
+        "priorityScore": { "type": "integer" },
+        "model": { "type": "string" },
+        "pool": { "type": "string" },
+        "estimatedTokens": { "type": "integer" },
+        "reason": { "type": "string" }
+      },
+      "description": "Selected job summary (null if none selected)"
+    },
+    "activeDispatches": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/activeDispatchSummary"
+      },
+      "description": "Currently active dispatches"
+    },
+    "blockedJobs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/blockedJobSummary"
+      },
+      "description": "Jobs blocked from dispatch"
+    },
+    "poolUtilisation": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/poolUtilisation"
+      },
+      "description": "Per-pool utilisation summary"
+    },
+    "activeLocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/lockSummary"
+      },
+      "description": "Currently held locks"
+    },
+    "action": {
+      "type": "string",
+      "enum": ["dispatching", "holding_for_approval", "holding_for_lock", "holding_for_capacity", "no_work"],
+      "description": "Action taken this cycle"
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable summary message"
+    }
+  },
+  "definitions": {
+    "activeDispatchSummary": {
+      "type": "object",
+      "properties": {
+        "jobId": { "type": "string" },
+        "pool": { "type": "string" },
+        "model": { "type": "string" },
+        "status": { "type": "string" },
+        "startedAt": { "type": "string" },
+        "estimatedTokens": { "type": "integer" },
+        "runtimeMs": { "type": "integer" }
+      }
+    },
+    "blockedJobSummary": {
+      "type": "object",
+      "properties": {
+        "jobId": { "type": "string" },
+        "priority": { "type": "string" },
+        "priorityScore": { "type": "integer" },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Reasons for blocking"
+        },
+        "waitingOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs or lock IDs being waited on"
+        }
+      }
+    },
+    "poolUtilisation": {
+      "type": "object",
+      "properties": {
+        "pool": { "type": "string" },
+        "maxConcurrent": { "type": "integer" },
+        "currentActive": { "type": "integer" },
+        "available": { "type": "integer" },
+        "utilisationPercent": { "type": "number" },
+        "tokensUsed": { "type": "integer" }
+      }
+    },
+    "lockSummary": {
+      "type": "object",
+      "properties": {
+        "lockId": { "type": "string" },
+        "type": { "type": "string" },
+        "value": { "type": "string" },
+        "heldByJobId": { "type": "string" },
+        "heldByPool": { "type": "string" },
+        "acquiredAt": { "type": "string" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "cycleId": "cycle-2026-03-25T14:30:00Z",
+      "timestamp": "2026-03-25T14:30:00Z",
+      "approvalWindow": {
+        "mode": "jobs",
+        "status": "active",
+        "remaining": 4,
+        "expiresAt": null,
+        "tokensUsed": 150000,
+        "tokensRemaining": 1850000
+      },
+      "selectedJob": {
+        "jobId": "CP-106",
+        "title": "Fix authentication middleware routing bug",
+        "priority": "P1",
+        "priorityScore": 22,
+        "model": "qwen3-coder-next:cloud",
+        "pool": "coder",
+        "estimatedTokens": 42000,
+        "reason": "Highest priority score"
+      },
+      "activeDispatches": [
+        {
+          "jobId": "CP-105",
+          "pool": "review",
+          "model": "qwen3.5:397b-cloud",
+          "status": "running",
+          "startedAt": "2026-03-25T14:25:00Z",
+          "estimatedTokens": 30000,
+          "runtimeMs": 300000
+        }
+      ],
+      "blockedJobs": [
+        {
+          "jobId": "CP-107",
+          "priority": "P1",
+          "priorityScore": 18,
+          "reasons": ["Lock conflict on file src/auth/middleware.ts"],
+          "waitingOn": ["CP-106"]
+        },
+        {
+          "jobId": "CP-108",
+          "priority": "P2",
+          "priorityScore": 12,
+          "reasons": ["Dependency on CP-107 not satisfied"],
+          "waitingOn": ["CP-107"]
+        }
+      ],
+      "poolUtilisation": {
+        "coder": {
+          "pool": "coder",
+          "maxConcurrent": 2,
+          "currentActive": 1,
+          "available": 1,
+          "utilisationPercent": 50,
+          "tokensUsed": 100000
+        },
+        "review": {
+          "pool": "review",
+          "maxConcurrent": 1,
+          "currentActive": 1,
+          "available": 0,
+          "utilisationPercent": 100,
+          "tokensUsed": 50000
+        },
+        "docs": {
+          "pool": "docs",
+          "maxConcurrent": 2,
+          "currentActive": 0,
+          "available": 2,
+          "utilisationPercent": 0,
+          "tokensUsed": 0
+        }
+      },
+      "activeLocks": [
+        {
+          "lockId": "lock-001",
+          "type": "file",
+          "value": "src/auth/middleware.ts",
+          "heldByJobId": "CP-106",
+          "heldByPool": "coder",
+          "acquiredAt": "2026-03-25T14:30:00Z"
+        }
+      ],
+      "action": "dispatching",
+      "message": "Next job selected: CP-106, Priority: P1 (score: 22), Model: qwen3-coder-next:cloud, Pool: coder"
+    },
+    {
+      "cycleId": "cycle-2026-03-25T15:00:00Z",
+      "timestamp": "2026-03-25T15:00:00Z",
+      "approvalWindow": {
+        "mode": "time",
+        "status": "expired",
+        "remaining": null,
+        "expiresAt": "2026-03-25T14:59:00Z",
+        "tokensUsed": 500000,
+        "tokensRemaining": 1500000
+      },
+      "selectedJob": null,
+      "activeDispatches": [],
+      "blockedJobs": [
+        {
+          "jobId": "CP-110",
+          "priority": "P2",
+          "priorityScore": 14,
+          "reasons": ["Approval window expired"],
+          "waitingOn": []
+        }
+      ],
+      "poolUtilisation": {
+        "coder": {
+          "pool": "coder",
+          "maxConcurrent": 2,
+          "currentActive": 0,
+          "available": 2,
+          "utilisationPercent": 0,
+          "tokensUsed": 0
+        }
+      },
+      "activeLocks": [],
+      "action": "holding_for_approval",
+      "message": "Next eligible job: CP-110, Priority: P2 (score: 14), Reason: Approval window expired, Action: holding for renewed approval"
+    }
+  ]
+}

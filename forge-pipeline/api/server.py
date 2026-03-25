@@ -375,19 +375,63 @@ def _get_summary_cached(conn: sqlite3.Connection) -> dict:
     # Compute summary
     projects = list_projects(conn)
     tasks = [t for p in projects for t in p.get('tasks', [])]
+    
+    # FP-010: Rename Open → Active, add At Risk
+    # FP-011: Add KPI deltas (compare to previous snapshot)
+    active_tasks = [t for t in tasks if t.get('status') != 'done']
+    done_tasks = [t for t in tasks if t.get('status') == 'done']
+    blocked_tasks = [t for t in tasks if t.get('status') == 'blocked']
+    at_risk_tasks = [t for t in tasks if t.get('riskState', 'none') in ('at-risk', 'critical')]
+    critical_tasks = [t for t in tasks if t.get('priority') == 'critical']
+    
     summary = {
         'projectCount': len(projects),
         'taskCount': len(tasks),
-        'openTaskCount': len([t for t in tasks if t.get('status') != 'done']),
-        'doneTaskCount': len([t for t in tasks if t.get('status') == 'done']),
-        'blockedTaskCount': len([t for t in tasks if t.get('status') == 'blocked']),
+        'activeTaskCount': len(active_tasks),
+        'doneTaskCount': len(done_tasks),
+        'blockedTaskCount': len(blocked_tasks),
+        'atRiskTaskCount': len(at_risk_tasks),
+        'criticalTaskCount': len(critical_tasks),
         'updatedAt': now_iso(),
     }
     
-    # Cache it
+    # FP-011: Load previous snapshot and compute deltas
+    prev_key = 'forge:snapshot:previous'
+    prev_summary = None
+    if redis:
+        try:
+            prev_data = redis.get(prev_key)
+            if prev_data:
+                prev_summary = json.loads(prev_data)
+        except Exception:
+            pass
+    
+    if prev_summary:
+        summary['deltas'] = {
+            'activeTaskCount': summary['activeTaskCount'] - prev_summary.get('activeTaskCount', 0),
+            'doneTaskCount': summary['doneTaskCount'] - prev_summary.get('doneTaskCount', 0),
+            'atRiskTaskCount': summary['atRiskTaskCount'] - prev_summary.get('atRiskTaskCount', 0),
+            'blockedTaskCount': summary['blockedTaskCount'] - prev_summary.get('blockedTaskCount', 0),
+        }
+        # Include absolute previous values for trend calculation
+        summary['previous'] = {
+            'activeTaskCount': prev_summary.get('activeTaskCount', 0),
+            'doneTaskCount': prev_summary.get('doneTaskCount', 0),
+            'updatedAt': prev_summary.get('updatedAt'),
+        }
+    
+    # Cache it and save snapshot
     if redis:
         try:
             redis.setex('forge:cache:summary', 60, json.dumps(summary))
+            # Update snapshot every 5 minutes for delta comparison
+            redis.setex(prev_key, 300, json.dumps({
+                'activeTaskCount': summary['activeTaskCount'],
+                'doneTaskCount': summary['doneTaskCount'],
+                'atRiskTaskCount': summary['atRiskTaskCount'],
+                'blockedTaskCount': summary['blockedTaskCount'],
+                'updatedAt': summary['updatedAt'],
+            }))
         except Exception:
             pass
     

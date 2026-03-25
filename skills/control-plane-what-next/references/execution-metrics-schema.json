@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Execution Metrics Schema",
+  "description": "Schema for recording execution metrics after dispatch completion",
+  "type": "object",
+  "required": [
+    "jobId",
+    "pool",
+    "model",
+    "estimatedTokens",
+    "actualTokens",
+    "runtimeMs",
+    "retryCount",
+    "approvalSlotConsumed",
+    "result"
+  ],
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "description": "Unique job identifier"
+    },
+    "pool": {
+      "type": "string",
+      "description": "Pool that handled this dispatch"
+    },
+    "model": {
+      "type": "string",
+      "description": "Model used for execution"
+    },
+    "taskType": {
+      "type": "string",
+      "description": "Task category"
+    },
+    "estimatedTokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Pre-execution token estimate"
+    },
+    "actualTokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Actual tokens consumed"
+    },
+    "runtimeMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Execution runtime in milliseconds"
+    },
+    "retryCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of retry attempts"
+    },
+    "approvalSlotConsumed": {
+      "type": "boolean",
+      "description": "Whether this dispatch consumed an approval slot"
+    },
+    "result": {
+      "type": "string",
+      "enum": ["success", "failure", "quarantined", "cancelled"],
+      "description": "Execution result"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When execution started"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When execution completed"
+    },
+    "efficiency": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "description": "Token estimation efficiency (actual/estimated)"
+    },
+    "errorMessage": {
+      "type": ["string", "null"],
+      "description": "Error message if failed"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional execution metadata"
+    }
+  },
+  "computed": {
+    "efficiency": {
+      "description": "Computed as actualTokens / estimatedTokens when both are present"
+    }
+  },
+  "examples": [
+    {
+      "jobId": "CP-106",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "estimatedTokens": 42000,
+      "actualTokens": 39500,
+      "runtimeMs": 125000,
+      "retryCount": 0,
+      "approvalSlotConsumed": true,
+      "result": "success",
+      "startedAt": "2026-03-25T14:30:00Z",
+      "completedAt": "2026-03-25T14:32:05Z",
+      "efficiency": 0.94
+    },
+    {
+      "jobId": "CP-107",
+      "pool": "review",
+      "model": "qwen3.5:397b-cloud",
+      "taskType": "review",
+      "estimatedTokens": 30000,
+      "actualTokens": 32000,
+      "runtimeMs": 95000,
+      "retryCount": 1,
+      "approvalSlotConsumed": true,
+      "result": "success",
+      "startedAt": "2026-03-25T14:35:00Z",
+      "completedAt": "2026-03-25T14:37:35Z",
+      "efficiency": 1.07
+    },
+    {
+      "jobId": "CP-108",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "estimatedTokens": 50000,
+      "actualTokens": 48000,
+      "runtimeMs": 180000,
+      "retryCount": 2,
+      "approvalSlotConsumed": true,
+      "result": "quarantined",
+      "startedAt": "2026-03-25T14:40:00Z",
+      "completedAt": "2026-03-25T14:45:00Z",
+      "errorMessage": "Repeated transient failures"
+    }
+  ]
+}

@@ -59,8 +59,18 @@ async function refresh() {
 
     document.getElementById('projectCount').textContent = summary.projectCount;
     document.getElementById('taskCount').textContent = summary.taskCount;
-    document.getElementById('openCount').textContent = summary.openTaskCount;
+    document.getElementById('activeCount').textContent = summary.activeTaskCount;
     document.getElementById('doneCount').textContent = summary.doneTaskCount;
+    document.getElementById('blockedCount').textContent = summary.blockedTaskCount;
+    document.getElementById('atRiskCount').textContent = summary.atRiskTaskCount;
+    
+    // FP-011: Display deltas if available
+    if (summary.deltas) {
+      updateMetricDelta('activeCount', summary.deltas.activeTaskCount);
+      updateMetricDelta('doneCount', summary.deltas.doneTaskCount);
+      updateMetricDelta('blockedCount', summary.deltas.blockedTaskCount);
+      updateMetricDelta('atRiskCount', summary.deltas.atRiskTaskCount);
+    }
 
     lastRefreshAt = new Date();
     populateSourceFilter();
@@ -73,6 +83,24 @@ async function refresh() {
   } finally {
     isRefreshing = false;
   }
+}
+
+function updateMetricDelta(elementId, delta) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const parent = el.closest('.metric');
+  if (!parent) return;
+  
+  // Remove existing delta
+  const existingDelta = parent.querySelector('.delta');
+  if (existingDelta) existingDelta.remove();
+  
+  if (delta === 0) return;
+  
+  const deltaEl = document.createElement('span');
+  deltaEl.className = 'delta ' + (delta > 0 ? 'positive' : 'negative');
+  deltaEl.textContent = (delta > 0 ? '+' : '') + delta;
+  parent.appendChild(deltaEl);
 }
 
 function startPolling() {
@@ -93,7 +121,11 @@ function renderVersionInfo() {
   const infoEl = document.getElementById('versionInfo');
   if (versionEl) versionEl.textContent = `v${VERSION}`;
   if (infoEl && lastRefreshAt) {
-    infoEl.textContent = `Last updated: ${lastRefreshAt.toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}`;
+    const age = Math.floor((Date.now() - lastRefreshAt) / 1000);
+    const health = age < 120 ? 'healthy' : age < 300 ? 'delayed' : 'stale';
+    const healthIcon = health === 'healthy' ? '✓' : health === 'delayed' ? '⏳' : '⚠';
+    const healthClass = health === 'healthy' ? 'health-ok' : health === 'delayed' ? 'health-warn' : 'health-error';
+    infoEl.innerHTML = `<span class="source-health ${healthClass}">${healthIcon}</span> Last updated: ${lastRefreshAt.toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}`;
   }
 }
 
@@ -362,18 +394,26 @@ function renderMiniList(targetId, items, emptyText) {
     return;
   }
 
-  el.innerHTML = items.map(item => `
+  el.innerHTML = items.map(item => {
+    // FP-020: Reduce metadata chip overload - show only essential badges
+    const badges = [];
+    if (item.priority === 'critical' || item.priority === 'high') {
+      badges.push(`<span class="badge priority-${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>`);
+    }
+    if (item.status === 'blocked') {
+      badges.push(`<span class="badge status-blocked">blocked</span>`);
+    }
+    if (item.riskState && item.riskState !== 'none') {
+      badges.push(`<span class="badge risk-${escapeHtml(item.riskState)}">${escapeHtml(item.riskState)}</span>`);
+    }
+    
+    return `
     <div class="mini-item">
       <div class="mini-title">${escapeHtml(item.title)}</div>
       <div class="mini-sub">${escapeHtml(item.projectName || 'Unknown project')}</div>
-      <div class="mini-meta">
-        <span class="badge">${escapeHtml(item.status || '')}</span>
-        <span class="badge priority-${escapeHtml(item.priority || 'medium')}">${escapeHtml(item.priority || 'medium')}</span>
-        ${item.dueDate ? `<span class="badge">due ${escapeHtml(item.dueDate)}</span>` : ''}
-        ${collectSourceTags(item).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
-      </div>
+      ${badges.length ? `<div class="mini-meta">${badges.join('')}</div>` : ''}
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function collectSourceTags(item) {
@@ -402,7 +442,14 @@ function renderPortfolioProjects() {
   const grid = document.getElementById('projectGrid');
 
   if (!filteredProjects.length) {
-    grid.innerHTML = `<div class="empty-state">No matching projects yet. Try adding one or clearing the filters.</div>`;
+    // FP-030: Improved empty-state treatment
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No projects yet</h3>
+        <p>Start by adding a project using the form on the left.</p>
+        <p class="empty-hint">Projects group related tasks and track progress in one place.</p>
+      </div>`;
     return;
   }
 

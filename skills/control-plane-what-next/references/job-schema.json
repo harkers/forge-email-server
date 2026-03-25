@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Job Schema",
+  "description": "Extended job metadata for parallel dispatch with dependency and lock tracking",
+  "type": "object",
+  "required": [
+    "jobId",
+    "title",
+    "taskType"
+  ],
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "description": "Unique job identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable job title"
+    },
+    "taskType": {
+      "type": "string",
+      "enum": ["infrastructure", "coding", "review", "security", "docs", "planning", "investigation"],
+      "description": "Task category for routing"
+    },
+    "description": {
+      "type": "string",
+      "description": "Job description"
+    },
+    "dependsOn": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Job IDs that must complete before this job can run"
+    },
+    "blocks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Job IDs that are blocked by this job"
+    },
+    "sharedResources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/sharedResource"
+      },
+      "description": "Resources this job needs exclusive access to"
+    },
+    "estimatedTokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Estimated token consumption"
+    },
+    "deadline": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Job deadline (ISO-8601)"
+    },
+    "queueInsertedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When job was added to queue"
+    },
+    "destructive": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether job performs destructive operations"
+    },
+    "productionImpact": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether job impacts production systems"
+    },
+    "executionReadiness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.8,
+      "description": "Confidence score for execution readiness (0-1)"
+    },
+    "ready": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether job is ready for execution"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.8,
+      "description": "Execution confidence score"
+    },
+    "impact": {
+      "type": "string",
+      "enum": ["trivial", "low", "medium", "high", "critical"],
+      "default": "medium",
+      "description": "Business impact level"
+    },
+    "priority": {
+      "type": ["string", "null"],
+      "enum": ["P0", "P1", "P2", "P3", null],
+      "description": "Assigned priority (computed)"
+    },
+    "priorityScore": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Computed priority score"
+    },
+    "pool": {
+      "type": ["string", "null"],
+      "description": "Assigned pool name"
+    },
+    "model": {
+      "type": ["string", "null"],
+      "description": "Assigned model"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional job metadata"
+    }
+  },
+  "definitions": {
+    "sharedResource": {
+      "type": "object",
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["file", "service", "environment", "deployment"],
+          "description": "Resource type"
+        },
+        "value": {
+          "type": "string",
+          "description": "Resource identifier (path, name, etc.)"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["exclusive", "shared"],
+          "default": "exclusive",
+          "description": "Lock mode required"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "jobId": "CP-106",
+      "title": "Fix authentication middleware routing bug",
+      "taskType": "coding",
+      "description": "Critical bug blocking all API requests",
+      "dependsOn": [],
+      "blocks": ["CP-107", "CP-108", "CP-109"],
+      "sharedResources": [
+        {"type": "file", "value": "src/auth/middleware.ts", "mode": "exclusive"}
+      ],
+      "estimatedTokens": 42000,
+      "deadline": "2026-03-26T00:00:00Z",
+      "queueInsertedAt": "2026-03-25T10:00:00Z",
+      "destructive": false,
+      "productionImpact": true,
+      "executionReadiness": 0.95,
+      "ready": true,
+      "confidence": 0.9,
+      "impact": "critical"
+    },
+    {
+      "jobId": "CP-200",
+      "title": "Review PR #1234: Database schema migration",
+      "taskType": "review",
+      "dependsOn": ["CP-106"],
+      "blocks": [],
+      "sharedResources": [
+        {"type": "service", "value": "postgres-primary", "mode": "shared"}
+      ],
+      "estimatedTokens": 25000,
+      "destructive": false,
+      "productionImpact": true,
+      "executionReadiness": 0.8
+    }
+  ]
+}

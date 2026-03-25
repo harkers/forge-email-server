@@ -1,6 +1,6 @@
 Next job selected: CP-301
 Priority: P0
-Score: 27
+Score: 29
 Reason: Highest priority score
 Tie-break: none
 Estimated tokens: 12000

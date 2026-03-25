@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Active Dispatch Schema",
+  "description": "Schema for tracking active dispatches in parallel execution",
+  "type": "object",
+  "required": [
+    "jobId",
+    "pool",
+    "model",
+    "taskType",
+    "status",
+    "startedAt"
+  ],
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "description": "Unique job identifier"
+    },
+    "pool": {
+      "type": "string",
+      "description": "Pool name managing this dispatch"
+    },
+    "model": {
+      "type": "string",
+      "description": "Model assigned to this dispatch"
+    },
+    "taskType": {
+      "type": "string",
+      "description": "Task category"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued_for_dispatch",
+        "running",
+        "succeeded",
+        "failed",
+        "quarantined",
+        "cancelled"
+      ],
+      "description": "Current dispatch status"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when dispatch started"
+    },
+    "completedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when dispatch completed"
+    },
+    "approvalSlotConsumed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this dispatch consumed an approval window slot"
+    },
+    "estimatedTokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Estimated token consumption"
+    },
+    "actualTokens": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Actual tokens consumed (null if still running)"
+    },
+    "retryCount": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of retry attempts"
+    },
+    "locksHeld": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Lock IDs currently held by this dispatch"
+    },
+    "result": {
+      "type": ["string", "null"],
+      "enum": ["success", "failure", "quarantined", "cancelled", null],
+      "description": "Final result status"
+    },
+    "errorMessage": {
+      "type": ["string", "null"],
+      "description": "Error message if failed"
+    },
+    "runtimeMs": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Execution runtime in milliseconds"
+    }
+  },
+  "examples": [
+    {
+      "jobId": "CP-106",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "status": "running",
+      "startedAt": "2026-03-25T14:30:00Z",
+      "approvalSlotConsumed": true,
+      "estimatedTokens": 42000,
+      "actualTokens": null,
+      "retryCount": 0,
+      "locksHeld": ["lock-001"]
+    },
+    {
+      "jobId": "CP-105",
+      "pool": "review",
+      "model": "qwen3.5:397b-cloud",
+      "taskType": "review",
+      "status": "succeeded",
+      "startedAt": "2026-03-25T14:00:00Z",
+      "completedAt": "2026-03-25T14:25:00Z",
+      "approvalSlotConsumed": true,
+      "estimatedTokens": 30000,
+      "actualTokens": 28500,
+      "retryCount": 0,
+      "locksHeld": [],
+      "result": "success",
+      "runtimeMs": 1500000
+    }
+  ]
+}

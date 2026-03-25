@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "control-plane-what-next state v2",
+  "description": "State schema for bounded parallel dispatch with lock tracking and pool management",
+  "type": "object",
+  "required": [
+    "version",
+    "approvalWindow",
+    "tokenGovernance",
+    "history",
+    "dispatch",
+    "locks",
+    "pools",
+    "policy"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 2,
+      "description": "Schema version - must be 2 for parallel dispatch support"
+    },
+    "approvalWindow": {
+      "type": "object",
+      "required": [
+        "mode",
+        "startedAt",
+        "followNewJobs",
+        "windowCompletedJobs",
+        "windowTokenUsage",
+        "status"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["time", "jobs", "until-empty", "none"],
+          "description": "Approval window mode determining dispatch authorization"
+        },
+        "startedAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO-8601 timestamp when window was opened"
+        },
+        "expiresAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Expiration timestamp for time-mode windows"
+        },
+        "maxJobs": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Maximum job count for jobs-mode windows"
+        },
+        "jobsRemaining": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Remaining slots in jobs-mode window"
+        },
+        "followNewJobs": {
+          "type": "boolean",
+          "description": "Whether newly-added jobs are covered by this window"
+        },
+        "approvedSnapshotJobIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs explicitly approved at window creation"
+        },
+        "windowCompletedJobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs completed within this window"
+        },
+        "windowTokenUsage": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cumulative tokens consumed in this window"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "expired", "exhausted", "revoked", "idle"],
+          "description": "Current window status"
+        }
+      }
+    },
+    "tokenGovernance": {
+      "type": "object",
+      "required": [
+        "maxTokensPerJob",
+        "maxTokensPerWindow",
+        "windowTokensUsed",
+        "perPoolTokensUsed"
+      ],
+      "properties": {
+        "maxTokensPerJob": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens allowed per single job"
+        },
+        "maxTokensPerWindow": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens allowed per approval window"
+        },
+        "windowTokensUsed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tokens consumed in current window"
+        },
+        "perPoolTokensUsed": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Token consumption per pool name"
+        }
+      }
+    },
+    "history": {
+      "type": "object",
+      "required": [
+        "windowCompletedJobs",
+        "sessionCompletedJobs",
+        "quarantinedJobs",
+        "failedJobs"
+      ],
+      "properties": {
+        "windowCompletedJobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs completed in current window"
+        },
+        "sessionCompletedJobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs completed in this session"
+        },
+        "quarantinedJobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs quarantined after repeated failure"
+        },
+        "failedJobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Job IDs that failed execution"
+        }
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "required": [
+        "activeJobs",
+        "lastDispatchedJobId",
+        "lastDispatchAt"
+      ],
+      "properties": {
+        "activeJobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/activeJob"
+          },
+          "description": "Currently running or queued dispatches"
+        },
+        "lastDispatchedJobId": {
+          "type": ["string", "null"],
+          "description": "Most recently dispatched job ID"
+        },
+        "lastDispatchAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp of most recent dispatch"
+        }
+      }
+    },
+    "locks": {
+      "type": "object",
+      "required": ["activeLocks"],
+      "properties": {
+        "activeLocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/lock"
+          },
+          "description": "Currently held locks blocking parallel dispatch"
+        }
+      }
+    },
+    "pools": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/poolConfig"
+      },
+      "description": "Per-pool configuration keyed by pool name"
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "allowDestructive",
+        "allowProdChanges",
+        "maxTokensPerJob",
+        "maxTokensPerWindow"
+      ],
+      "properties": {
+        "allowDestructive": {
+          "type": "boolean",
+          "description": "Allow destructive operations without explicit approval"
+        },
+        "allowProdChanges": {
+          "type": "boolean",
+          "description": "Allow production-impacting changes without explicit approval"
+        },
+        "maxTokensPerJob": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Global per-job token ceiling"
+        },
+        "maxTokensPerWindow": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Global per-window token ceiling"
+        },
+        "autoRetryTransientFailures": {
+          "type": "boolean",
+          "description": "Automatically retry transient failures once"
+        },
+        "maxAutomaticRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum automatic retry attempts"
+        },
+        "maxParallelDispatches": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum concurrent dispatches across all pools"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "activeJob": {
+      "type": "object",
+      "required": [
+        "jobId",
+        "pool",
+        "model",
+        "taskType",
+        "status",
+        "startedAt"
+      ],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "Unique job identifier"
+        },
+        "pool": {
+          "type": "string",
+          "description": "Pool name (coder, review, docs, security)"
+        },
+        "model": {
+          "type": "string",
+          "description": "Assigned model identifier"
+        },
+        "taskType": {
+          "type": "string",
+          "description": "Task category"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued_for_dispatch",
+            "running",
+            "succeeded",
+            "failed",
+            "quarantined",
+            "cancelled"
+          ],
+          "description": "Current dispatch status"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When dispatch started"
+        },
+        "approvalSlotConsumed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this dispatch consumed an approval slot"
+        },
+        "estimatedTokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated token consumption"
+        },
+        "actualTokens": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Actual tokens consumed (null if running)"
+        },
+        "retryCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of retry attempts"
+        },
+        "locksHeld": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Lock IDs held by this job"
+        }
+      }
+    },
+    "lock": {
+      "type": "object",
+      "required": [
+        "lockId",
+        "jobId",
+        "type",
+        "value",
+        "acquiredAt"
+      ],
+      "properties": {
+        "lockId": {
+          "type": "string",
+          "description": "Unique lock identifier"
+        },
+        "jobId": {
+          "type": "string",
+          "description": "Job ID holding this lock"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["file", "service", "environment", "deployment"],
+          "description": "Lock type"
+        },
+        "value": {
+          "type": "string",
+          "description": "Lock target value (path, service name, etc.)"
+        },
+        "acquiredAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When lock was acquired"
+        }
+      }
+    },
+    "poolConfig": {
+      "type": "object",
+      "required": [
+        "models",
+        "maxConcurrent",
+        "taskTypes",
+        "maxTokensPerJob",
+        "allowDestructive",
+        "allowProductionImpact"
+      ],
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Available models for this pool"
+        },
+        "maxConcurrent": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum concurrent jobs in this pool"
+        },
+        "taskTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Task types routed to this pool"
+        },
+        "maxTokensPerJob": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Per-job token ceiling for this pool"
+        },
+        "allowDestructive": {
+          "type": "boolean",
+          "description": "Allow destructive operations in this pool"
+        },
+        "allowProductionImpact": {
+          "type": "boolean",
+          "description": "Allow production-impacting operations in this pool"
+        }
+      }
+    }
+  }
+}

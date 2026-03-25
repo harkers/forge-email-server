@@ -8,11 +8,11 @@
     "candidates": [
       {
         "jobId": "CP-301",
-        "priorityScore": 27,
+        "priorityScore": 29,
         "assignedPriority": "P0",
         "severity": 3,
         "blockingBreadth": 0,
-        "deadlineProximity": 4,
+        "deadlineProximity": 5,
         "businessImpact": 4,
         "executionReadiness": 4,
         "executionEffort": 2,
@@ -51,9 +51,9 @@
     "riskyHeld": [],
     "tieBreakReason": null,
     "selectedPriority": "P0",
-    "selectedScore": 27
+    "selectedScore": 29
   },
-  "summary": "Next job selected: CP-301\nPriority: P0\nScore: 27\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 12000\nSafety status: eligible\nApproval window: jobs / jobs window active (2 remaining)\nAction: dispatching now",
+  "summary": "Next job selected: CP-301\nPriority: P0\nScore: 29\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 12000\nSafety status: eligible\nApproval window: jobs / jobs window active (2 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -75,7 +75,7 @@
         "CP-301"
       ],
       "lastDispatchedJobId": "CP-301",
-      "lastUpdatedAt": "2026-03-25T13:42:04.184523+00:00"
+      "lastUpdatedAt": "2026-03-25T14:53:51.233326+00:00"
     },
     "execution_metrics": {
       "testId": "T03_jobs_window_decrements",
@@ -130,7 +130,7 @@
       "passed": true,
       "selectedJob": "CP-301",
       "selectedPriority": "P0",
-      "selectedScore": 27,
+      "selectedScore": 29,
       "errors": []
     }
   }

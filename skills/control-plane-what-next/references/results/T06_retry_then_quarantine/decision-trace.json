@@ -1,6 +1,6 @@
 {
   "testId": "T06_retry_then_quarantine",
-  "timestamp": "2026-03-25T13:42:04.189710+00:00",
+  "timestamp": "2026-03-25T14:53:51.238270+00:00",
   "expected": {
     "selectedJob": "CP-601",
     "outcome": "quarantined_after_retry"
@@ -28,11 +28,11 @@
     },
     {
       "jobId": "CP-602",
-      "priorityScore": 25,
+      "priorityScore": 27,
       "assignedPriority": "P0",
       "severity": 3,
       "blockingBreadth": 0,
-      "deadlineProximity": 4,
+      "deadlineProximity": 5,
       "businessImpact": 3,
       "executionReadiness": 4,
       "executionEffort": 2,

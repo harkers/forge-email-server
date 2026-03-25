@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Model Pool Configuration Schema",
+  "description": "Defines model pools for parallel dispatch routing",
+  "type": "object",
+  "required": ["pools"],
+  "properties": {
+    "pools": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/poolConfig"
+      },
+      "description": "Pool configurations keyed by pool name"
+    },
+    "defaultPool": {
+      "type": "string",
+      "description": "Default pool for unclassified tasks"
+    },
+    "escalationPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "escalateOnLowConfidence": {
+          "type": "boolean",
+          "default": true
+        },
+        "escalateOnHighComplexity": {
+          "type": "boolean",
+          "default": true
+        },
+        "escalateOnSafetySensitivity": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "definitions": {
+    "poolConfig": {
+      "type": "object",
+      "required": [
+        "models",
+        "maxConcurrent",
+        "taskTypes",
+        "maxTokensPerJob",
+        "allowDestructive",
+        "allowProductionImpact"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable pool name"
+        },
+        "models": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Available models for this pool in preference order"
+        },
+        "defaultModel": {
+          "type": "string",
+          "description": "Primary model for this pool (first in models array)"
+        },
+        "escalateTo": {
+          "type": "string",
+          "description": "Pool name to escalate to when stronger model needed"
+        },
+        "maxConcurrent": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum concurrent dispatches in this pool"
+        },
+        "taskTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Task categories routed to this pool"
+        },
+        "maxTokensPerJob": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Per-job token ceiling for this pool"
+        },
+        "allowDestructive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether destructive operations allowed without explicit approval"
+        },
+        "allowProductionImpact": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether production-impacting operations allowed without explicit approval"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50,
+          "description": "Pool priority for resource contention (higher = more important)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable pool purpose"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "pools": {
+        "coder": {
+          "name": "Coding Pool",
+          "models": ["qwen3-coder-next:cloud", "Codex"],
+          "defaultModel": "qwen3-coder-next:cloud",
+          "escalateTo": "review",
+          "maxConcurrent": 2,
+          "taskTypes": ["infrastructure", "coding"],
+          "maxTokensPerJob": 500000,
+          "allowDestructive": false,
+          "allowProductionImpact": false,
+          "priority": 70,
+          "description": "Primary coding and infrastructure work"
+        },
+        "review": {
+          "name": "Review Pool",
+          "models": ["qwen3.5:397b-cloud", "Codex"],
+          "defaultModel": "qwen3.5:397b-cloud",
+          "maxConcurrent": 1,
+          "taskTypes": ["review"],
+          "maxTokensPerJob": 300000,
+          "allowDestructive": false,
+          "allowProductionImpact": true,
+          "priority": 80,
+          "description": "Code review and quality analysis"
+        },
+        "docs": {
+          "name": "Documentation Pool",
+          "models": ["llama3.1:8b", "qwen3:14b", "qwen3.5:397b-cloud"],
+          "defaultModel": "llama3.1:8b",
+          "escalateTo": "review",
+          "maxConcurrent": 2,
+          "taskTypes": ["docs"],
+          "maxTokensPerJob": 100000,
+          "allowDestructive": false,
+          "allowProductionImpact": false,
+          "priority": 30,
+          "description": "Documentation and content work"
+        },
+        "security": {
+          "name": "Security Pool",
+          "models": ["Codex"],
+          "defaultModel": "Codex",
+          "maxConcurrent": 1,
+          "taskTypes": ["security"],
+          "maxTokensPerJob": 200000,
+          "allowDestructive": false,
+          "allowProductionImpact": true,
+          "priority": 90,
+          "description": "Security-sensitive analysis and operations"
+        }
+      },
+      "defaultPool": "coder",
+      "escalationPolicy": {
+        "enabled": true,
+        "escalateOnLowConfidence": true,
+        "escalateOnHighComplexity": true,
+        "escalateOnSafetySensitivity": true
+      }
+    }
+  ]
+}

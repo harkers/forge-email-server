@@ -1,46 +1,134 @@
 {
-  "version": 1,
-  "activeWindow": {
+  "approvalWindow": {
+    "approvedSnapshotJobIds": [],
+    "expiresAt": null,
+    "followNewJobs": false,
+    "jobsRemaining": 2,
+    "maxJobs": 5,
     "mode": "jobs",
     "startedAt": "2026-03-25T09:00:00Z",
-    "expiresAt": null,
-    "maxJobs": 5,
-    "jobsRemaining": 4,
-    "followNewJobs": false,
-    "approvedSnapshotJobIds": [],
-    "windowCompletedJobs": ["CP-006"],
-    "windowTokenUsage": 263600,
-    "status": "active"
+    "status": "active",
+    "windowCompletedJobs": [
+      "CP-006"
+    ],
+    "windowTokenUsage": 263600
   },
-  "session": {
-    "startedAt": "2026-03-25T06:49:00Z",
-    "completedJobs": ["CP-001", "CP-002", "CP-003", "CP-004", "CP-005", "CP-006"],
+  "dispatch": {
+    "activeJobs": [
+      {
+        "approvalSlotConsumed": true,
+        "estimatedTokens": 0,
+        "jobId": "CP-007",
+        "locksHeld": [],
+        "model": "unknown",
+        "pool": "coder",
+        "retryCount": 0,
+        "startedAt": "2026-03-25T17:04:00Z",
+        "status": "running",
+        "taskType": "unknown"
+      },
+      {
+        "actualTokens": null,
+        "approvalSlotConsumed": true,
+        "estimatedTokens": 40000,
+        "jobId": "test-project-item-1",
+        "locksHeld": [],
+        "model": "qwen3-coder-next:cloud",
+        "pool": "coder",
+        "retryCount": 0,
+        "startedAt": "2026-03-25T17:35:09.650749+00:00",
+        "status": "running",
+        "taskType": "coding"
+      }
+    ],
+    "lastDispatchAt": "2026-03-25T17:35:09.650749+00:00",
+    "lastDispatchedJobId": "test-project-item-1"
+  },
+  "history": {
     "failedJobs": [],
     "quarantinedJobs": [],
-    "tokenUsage": 1500000,
-    "byModel": {
-      "glm-5:cloud": 1300000,
-      "qwen3:14b": 200000
-    }
+    "sessionCompletedJobs": [
+      "CP-001",
+      "CP-002",
+      "CP-003",
+      "CP-004",
+      "CP-005",
+      "CP-006"
+    ],
+    "windowCompletedJobs": []
   },
-  "lifetime": {
-    "completedCount": 6,
-    "failedCount": 0,
-    "quarantinedCount": 0,
-    "tokenUsage": 1500000
-  },
-  "current": {
-    "lastEvaluatedAt": "2026-03-25T09:13:00Z",
-    "lastDispatchedJobId": "CP-006",
-    "lastDecision": "dispatched",
-    "inFlightJobId": null
+  "locks": {
+    "activeLocks": []
   },
   "policy": {
     "allowDestructive": false,
-    "allowProdChanges": false,
+    "allowProdChanges": true,
+    "autoRetryTransientFailures": true,
+    "maxAutomaticRetries": 1,
+    "maxParallelDispatches": 4,
+    "maxTokensPerJob": 500000,
+    "maxTokensPerWindow": 2000000
+  },
+  "pools": {
+    "coder": {
+      "allowDestructive": false,
+      "allowProductionImpact": false,
+      "maxConcurrent": 2,
+      "maxTokensPerJob": 500000,
+      "models": [
+        "qwen3-coder-next:cloud"
+      ],
+      "taskTypes": [
+        "infrastructure",
+        "coding"
+      ]
+    },
+    "docs": {
+      "allowDestructive": false,
+      "allowProductionImpact": false,
+      "maxConcurrent": 2,
+      "maxTokensPerJob": 100000,
+      "models": [
+        "llama3.1:8b",
+        "qwen3:14b"
+      ],
+      "taskTypes": [
+        "docs"
+      ]
+    },
+    "review": {
+      "allowDestructive": false,
+      "allowProductionImpact": true,
+      "maxConcurrent": 1,
+      "maxTokensPerJob": 300000,
+      "models": [
+        "qwen3.5:397b-cloud"
+      ],
+      "taskTypes": [
+        "review"
+      ]
+    },
+    "security": {
+      "allowDestructive": false,
+      "allowProductionImpact": true,
+      "maxConcurrent": 1,
+      "maxTokensPerJob": 200000,
+      "models": [
+        "Codex"
+      ],
+      "taskTypes": [
+        "security"
+      ]
+    }
+  },
+  "tokenGovernance": {
     "maxTokensPerJob": 500000,
     "maxTokensPerWindow": 2000000,
-    "autoRetryTransientFailures": true,
-    "maxAutomaticRetries": 1
-  }
+    "perPoolTokensUsed": {
+      "glm-5:cloud": 1300000,
+      "qwen3:14b": 200000
+    },
+    "windowTokensUsed": 1500000
+  },
+  "version": 2
 }

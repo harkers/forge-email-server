@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Safety Report Schema",
+  "description": "Schema for safety evaluation results before dispatch",
+  "type": "object",
+  "required": [
+    "jobId",
+    "eligible",
+    "blockedBy",
+    "requiresOperatorApproval"
+  ],
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "description": "Job being evaluated"
+    },
+    "eligible": {
+      "type": "boolean",
+      "description": "Whether job passes all safety gates"
+    },
+    "blockedBy": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of safety gate failures blocking dispatch"
+    },
+    "requiresOperatorApproval": {
+      "type": "boolean",
+      "description": "Whether operator approval is needed before dispatch"
+    },
+    "conflictingLocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/lockConflict"
+      },
+      "description": "Active locks that conflict with this job's resources"
+    },
+    "unmetDependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/dependencyStatus"
+      },
+      "description": "Dependencies that are not yet satisfied"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "dispatch",
+        "hold_for_approval",
+        "hold_for_lock",
+        "hold_for_dependency",
+        "hold_for_safety_gate",
+        "hold_for_token_limit",
+        "hold_for_metadata",
+        "quarantine"
+      ],
+      "description": "Recommended action"
+    },
+    "tokenBudgetOk": {
+      "type": "boolean",
+      "description": "Whether job fits within token budget"
+    },
+    "poolCapacityOk": {
+      "type": "boolean",
+      "description": "Whether target pool has capacity"
+    },
+    "approvalWindowOk": {
+      "type": "boolean",
+      "description": "Whether approval window is valid"
+    },
+    "evaluationTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When safety evaluation was performed"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional evaluation metadata"
+    }
+  },
+  "definitions": {
+    "lockConflict": {
+      "type": "object",
+      "required": ["lockId", "type", "value", "heldByJobId"],
+      "properties": {
+        "lockId": {
+          "type": "string",
+          "description": "ID of conflicting lock"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["file", "service", "environment", "deployment"],
+          "description": "Lock type"
+        },
+        "value": {
+          "type": "string",
+          "description": "Resource identifier"
+        },
+        "heldByJobId": {
+          "type": "string",
+          "description": "Job holding the lock"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["exclusive", "shared"],
+          "description": "Lock mode"
+        }
+      }
+    },
+    "dependencyStatus": {
+      "type": "object",
+      "required": ["jobId", "status"],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "Dependency job ID"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "running", "succeeded", "failed", "quarantined"],
+          "description": "Current status of dependency"
+        },
+        "blocking": {
+          "type": "boolean",
+          "description": "Whether this dependency is blocking dispatch"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "jobId": "CP-106",
+      "eligible": true,
+      "blockedBy": [],
+      "requiresOperatorApproval": false,
+      "conflictingLocks": [],
+      "unmetDependencies": [],
+      "action": "dispatch",
+      "tokenBudgetOk": true,
+      "poolCapacityOk": true,
+      "approvalWindowOk": true,
+      "evaluationTimestamp": "2026-03-25T14:30:00Z"
+    },
+    {
+      "jobId": "CP-107",
+      "eligible": false,
+      "blockedBy": ["destructive operation blocked", "production-impacting change blocked"],
+      "requiresOperatorApproval": true,
+      "conflictingLocks": [
+        {
+          "lockId": "lock-001",
+          "type": "file",
+          "value": "src/auth/middleware.ts",
+          "heldByJobId": "CP-106",
+          "mode": "exclusive"
+        }
+      ],
+      "unmetDependencies": [
+        {
+          "jobId": "CP-106",
+          "status": "running",
+          "blocking": true
+        }
+      ],
+      "action": "hold_for_lock",
+      "tokenBudgetOk": true,
+      "poolCapacityOk": true,
+      "approvalWindowOk": true,
+      "evaluationTimestamp": "2026-03-25T14:35:00Z"
+    }
+  ]
+}

@@ -12,6 +12,23 @@
   - ALLOWED_RISK_STATE: none, watch, at-risk, critical
   - Database migration for existing tables
   - Full CRUD support for risk_state
+- FP-010: Rename KPI labels
+  - Open → Active tasks
+  - Added At Risk and Blocked metrics
+  - Added Critical task count
+- FP-011: Add KPI deltas
+  - Compare current vs previous snapshot (5-min intervals)
+  - Visual +N/-N indicators on metrics
+- FP-020: Reduce metadata chip overload
+  - Mini-lists show only critical/high priority badges
+  - Only show blocked status, not all statuses
+  - Risk state badges for at-risk/critical items
+- FP-030: Improve empty-state treatment
+  - Better visual hierarchy with icon and guidance
+  - Contextual help text for new users
+- FP-003: Add source health indicator
+  - Shows refresh freshness (✓ healthy / ⏳ delayed / ⚠ stale)
+  - Visual indicator next to last update timestamp
 - Fix default project status bug
   - Changed invalid `'active'` default to `'not-started'`
   - Fixed all status validation errors on POST requests

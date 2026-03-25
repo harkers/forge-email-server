@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision Trace Schema",
+  "description": "Schema for tracing dispatch decision logic cycle-by-cycle",
+  "type": "object",
+  "required": [
+    "cycleId",
+    "jobId",
+    "priorityScore",
+    "assignedPriority",
+    "pool",
+    "model",
+    "dependenciesSatisfied",
+    "lockConflict",
+    "poolCapacityAvailable",
+    "selected"
+  ],
+  "properties": {
+    "cycleId": {
+      "type": "string",
+      "description": "Unique identifier for this decision cycle"
+    },
+    "jobId": {
+      "type": "string",
+      "description": "Job being evaluated"
+    },
+    "priorityScore": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Computed priority score"
+    },
+    "assignedPriority": {
+      "type": "string",
+      "enum": ["P0", "P1", "P2", "P3"],
+      "description": "Assigned priority band"
+    },
+    "pool": {
+      "type": ["string", "null"],
+      "description": "Target pool name"
+    },
+    "model": {
+      "type": ["string", "null"],
+      "description": "Assigned model"
+    },
+    "taskType": {
+      "type": "string",
+      "description": "Task category"
+    },
+    "scoringDimensions": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Seriousness if not handled"
+        },
+        "blockingBreadth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Breadth of downstream work blocked"
+        },
+        "deadlineProximity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Time urgency"
+        },
+        "businessImpact": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Operational/business significance"
+        },
+        "executionReadiness": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "How well-specified and ready"
+        },
+        "executionEffort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Cost (subtractive)"
+        }
+      },
+      "description": "Individual scoring dimensions"
+    },
+    "dependenciesSatisfied": {
+      "type": "boolean",
+      "description": "Whether all dependencies are complete"
+    },
+    "lockConflict": {
+      "type": "boolean",
+      "description": "Whether there's a lock conflict"
+    },
+    "lockConflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "lockId": { "type": "string" },
+          "type": { "type": "string" },
+          "value": { "type": "string" },
+          "heldByJobId": { "type": "string" }
+        }
+      },
+      "description": "Details of lock conflicts if any"
+    },
+    "poolCapacityAvailable": {
+      "type": "boolean",
+      "description": "Whether target pool has capacity"
+    },
+    "poolCapacity": {
+      "type": "object",
+      "properties": {
+        "pool": { "type": "string" },
+        "maxConcurrent": { "type": "integer" },
+        "currentActive": { "type": "integer" },
+        "available": { "type": "boolean" }
+      },
+      "description": "Pool capacity details"
+    },
+    "selected": {
+      "type": "boolean",
+      "description": "Whether this job was selected for dispatch"
+    },
+    "selectedReason": {
+      "type": ["string", "null"],
+      "description": "Reason for selection or rejection"
+    },
+    "tieBreakReason": {
+      "type": ["string", "null"],
+      "description": "Tie-break reason if applicable"
+    },
+    "rank": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Position in sorted candidate list"
+    },
+    "eligibleForDispatch": {
+      "type": "boolean",
+      "description": "Whether job was eligible (not blocked)"
+    },
+    "safetyGates": {
+      "type": "object",
+      "properties": {
+        "destructive": { "type": "boolean" },
+        "productionImpact": { "type": "boolean" },
+        "tokenBudget": { "type": "boolean" },
+        "metadata": { "type": "boolean" },
+        "confidence": { "type": "boolean" },
+        "dependencies": { "type": "boolean" }
+      },
+      "description": "Safety gate statuses (true = passed)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When decision was made"
+    }
+  },
+  "examples": [
+    {
+      "cycleId": "cycle-2026-03-25T14:30:00Z",
+      "jobId": "CP-106",
+      "priorityScore": 22,
+      "assignedPriority": "P1",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "scoringDimensions": {
+        "severity": 4,
+        "blockingBreadth": 3,
+        "deadlineProximity": 4,
+        "businessImpact": 4,
+        "executionReadiness": 5,
+        "executionEffort": 2
+      },
+      "dependenciesSatisfied": true,
+      "lockConflict": false,
+      "lockConflicts": [],
+      "poolCapacityAvailable": true,
+      "poolCapacity": {
+        "pool": "coder",
+        "maxConcurrent": 2,
+        "currentActive": 0,
+        "available": true
+      },
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "tieBreakReason": null,
+      "rank": 1,
+      "eligibleForDispatch": true,
+      "safetyGates": {
+        "destructive": true,
+        "productionImpact": true,
+        "tokenBudget": true,
+        "metadata": true,
+        "confidence": true,
+        "dependencies": true
+      },
+      "timestamp": "2026-03-25T14:30:00Z"
+    },
+    {
+      "cycleId": "cycle-2026-03-25T14:30:00Z",
+      "jobId": "CP-107",
+      "priorityScore": 18,
+      "assignedPriority": "P1",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "scoringDimensions": {
+        "severity": 3,
+        "blockingBreadth": 2,
+        "deadlineProximity": 3,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2
+      },
+      "dependenciesSatisfied": false,
+      "lockConflict": true,
+      "lockConflicts": [
+        {
+          "lockId": "lock-001",
+          "type": "file",
+          "value": "src/auth/middleware.ts",
+          "heldByJobId": "CP-106"
+        }
+      ],
+      "poolCapacityAvailable": true,
+      "selected": false,
+      "selectedReason": "Blocked by lock conflict and dependency on CP-106",
+      "rank": 2,
+      "eligibleForDispatch": false,
+      "timestamp": "2026-03-25T14:30:00Z"
+    }
+  ]
+}

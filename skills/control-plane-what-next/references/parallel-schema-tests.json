@@ -1,0 +1,532 @@
+[
+  {
+    "id": "S01_state_schema_roundtrip",
+    "purpose": "Validate state schema v2 roundtrip serialization",
+    "schema": "03-state-schema-v2.json",
+    "test": "schema_validation",
+    "input": {
+      "version": 2,
+      "approvalWindow": {
+        "mode": "jobs",
+        "startedAt": "2026-03-25T10:00:00Z",
+        "followNewJobs": true,
+        "windowCompletedJobs": ["CP-100"],
+        "windowTokenUsage": 50000,
+        "status": "active",
+        "maxJobs": 5,
+        "jobsRemaining": 4
+      },
+      "tokenGovernance": {
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "windowTokensUsed": 50000,
+        "perPoolTokensUsed": {
+          "coder": 30000,
+          "review": 20000
+        }
+      },
+      "history": {
+        "windowCompletedJobs": ["CP-100"],
+        "sessionCompletedJobs": ["CP-100"],
+        "quarantinedJobs": [],
+        "failedJobs": []
+      },
+      "dispatch": {
+        "activeJobs": [
+          {
+            "jobId": "CP-101",
+            "pool": "coder",
+            "model": "qwen3-coder-next:cloud",
+            "taskType": "coding",
+            "status": "running",
+            "startedAt": "2026-03-25T10:05:00Z",
+            "approvalSlotConsumed": true,
+            "estimatedTokens": 40000,
+            "retryCount": 0,
+            "locksHeld": []
+          }
+        ],
+        "lastDispatchedJobId": "CP-101",
+        "lastDispatchAt": "2026-03-25T10:05:00Z"
+      },
+      "locks": {
+        "activeLocks": []
+      },
+      "pools": {
+        "coder": {
+          "models": ["qwen3-coder-next:cloud"],
+          "maxConcurrent": 2,
+          "taskTypes": ["infrastructure", "coding"],
+          "maxTokensPerJob": 500000,
+          "allowDestructive": false,
+          "allowProductionImpact": false
+        },
+        "review": {
+          "models": ["qwen3.5:397b-cloud"],
+          "maxConcurrent": 1,
+          "taskTypes": ["review"],
+          "maxTokensPerJob": 300000,
+          "allowDestructive": false,
+          "allowProductionImpact": true
+        }
+      },
+      "policy": {
+        "allowDestructive": false,
+        "allowProdChanges": false,
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "maxParallelDispatches": 4
+      }
+    }
+  },
+  {
+    "id": "S02_parallel_active_jobs",
+    "purpose": "Validate parallel active jobs recorded correctly in dispatch",
+    "schema": "03-state-schema-v2.json",
+    "test": "parallel_dispatch",
+    "input": {
+      "version": 2,
+      "approvalWindow": {
+        "mode": "jobs",
+        "startedAt": "2026-03-25T10:00:00Z",
+        "followNewJobs": true,
+        "windowCompletedJobs": [],
+        "windowTokenUsage": 0,
+        "status": "active",
+        "maxJobs": 10,
+        "jobsRemaining": 10
+      },
+      "tokenGovernance": {
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "windowTokensUsed": 0,
+        "perPoolTokensUsed": {}
+      },
+      "history": {
+        "windowCompletedJobs": [],
+        "sessionCompletedJobs": [],
+        "quarantinedJobs": [],
+        "failedJobs": []
+      },
+      "dispatch": {
+        "activeJobs": [
+          {
+            "jobId": "CP-100",
+            "pool": "coder",
+            "model": "qwen3-coder-next:cloud",
+            "taskType": "coding",
+            "status": "running",
+            "startedAt": "2026-03-25T10:00:00Z"
+          },
+          {
+            "jobId": "CP-101",
+            "pool": "review",
+            "model": "qwen3.5:397b-cloud",
+            "taskType": "review",
+            "status": "running",
+            "startedAt": "2026-03-25T10:00:05Z"
+          }
+        ],
+        "lastDispatchedJobId": "CP-101",
+        "lastDispatchAt": "2026-03-25T10:00:05Z"
+      },
+      "locks": {
+        "activeLocks": []
+      },
+      "pools": {},
+      "policy": {
+        "allowDestructive": false,
+        "allowProdChanges": false,
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "maxParallelDispatches": 4
+      }
+    },
+    "expected": {
+      "activeJobsCount": 2,
+      "poolsActive": ["coder", "review"]
+    }
+  },
+  {
+    "id": "S03_lock_conflict_blocks_second_job",
+    "purpose": "Validate that lock conflict blocks second job dispatch",
+    "schema": "safety-report-schema.json",
+    "test": "lock_conflict_detection",
+    "input": {
+      "jobId": "CP-102",
+      "eligible": false,
+      "blockedBy": ["Lock conflict on file src/auth/middleware.ts"],
+      "requiresOperatorApproval": false,
+      "conflictingLocks": [
+        {
+          "lockId": "lock-001",
+          "type": "file",
+          "value": "src/auth/middleware.ts",
+          "heldByJobId": "CP-101",
+          "mode": "exclusive"
+        }
+      ],
+      "unmetDependencies": [],
+      "action": "hold_for_lock",
+      "tokenBudgetOk": true,
+      "poolCapacityOk": true,
+      "approvalWindowOk": true
+    },
+    "expected": {
+      "eligible": false,
+      "action": "hold_for_lock",
+      "conflictingLocksCount": 1
+    }
+  },
+  {
+    "id": "S04_dependency_blocks_parallel_dispatch",
+    "purpose": "Validate that unmet dependency blocks dispatch",
+    "schema": "safety-report-schema.json",
+    "test": "dependency_blocking",
+    "input": {
+      "jobId": "CP-103",
+      "eligible": false,
+      "blockedBy": ["Dependency CP-101 not satisfied"],
+      "requiresOperatorApproval": false,
+      "conflictingLocks": [],
+      "unmetDependencies": [
+        {
+          "jobId": "CP-101",
+          "status": "running",
+          "blocking": true
+        }
+      ],
+      "action": "hold_for_dependency",
+      "tokenBudgetOk": true,
+      "poolCapacityOk": true,
+      "approvalWindowOk": true
+    },
+    "expected": {
+      "eligible": false,
+      "action": "hold_for_dependency",
+      "unmetDependenciesCount": 1
+    }
+  },
+  {
+    "id": "S05_pool_capacity_enforced",
+    "purpose": "Validate that pool capacity limits are enforced",
+    "schema": "operator-summary-schema.json",
+    "test": "pool_capacity_check",
+    "input": {
+      "cycleId": "cycle-001",
+      "approvalWindow": {
+        "mode": "jobs",
+        "status": "active",
+        "remaining": 5
+      },
+      "selectedJob": null,
+      "activeDispatches": [
+        {
+          "jobId": "CP-100",
+          "pool": "coder",
+          "model": "qwen3-coder-next:cloud",
+          "status": "running"
+        },
+        {
+          "jobId": "CP-101",
+          "pool": "coder",
+          "model": "qwen3-coder-next:cloud",
+          "status": "running"
+        }
+      ],
+      "blockedJobs": [
+        {
+          "jobId": "CP-102",
+          "priority": "P1",
+          "priorityScore": 18,
+          "reasons": ["Pool 'coder' at capacity (2/2 active)"],
+          "waitingOn": []
+        }
+      ],
+      "poolUtilisation": {
+        "coder": {
+          "pool": "coder",
+          "maxConcurrent": 2,
+          "currentActive": 2,
+          "available": 0,
+          "utilisationPercent": 100
+        }
+      },
+      "activeLocks": [],
+      "action": "holding_for_capacity",
+      "message": "Pool 'coder' at capacity, holding CP-102"
+    },
+    "expected": {
+      "action": "holding_for_capacity",
+      "poolUtilisation.coder.utilisationPercent": 100
+    }
+  },
+  {
+    "id": "S06_slot_consumption_per_parallel_dispatch",
+    "purpose": "Validate that each parallel dispatch consumes one slot",
+    "schema": "03-state-schema-v2.json",
+    "test": "slot_accounting",
+    "input": {
+      "version": 2,
+      "approvalWindow": {
+        "mode": "jobs",
+        "startedAt": "2026-03-25T10:00:00Z",
+        "followNewJobs": true,
+        "windowCompletedJobs": [],
+        "windowTokenUsage": 0,
+        "status": "active",
+        "maxJobs": 5,
+        "jobsRemaining": 3
+      },
+      "tokenGovernance": {
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "windowTokensUsed": 0,
+        "perPoolTokensUsed": {}
+      },
+      "history": {
+        "windowCompletedJobs": [],
+        "sessionCompletedJobs": [],
+        "quarantinedJobs": [],
+        "failedJobs": []
+      },
+      "dispatch": {
+        "activeJobs": [
+          {
+            "jobId": "CP-100",
+            "pool": "coder",
+            "model": "qwen3-coder-next:cloud",
+            "taskType": "coding",
+            "status": "running",
+            "startedAt": "2026-03-25T10:00:00Z",
+            "approvalSlotConsumed": true,
+            "estimatedTokens": 30000
+          },
+          {
+            "jobId": "CP-101",
+            "pool": "review",
+            "model": "qwen3.5:397b-cloud",
+            "taskType": "review",
+            "status": "running",
+            "startedAt": "2026-03-25T10:00:05Z",
+            "approvalSlotConsumed": true,
+            "estimatedTokens": 25000
+          }
+        ],
+        "lastDispatchedJobId": "CP-101",
+        "lastDispatchAt": "2026-03-25T10:00:05Z"
+      },
+      "locks": {
+        "activeLocks": []
+      },
+      "pools": {},
+      "policy": {
+        "allowDestructive": false,
+        "allowProdChanges": false,
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "maxParallelDispatches": 4
+      }
+    },
+    "expected": {
+      "activeJobsCount": 2,
+      "allSlotsConsumed": true,
+      "jobsRemaining": 3
+    }
+  },
+  {
+    "id": "S07_time_expiry_blocks_new_dispatch",
+    "purpose": "Validate that time expiry blocks new dispatch only",
+    "schema": "safety-report-schema.json",
+    "test": "time_expiry_blocking",
+    "input": {
+      "jobId": "CP-102",
+      "eligible": true,
+      "blockedBy": [],
+      "requiresOperatorApproval": true,
+      "conflictingLocks": [],
+      "unmetDependencies": [],
+      "action": "hold_for_approval",
+      "tokenBudgetOk": true,
+      "poolCapacityOk": true,
+      "approvalWindowOk": false
+    },
+    "expected": {
+      "requiresOperatorApproval": true,
+      "approvalWindowOk": false,
+      "action": "hold_for_approval"
+    }
+  },
+  {
+    "id": "S08_restart_recovers_active_jobs",
+    "purpose": "Validate that restart recovers active jobs and clears orphans",
+    "schema": "03-state-schema-v2.json",
+    "test": "state_recovery",
+    "input": {
+      "version": 2,
+      "approvalWindow": {
+        "mode": "jobs",
+        "startedAt": "2026-03-25T10:00:00Z",
+        "followNewJobs": true,
+        "windowCompletedJobs": ["CP-099"],
+        "windowTokenUsage": 50000,
+        "status": "active",
+        "maxJobs": 10,
+        "jobsRemaining": 8
+      },
+      "tokenGovernance": {
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "windowTokensUsed": 50000,
+        "perPoolTokensUsed": {
+          "coder": 30000,
+          "review": 20000
+        }
+      },
+      "history": {
+        "windowCompletedJobs": ["CP-099"],
+        "sessionCompletedJobs": ["CP-099", "CP-098", "CP-097"],
+        "quarantinedJobs": ["CP-050"],
+        "failedJobs": ["CP-040"]
+      },
+      "dispatch": {
+        "activeJobs": [
+          {
+            "jobId": "CP-100",
+            "pool": "coder",
+            "model": "qwen3-coder-next:cloud",
+            "taskType": "coding",
+            "status": "running",
+            "startedAt": "2026-03-25T09:55:00Z"
+          }
+        ],
+        "lastDispatchedJobId": "CP-100",
+        "lastDispatchAt": "2026-03-25T09:55:00Z"
+      },
+      "locks": {
+        "activeLocks": [
+          {
+            "lockId": "lock-001",
+            "jobId": "CP-100",
+            "type": "file",
+            "value": "src/auth/middleware.ts",
+            "acquiredAt": "2026-03-25T09:55:00Z"
+          }
+        ]
+      },
+      "pools": {},
+      "policy": {
+        "allowDestructive": false,
+        "allowProdChanges": false,
+        "maxTokensPerJob": 500000,
+        "maxTokensPerWindow": 2000000,
+        "maxParallelDispatches": 4
+      }
+    },
+    "expected": {
+      "activeJobsRecovered": 1,
+      "locksRecovered": 1,
+      "sessionCompletedJobsRecovered": 3,
+      "quarantinedJobsRecovered": 1
+    }
+  },
+  {
+    "id": "S09_execution_metrics_recorded",
+    "purpose": "Validate execution metrics recorded correctly",
+    "schema": "execution-metrics-schema.json",
+    "test": "metrics_validation",
+    "input": {
+      "jobId": "CP-100",
+      "pool": "coder",
+      "model": "qwen3-coder-next:cloud",
+      "taskType": "coding",
+      "estimatedTokens": 40000,
+      "actualTokens": 38500,
+      "runtimeMs": 125000,
+      "retryCount": 0,
+      "approvalSlotConsumed": true,
+      "result": "success",
+      "startedAt": "2026-03-25T10:00:00Z",
+      "completedAt": "2026-03-25T10:02:05Z",
+      "efficiency": 0.96
+    },
+    "expected": {
+      "result": "success",
+      "efficiencyBetween": [0.9, 1.1],
+      "retryCount": 0
+    }
+  },
+  {
+    "id": "S10_operator_summary_matches_state",
+    "purpose": "Validate operator summary matches state",
+    "schema": "operator-summary-schema.json",
+    "test": "summary_consistency",
+    "input": {
+      "cycleId": "cycle-2026-03-25T10:00:00Z",
+      "timestamp": "2026-03-25T10:00:00Z",
+      "approvalWindow": {
+        "mode": "jobs",
+        "status": "active",
+        "remaining": 4,
+        "tokensUsed": 50000,
+        "tokensRemaining": 1950000
+      },
+      "selectedJob": {
+        "jobId": "CP-100",
+        "title": "Fix bug",
+        "priority": "P1",
+        "priorityScore": 22,
+        "model": "qwen3-coder-next:cloud",
+        "pool": "coder",
+        "estimatedTokens": 40000,
+        "reason": "Highest priority score"
+      },
+      "activeDispatches": [
+        {
+          "jobId": "CP-100",
+          "pool": "coder",
+          "model": "qwen3-coder-next:cloud",
+          "status": "running",
+          "startedAt": "2026-03-25T10:00:00Z",
+          "estimatedTokens": 40000
+        }
+      ],
+      "blockedJobs": [
+        {
+          "jobId": "CP-101",
+          "priority": "P1",
+          "priorityScore": 18,
+          "reasons": ["Dependency on CP-100 not satisfied"],
+          "waitingOn": ["CP-100"]
+        }
+      ],
+      "poolUtilisation": {
+        "coder": {
+          "pool": "coder",
+          "maxConcurrent": 2,
+          "currentActive": 1,
+          "available": 1,
+          "utilisationPercent": 50,
+          "tokensUsed": 40000
+        },
+        "review": {
+          "pool": "review",
+          "maxConcurrent": 1,
+          "currentActive": 0,
+          "available": 1,
+          "utilisationPercent": 0,
+          "tokensUsed": 0
+        }
+      },
+      "activeLocks": [],
+      "action": "dispatching",
+      "message": "Next job selected: CP-100, Priority: P1 (score: 22)"
+    },
+    "expected": {
+      "selectedJobPresent": true,
+      "activeDispatchesCount": 1,
+      "blockedJobsCount": 1,
+      "poolUtilisationCount": 2
+    }
+  }
+]

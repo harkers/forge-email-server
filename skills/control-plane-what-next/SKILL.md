@@ -301,12 +301,273 @@ python3 skills/control-plane-what-next/references/run_tests.py
 python3 skills/control-plane-what-next/references/run_calibration.py
 ```
 
+## v2 Parallel Dispatch (Phase 2)
+
+The control-plane supports bounded parallel dispatch, allowing multiple jobs to run concurrently across different model pools while respecting dependencies, lock conflicts, and pool capacity limits.
+
+### Parallel Dispatch Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Forge Pipeline                           │
+│                  (Pending Items)                            │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              compute_eligible_set()                         │
+│  ┌─────────────────┬─────────────────┬───────────────────┐ │
+│  │  Filter Complete│  Filter Blocked │  Filter Ineligible │ │
+│  │  /Quarantined   │  Dependencies   │  (Safety Gates)    │ │
+│  └─────────────────┴─────────────────┴───────────────────┘ │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │            Priority Scoring + Tie-breaks              │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │            Eligible Set (sorted by priority)          │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│         select_jobs_for_parallel_dispatch()                 │
+│  ┌─────────────────┬─────────────────┬───────────────────┐ │
+│  │  Pool Capacity   │  Lock Conflicts  │  Approval Window  │ │
+│  │  Per Pool        │  Detection       │  Slot Limits      │ │
+│  └─────────────────┴─────────────────┴───────────────────┘ │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │         Selected Jobs (up to maxParallelDispatches)   │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    dispatch_parallel()                      │
+│  ┌─────────────────┬─────────────────┬───────────────────┐ │
+│  │  dispatch_job() │  dispatch_job() │  dispatch_job()   │ │
+│  │   Pool: coder   │   Pool: review  │   Pool: docs     │ │
+│  │   Lock: file.ts │   (no locks)    │   Lock: README   │ │
+│  └─────────────────┴─────────────────┴───────────────────┘ │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │         State Updated: activeJobs[], locks[], tokens  │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Key Components
+
+#### 1. `state_manager.py` — State File Management
+
+Handles v1/v2 state loading, migration, and persistence:
+
+```python
+from state_manager import (
+    load_state,           # Load v1 or v2 state (auto-migrate)
+    save_state,           # Persist state to disk
+    create_default_state, # Create fresh v2 state
+    migrate_v1_to_v2,     # Convert v1 state to v2 format
+    reconcile_state,      # Recover from restart
+    get_active_jobs,      # Get all active dispatches
+    get_pool_capacity,    # Check pool capacity
+    get_active_locks,     # Get held locks
+    add_active_job,       # Add dispatch to state
+    remove_active_job,    # Remove completed dispatch
+    add_lock,             # Acquire resource lock
+    remove_locks_for_job, # Release job's locks
+)
+```
+
+#### 2. `dispatch_engine.py` — Core Dispatch Logic
+
+Handles eligible-set scheduling and parallel dispatch:
+
+```python
+from dispatch_engine import (
+    compute_eligible_set,     # Find all ready jobs
+    check_dependencies_satisfied,  # Verify deps complete
+    check_lock_conflicts,     # Detect resource conflicts
+    check_pool_capacity,      # Check pool has room
+    check_safety_gates,       # Validate safety constraints
+    dispatch_job,             # Single job dispatch
+    dispatch_parallel,        # Multi-job parallel dispatch
+    complete_job,             # Mark job complete, release locks
+    generate_operator_summary, # Human-readable output
+    generate_decision_trace,  # Audit logging
+)
+```
+
+#### 3. `forge_pipeline_client.py` — Pipeline Integration
+
+Fetches pending items and updates status:
+
+```python
+from forge_pipeline_client import (
+    fetch_pending_items,   # Query Forge Pipeline
+    update_task_status,    # Mark dispatched/running/completed
+    get_pipeline_item,    # Get specific task by ID
+    get_dependencies,      # Get prerequisite tasks
+    get_blocked_tasks,     # Get tasks blocked by this one
+)
+```
+
+### Parallel Dispatch Flow
+
+1. **Compute Eligible Set**
+   - Query Forge Pipeline for pending items
+   - Filter out completed, quarantined, failed tasks
+   - Check dependencies satisfied
+   - Check lock conflicts
+   - Check pool capacity
+   - Apply safety gates
+   - Score remaining jobs by priority
+
+2. **Select Jobs for Dispatch**
+   - Take top N eligible jobs (up to `maxParallelDispatches`)
+   - Respect per-pool `maxConcurrent` limits
+   - Each dispatch consumes one approval slot (jobs mode)
+   - Skip jobs with lock conflicts
+
+3. **Dispatch Parallel**
+   - Acquire locks for each job's `sharedResources`
+   - Create active dispatch record
+   - Update pool tracking
+   - Decrement approval window slots
+   - Log decision trace
+
+4. **Job Completion**
+   - Release all locks held by job
+   - Remove from active dispatches
+   - Update token usage
+   - Add to history (completed/failed/quarantined)
+   - Record execution metrics
+
+### Lock Semantics
+
+| Lock Type | Description | Exclusive Mode | Shared Mode |
+|-----------|-------------|----------------|-------------|
+| `file` | File path | Blocks all access | Allows concurrent readers |
+| `service` | Service/API endpoint | Blocks all access | Allows concurrent readers |
+| `environment` | Environment variable/config | Blocks all access | N/A |
+| `deployment` | Deployment target | Blocks all access | N/A |
+
+Lock acquisition:
+- Exclusive lock: blocks all other jobs for same resource
+- Shared lock: allows multiple concurrent shared locks, blocks exclusive
+- Locks released automatically on job completion
+
+### Pool Configuration
+
+Pools defined in state file under `pools`:
+
+```json
+{
+  "pools": {
+    "coder": {
+      "models": ["qwen3-coder-next:cloud"],
+      "maxConcurrent": 2,
+      "taskTypes": ["infrastructure", "coding"],
+      "maxTokensPerJob": 500000,
+      "allowDestructive": false,
+      "allowProductionImpact": false
+    },
+    "review": {
+      "models": ["qwen3.5:397b-cloud"],
+      "maxConcurrent": 1,
+      "taskTypes": ["review"],
+      "maxTokensPerJob": 300000,
+      "allowDestructive": false,
+      "allowProductionImpact": true
+    }
+  }
+}
+```
+
+### Restart Recovery
+
+On startup, the system:
+1. Loads state from `.control-plane-what-next-state.json`
+2. Reconciles `dispatch.activeJobs` with actual running jobs
+3. Removes orphaned jobs (in state but not running)
+4. Releases locks for orphaned jobs
+5. Marks orphaned jobs as failed
+6. Resumes dispatch cycle
+
+### Usage Example
+
+```python
+from state_manager import load_state, save_state
+from dispatch_engine import compute_eligible_set, dispatch_parallel, generate_operator_summary
+from forge_pipeline_client import fetch_pending_items
+
+# Load state
+state = load_state()
+
+# Fetch pending work
+pending = fetch_pending_items()
+
+# Compute eligible set
+eligible, blocked = compute_eligible_set(pending, state)
+
+# Dispatch up to max parallel dispatches
+state, dispatch_records, blocked_jobs = dispatch_parallel(pending, state)
+
+# Save updated state
+save_state(state)
+
+# Generate operator summary
+summary = generate_operator_summary(state, eligible[:len(dispatch_records)], blocked, dispatch_records)
+print(summary["message"])
+```
+
+### Parallel Dispatch Tests (S01-S10)
+
+| Test ID | Purpose | Status |
+|---------|---------|--------|
+| S01 | State schema v2 roundtrip serialization | ✓ |
+| S02 | Parallel active jobs recorded correctly | ✓ |
+| S03 | Lock conflict blocks second job | ✓ |
+| S04 | Dependency blocks parallel dispatch | ✓ |
+| S05 | Pool capacity enforced | ✓ |
+| S06 | Slot consumption per parallel dispatch | ✓ |
+| S07 | Time expiry blocks new dispatch | ✓ |
+| S08 | Restart recovers active jobs | ✓ |
+| S09 | Execution metrics recorded | ✓ |
+| S10 | Operator summary matches state | ✓ |
+
+Run parallel tests:
+```bash
+python3 skills/control-plane-what-next/references/parallel_tests.py
+```
+
 ## References
 - `references/priority-scoring-model.md`: scoring formula
 - `references/auto-approve-config.md`: window configuration
 - `references/model-assignments.md`: routing table
 - `references/operational-guardrails.md`: safety gates
-- `references/state-schema.json`: state schema
+- `references/03-state-schema.json`: state schema v1 (single-job dispatch)
+- `references/03-state-schema-v2.json`: state schema v2 (parallel dispatch)
+- `references/model-pool-schema.json`: model pool configuration
+- `references/job-schema.json`: extended job metadata
+- `references/active-dispatch-schema.json`: active dispatch tracking
+- `references/lock-schema.json`: resource lock schema
+- `references/execution-metrics-schema.json`: post-dispatch metrics
+- `references/safety-report-schema.json`: pre-dispatch safety evaluation
+- `references/decision-trace-schema.json`: per-cycle decision logging
+- `references/operator-summary-schema.json`: operator-facing summary
+- `references/09-changelog-v1-to-v2.md`: v1 to v2 migration guide
+- `state_manager.py`: state file management
+- `dispatch_engine.py`: parallel dispatch engine
+- `forge_pipeline_client.py`: pipeline integration
 - `references/run_tests.py`: test runner
-- `references/test-matrix.json`: test definitions
+- `references/test-matrix.json`: regression test definitions
+- `references/parallel-schema-tests.json`: parallel dispatch test suite
+- `references/parallel_tests.py`: parallel test runner
 - `references/fixtures/`: test fixtures
