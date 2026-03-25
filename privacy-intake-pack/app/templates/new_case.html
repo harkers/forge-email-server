@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New case</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
+    label { display: block; margin: .8rem 0 .2rem; font-weight: 600; }
+    input[type=text], input[type=datetime-local], textarea, select { width: 100%; padding: .7rem; box-sizing: border-box; }
+    textarea { min-height: 10rem; }
+    .row { margin-bottom: .6rem; }
+    .button { padding: .8rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Create privacy case</h1>
+  <form method="post" action="/cases">
+    <label>Request type</label>
+    <select name="request_type">
+      <option value="incident">Incident</option>
+      <option value="vendor_assessment">Vendor assessment</option>
+      <option value="dpia_pdra">DPIA / PDRA request</option>
+      <option value="contract_review">Contract / data sharing review</option>
+      <option value="privacy_advice">General privacy advice</option>
+      <option value="dsar_support">DSAR support request</option>
+      <option value="ai_use_case_review">AI use case review</option>
+    </select>
+
+    <label>Title</label>
+    <input type="text" name="title" required>
+
+    <label>Description</label>
+    <textarea name="description" required></textarea>
+
+    <label>Submitted by</label>
+    <input type="text" name="submitted_by" value="stu@example.com" required>
+
+    <label>Urgency</label>
+    <select name="urgency">
+      <option value="low">Low</option>
+      <option value="normal" selected>Normal</option>
+      <option value="high">High</option>
+      <option value="critical">Critical</option>
+    </select>
+
+    <label>Business area</label>
+    <input type="text" name="business_area">
+
+    <label>Controller name</label>
+    <input type="text" name="controller_name">
+
+    <label>Client name</label>
+    <input type="text" name="client_name">
+
+    <label>Deadline</label>
+    <input type="datetime-local" name="deadline_at">
+
+    <label>Confidentiality level</label>
+    <select name="confidentiality_level">
+      <option value="internal" selected>Internal</option>
+      <option value="confidential">Confidential</option>
+      <option value="restricted">Restricted</option>
+    </select>
+
+    <div class="row"><label><input type="checkbox" name="contains_phi"> Contains PHI</label></div>
+    <div class="row"><label><input type="checkbox" name="contains_special_category"> Contains special category data</label></div>
+    <div class="row"><label><input type="checkbox" name="international_transfer"> International transfer relevant</label></div>
+
+    <button class="button" type="submit">Submit case</button>
+  </form>
+</body>
+</html>

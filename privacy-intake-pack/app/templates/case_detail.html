@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ case.case_ref }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 1100px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .event { border-left: 4px solid #333; padding-left: 1rem; margin: 1rem 0; }
+    code, pre { background: #f6f6f6; padding: .2rem .3rem; }
+  </style>
+</head>
+<body>
+  <h1>{{ case.case_ref }} — {{ case.title }}</h1>
+
+  <div class="card">
+    <p><strong>Status:</strong> {{ case.status }}</p>
+    <p><strong>Type:</strong> {{ case.request_type }}</p>
+    <p><strong>Submitted by:</strong> {{ case.submitted_by }}</p>
+    <p><strong>Urgency:</strong> {{ case.urgency }}</p>
+    <p><strong>Created:</strong> {{ case.created_at }}</p>
+    <p><strong>Description:</strong><br>{{ case.description }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Tasks</h2>
+    {% for task in tasks %}
+      <p>{{ task.task_type }} — {{ task.status }} — queued {{ task.queued_at }}</p>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2>Metadata</h2>
+    <pre>{{ metadata }}</pre>
+  </div>
+
+  <div class="card">
+    <h2>Timeline</h2>
+    {% for event in events %}
+      <div class="event">
+        <p><strong>{{ event.event_at }}</strong> — {{ event.event_type }}</p>
+        <p>{{ event.summary }}</p>
+        {% if event.commentary %}<p>{{ event.commentary }}</p>{% endif %}
+        <pre>{{ event.payload_jsonb }}</pre>
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

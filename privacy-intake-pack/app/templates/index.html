@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Privacy Intake</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 1100px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .65rem; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; }
+    a.button { display: inline-block; padding: .6rem .9rem; border: 1px solid #222; text-decoration: none; color: #222; border-radius: 6px; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Intake</h1>
+  <p class="muted">Authenticated internal intake for privacy work.</p>
+  <p><a class="button" href="/cases/new">Create case</a></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Case</th>
+        <th>Type</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Urgency</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for case in cases %}
+      <tr>
+        <td><a href="/cases/{{ case.id }}">{{ case.case_ref }}</a></td>
+        <td>{{ case.request_type }}</td>
+        <td>{{ case.title }}</td>
+        <td>{{ case.status }}</td>
+        <td>{{ case.urgency }}</td>
+        <td>{{ case.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16.13
+    container_name: privacy-intake-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: UTC
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - privacy_intake_net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: privacy-intake-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      DATABASE_URL: ${DATABASE_URL}
+      TZ: UTC
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+    ports:
+      - "127.0.0.1:18080:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8000/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - privacy_intake_net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: privacy-intake-worker
+    restart: unless-stopped
+    command: ["python", "-m", "app.worker"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TZ: UTC
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - privacy_intake_net
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.3.1
+    container_name: privacy-intake-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - privacy_intake_net
+    profiles:
+      - cloudflare
+
+networks:
+  privacy_intake_net:
+    name: privacy_intake_net
+    driver: bridge

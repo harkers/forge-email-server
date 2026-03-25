@@ -1,18 +1,919 @@
 {
   "projects": [
     {
+      "id": "privacy-intake",
+      "name": "Privacy Intake",
+      "description": "Self-hosted privacy intake system for titan. Postgres-first, audit-focused FastAPI application with Cloudflare Tunnel access, worker-based task processing, and append-only event trail.",
+      "notes": "Workspace at /home/stu/.openclaw/workspace/privacy-intake-pack/. Privacy intake blueprint tailored for titan architecture: Debian 12, internal Docker network, no new public ports, Cloudflare Access authentication, PostgreSQL as system of record. Pack includes Docker Compose stack, FastAPI app skeleton, PostgreSQL schema with indexes, Cloudflare Tunnel config template, installation guide, security hardening notes, backup script, and systemd unit example.\n\nDesign separates intake from WordPress stack, publishes only through Cloudflare Tunnel + Access, uses PostgreSQL as source of record with append-only event trail for auditability. Intended hostname: privacy-intake.example.com.",
+      "status": "planning",
+      "tags": [
+        "privacy",
+        "intake",
+        "postgresql",
+        "fastapi",
+        "cloudflare-tunnel",
+        "titan"
+      ],
+      "updatedAt": "2026-03-25T13:57:25+00:00",
+      "tasks": [
+        {
+          "id": "task-privacy-intake-1",
+          "title": "Deploy postgres and app locally",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "deployment",
+            "postgresql",
+            "docker"
+          ],
+          "notes": "First build step: get core containers running without external exposure.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-2",
+          "title": "Validate schema and event creation",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "database",
+            "validation"
+          ],
+          "notes": "Confirm PostgreSQL schema, indexes, and event creation work correctly.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-3",
+          "title": "Validate worker commentary flow",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "worker",
+            "tasks"
+          ],
+          "notes": "Confirm worker picks up queued tasks and appends commentary events.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-4",
+          "title": "Add Cloudflare Tunnel",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "cloudflare",
+            "tunnel",
+            "networking"
+          ],
+          "notes": "Configure cloudflared for outbound-only connection to Cloudflare.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-5",
+          "title": "Add Cloudflare Access policy",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "cloudflare",
+            "access",
+            "security"
+          ],
+          "notes": "Configure Cloudflare Access for authentication in front of the app.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-6",
+          "title": "Add access audit for authenticated identity headers",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "audit",
+            "security"
+          ],
+          "notes": "Log authenticated identity from Cloudflare Access headers.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-7",
+          "title": "Integrate real privacy skill handoff",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "integration",
+            "privacy",
+            "openclaw"
+          ],
+          "notes": "Connect worker to OpenClaw/privacy skill for real intake processing.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-8",
+          "title": "Add exports and attachment handling",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "exports",
+            "attachments"
+          ],
+          "notes": "Support case exports and file attachments.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-9",
+          "title": "Add dashboards and search",
+          "status": "todo",
+          "priority": "low",
+          "dueDate": "",
+          "tags": [
+            "ui",
+            "dashboard",
+            "search"
+          ],
+          "notes": "Build operator dashboard and case search functionality.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        },
+        {
+          "id": "task-privacy-intake-10",
+          "title": "Add backup verification and restore test",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "backup",
+            "ops"
+          ],
+          "notes": "Verify backup script works and test restore procedure.",
+          "updatedAt": "2026-03-25T13:57:25+00:00"
+        }
+      ]
+    },
+    {
       "id": "forge-pipeline",
       "name": "Forge Pipeline",
       "description": "Central project and task hub with web UI, shared API, SQLite backend, and MCP integration.",
-      "notes": "Built from static scaffold into full shared project hub. Images pushed to local registry: localhost:5000/forge-pipeline-api:latest, localhost:5000/forge-pipeline-web:latest",
+      "notes": "Built from static scaffold into full shared project hub. Images pushed to local registry: localhost:5000/forge-pipeline-api:latest, localhost:5000/forge-pipeline-web:latest\n\nCreated reusable workspace skill `forge-pipeline-sync` and propagated the local Forge Pipeline sync rule into ForgeOrchestra, ForgeDiscord, and ForgeDeck AGENTS.md so changes/updates are expected to flow back into Forge Pipeline.\n\nPropagated a local self-improvement rule into ForgeOrchestra, ForgeDiscord, ForgeDeck, and ForgeOrchestrate AGENTS.md so failed commands, corrections, missing capabilities, and recurring better approaches are logged rather than lost between sessions.\n\nIntegrated self-reflection skill into the main workspace skill set by normalizing the transferred package into /skills/self-reflection/, preserving its supporting reference files, and propagating a local self-reflection rule into ForgeOrchestra, ForgeDiscord, ForgeDeck, and ForgeOrchestrate AGENTS.md.\n\nUpdated main workspace templates (AGENTS.md and BOOTSTRAP.md) so future Forge workspaces inherit default local rules for Forge Pipeline sync, self-improvement, and self-reflection without manual rework each time.\n\nUpdated the main workspace templates so Quarto / .qmd is treated as a default available format for reports, specs, design docs, reviews, and other structured outputs in future workspaces.\n\nPropagated Quarto / .qmd default guidance into ForgeOrchestra, ForgeDiscord, ForgeDeck, ForgeOrchestrate, and OrderedHome so current Forge workspaces match the updated workspace template defaults.",
       "status": "active",
       "tags": [
         "pipeline",
         "platform",
         "mcp"
       ],
-      "updatedAt": "2026-03-24T17:30:00+00:00",
-      "tasks": []
+      "updatedAt": "2026-03-24T21:27:00+00:00",
+      "tasks": [
+        {
+          "id": "task-forge-pipeline-sync-1",
+          "title": "Apply Forge Pipeline sync rule to future workspaces by default",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "process",
+            "portfolio",
+            "workspaces"
+          ],
+          "notes": "Every new Forge workspace should carry the local rule that meaningful updates must be processed into Forge Pipeline.",
+          "updatedAt": "2026-03-24T20:10:00+00:00"
+        },
+        {
+          "id": "task-forge-pipeline-self-improvement-1",
+          "title": "Apply self-improvement rule to future Forge workspaces",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "process",
+            "learning",
+            "workspaces"
+          ],
+          "notes": "New Forge workspaces should include a visible local note to use the self-improvement skill for failures, corrections, and recurring better patterns.",
+          "updatedAt": "2026-03-24T20:41:00+00:00"
+        },
+        {
+          "id": "task-forge-pipeline-self-reflection-1",
+          "title": "Apply self-reflection rule to future Forge workspaces",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "process",
+            "reflection",
+            "workspaces"
+          ],
+          "notes": "Future Forge workspaces should include visible local guidance to use the self-reflection skill after meaningful work and route lessons into self-improvement.",
+          "updatedAt": "2026-03-24T20:58:00+00:00"
+        },
+        {
+          "id": "task-forge-pipeline-template-defaults-1",
+          "title": "Use workspace template defaults when spinning up future Forge workspaces",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "templates",
+            "workspaces",
+            "process"
+          ],
+          "notes": "Future Forge workspaces should inherit local defaults for portfolio sync, self-improvement, and self-reflection from the main workspace template.",
+          "updatedAt": "2026-03-24T21:00:00+00:00"
+        },
+        {
+          "id": "task-forge-pipeline-quarto-default-1",
+          "title": "Apply Quarto default guidance to future workspace creation flow",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "quarto",
+            "qmd",
+            "templates"
+          ],
+          "notes": "Future workspaces should inherit the guidance that Quarto / .qmd is available by default for structured reports, specs, design docs, and review outputs.",
+          "updatedAt": "2026-03-24T21:26:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "forgeorchestrate",
+      "name": "ForgeOrchestrate",
+      "description": "Command layer for the AI estate. Premium orchestration and oversight layer above execution systems like OpenClaw.",
+      "notes": "Workspace at /home/stu/.openclaw/workspace/forgeorchestrate/. ForgeOrchestrate is the premium command and oversight layer above the AI execution estate. Product pack now includes product definition, architecture pack, workspace governance spec, routing and policy model, execution event and audit model, operator control surface spec, roadmap, and implementation backlog.\n\nCreated OPERATOR_DASHBOARD_VISION.md capturing the dashboard direction as a premium operator-grade mission control surface, including the four key operator questions, three-surface model plus infra view, information architecture, core visual patterns, OpenClaw-specific telemetry, v1/v2/v3 dashboard scope, and internal exposure guidance.\n\nCreated MVP_ENVIRONMENT_AND_COMPONENT_SLICE.md defining the first buildable ForgeOrchestrate slice: internal/dev-first deployment, first supported trust boundaries/workspace classes/request classes/intake sources, core MVP components, MVP screen set, deferred scope, first request flow, initial data models, build order, and MVP success criteria.",
+      "status": "planning",
+      "tags": [
+        "orchestration",
+        "governance",
+        "control-layer",
+        "forge-family"
+      ],
+      "updatedAt": "2026-03-24T20:50:00+00:00",
+      "tasks": [
+        {
+          "id": "task-forgeorchestrate-1",
+          "title": "Create ForgeOrchestrate product definition and architecture pack",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "product",
+            "architecture",
+            "orchestration"
+          ],
+          "notes": "Capture role, stack position, relationship to OpenClaw, core functions, user types, governance model, and premium design identity.",
+          "updatedAt": "2026-03-24T20:23:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-2",
+          "title": "Define workspace governance and trust-boundary model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "governance",
+            "workspaces",
+            "trust-boundaries"
+          ],
+          "notes": "Specify how clients, projects, labs, and internal operations remain isolated with their own prompts, tools, retention rules, approvals, and notification paths.",
+          "updatedAt": "2026-03-24T20:23:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-3",
+          "title": "Define intake, routing, oversight, and approval model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "routing",
+            "oversight",
+            "approvals"
+          ],
+          "notes": "Map how requests enter, how workspace/agent/model/tool selection is made, when approvals are required, and how execution is monitored from intake to output.",
+          "updatedAt": "2026-03-24T20:23:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-4",
+          "title": "Create routing and policy model spec",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "routing",
+            "policy",
+            "spec"
+          ],
+          "notes": "Define request classification, routing decisions, approval triggers, overrides, and policy enforcement behavior.",
+          "updatedAt": "2026-03-24T20:32:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-5",
+          "title": "Create execution event and audit model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "audit",
+            "events",
+            "oversight"
+          ],
+          "notes": "Define event schema, run state transitions, audit attribution, and output disposition tracking.",
+          "updatedAt": "2026-03-24T20:32:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-6",
+          "title": "Define operator control surfaces",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "operator-ui",
+            "queues",
+            "approvals"
+          ],
+          "notes": "Specify queue view, approval inbox, run detail view, workspace overview, and alerts/exception surface.",
+          "updatedAt": "2026-03-24T20:32:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-7",
+          "title": "Define MVP environment and initial component slice",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "mvp",
+            "environment",
+            "components"
+          ],
+          "notes": "Specify dev/internal-first deployment, first supported workspace classes, first supported request types, and first components to build.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-8",
+          "title": "Define workspace registry schema and policy object model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "workspace-registry",
+            "policy",
+            "schema"
+          ],
+          "notes": "Create authoritative schema for governed workspaces including trust boundary, ownership, tools/connectors, memory scope, approvals, retention, notifications, outputs, and audit level.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-9",
+          "title": "Define request classification and routing decision schema",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "classification",
+            "routing",
+            "schema"
+          ],
+          "notes": "Capture request taxonomy, route inputs, route outputs, confidence/ambiguity handling, and trust-aware route resolution model.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-10",
+          "title": "Define execution event store and run state implementation model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "events",
+            "audit",
+            "run-state"
+          ],
+          "notes": "Translate the execution/audit spec into concrete request, run, event, output, and state-transition structures.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-11",
+          "title": "Define approval inbox and operator queue MVP behaviors",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "operator-ui",
+            "approvals",
+            "queue"
+          ],
+          "notes": "Turn the operator control surface spec into concrete MVP behavior for queue prioritisation, approval actions, and run inspection.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-12",
+          "title": "Define OpenClaw execution integration contract",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "openclaw",
+            "integration",
+            "contract"
+          ],
+          "notes": "Specify execution handoff payloads, status/event feedback paths, and downstream enforcement of model/tool/connectors policy.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-13",
+          "title": "Define intake source adapters for MVP",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "intake",
+            "discord",
+            "api",
+            "cron"
+          ],
+          "notes": "Pick the first intake surfaces to support (likely Discord, web/API, and internal triggers) and normalize their request model.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-14",
+          "title": "Define exception and override handling behavior",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "exceptions",
+            "overrides",
+            "governance"
+          ],
+          "notes": "Specify reroutes, emergency approvals, temporary connector access, blocked outputs, and attributable override logging.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-15",
+          "title": "Define derived oversight and reporting signals",
+          "status": "todo",
+          "priority": "low",
+          "dueDate": "",
+          "tags": [
+            "reporting",
+            "oversight",
+            "analytics"
+          ],
+          "notes": "Specify derived metrics like repeated workflow failures, approval bottlenecks, blocked workspaces, route overrides, and output release delays.",
+          "updatedAt": "2026-03-24T20:38:00+00:00"
+        },
+        {
+          "id": "task-forgeorchestrate-16",
+          "title": "Translate dashboard vision into MVP screen definitions",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "dashboard",
+            "operator-ui",
+            "mvp"
+          ],
+          "notes": "Turn the operator dashboard vision into concrete MVP screens: overview, runs, workspaces, approvals, and alerts.",
+          "updatedAt": "2026-03-24T20:44:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "forgediscord",
+      "name": "ForgeDiscord",
+      "description": "Communication and notification layer for the Forge ecosystem. Operator-facing comms mesh for alerts, threads, summaries, and signal routing.",
+      "notes": "Workspace at /home/stu/.openclaw/workspace/forgediscord/. ForgeDiscord is positioned as the intake and coordination layer for the Forge ecosystem: Discord collects requests, routes them to the correct workspace/agent/workflow, and reports progress back. Planning pack now includes architecture pack, MVP technical spec, server/channel map, routing matrix, build backlog, and implementation skeleton.",
+      "status": "planning",
+      "tags": [
+        "communications",
+        "discord",
+        "notifications",
+        "forge-family"
+      ],
+      "updatedAt": "2026-03-24T20:16:00+00:00",
+      "tasks": [
+        {
+          "id": "task-forgediscord-1",
+          "title": "Define Discord architecture and channel model",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "discord",
+            "architecture"
+          ],
+          "notes": "Map operator channels, alerts, digests, escalation paths, and workspace integration points.",
+          "updatedAt": "2026-03-24T19:29:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-2",
+          "title": "Review flagged webhook skill before adoption",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "security-review",
+            "webhooks"
+          ],
+          "notes": "webhook-notify was flagged suspicious by VirusTotal Code Insight; inspect before use.",
+          "updatedAt": "2026-03-24T19:29:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-3",
+          "title": "Turn architecture pack into MVP build phases",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "discord",
+            "mvp",
+            "architecture"
+          ],
+          "notes": "Use the design pack to define first implementation slice: dev server, one orchestrator bot, three workflows, thread-per-request, slash command + modal intake.",
+          "updatedAt": "2026-03-24T19:30:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-4",
+          "title": "Create ForgeDiscord bot skeleton and command registration layer",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "bot",
+            "discord",
+            "mvp"
+          ],
+          "notes": "Build the runtime skeleton, connect to the dev guild, and register MVP slash commands.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-5",
+          "title": "Implement MVP slash commands",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "commands",
+            "discord",
+            "mvp"
+          ],
+          "notes": "Implement /incident new, /vendor assess, /job create, /job status, /approve, /reject, /close, and /help.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-6",
+          "title": "Build modal intake flows for three MVP workflows",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "modals",
+            "intake",
+            "mvp"
+          ],
+          "notes": "Create incident, vendor assessment, and general project intake modals with validation.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-7",
+          "title": "Implement thread-per-request creation logic",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "threads",
+            "discord",
+            "workflow"
+          ],
+          "notes": "Each successful intake should create a dedicated thread with job ID naming and acknowledgement/status message.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-8",
+          "title": "Implement routing engine from routing matrix",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "routing",
+            "workspaces",
+            "agents"
+          ],
+          "notes": "Resolve guild, channel, command, role, and request type into workspace, workflow, agent, audit level, and output pattern.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-9",
+          "title": "Build OpenClaw orchestration adapter for ForgeDiscord",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "openclaw",
+            "adapter",
+            "orchestration"
+          ],
+          "notes": "Create the handoff layer that turns Discord intake into backend jobs routed into the correct workspace/workflow.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-10",
+          "title": "Implement job lifecycle and status update posting",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "status",
+            "lifecycle",
+            "threads"
+          ],
+          "notes": "Support new, validating, routed, in_progress, awaiting_input, awaiting_review, approved, completed, archived, failed, escalated, cancelled as needed.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-11",
+          "title": "Implement reviewer approval flow",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "approvals",
+            "review",
+            "discord"
+          ],
+          "notes": "Add approve/reject/rework/escalate flow with reviewer permission checks and state transitions.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-12",
+          "title": "Implement audit log and routing log outputs",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "audit",
+            "logging",
+            "routing"
+          ],
+          "notes": "Post summary events into audit-log and routing-log surfaces and persist job/audit records in the backend state store.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-13",
+          "title": "Prepare MVP dev server/channel setup guide",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "server",
+            "channels",
+            "setup"
+          ],
+          "notes": "Turn the server/channel map into an actionable dev server setup sequence with required channels, categories, and roles.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        },
+        {
+          "id": "task-forgediscord-14",
+          "title": "Security-review flagged webhook installation path",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "security-review",
+            "webhooks"
+          ],
+          "notes": "webhook-notify was flagged suspicious; review before using any webhook-based skill as part of ForgeDiscord.",
+          "updatedAt": "2026-03-24T20:16:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "orderedhome",
+      "name": "OrderedHome",
+      "description": "Modern household operations platform designed to feel calm, capable, trustworthy, and intelligently structured. Parent platform for ForgeHome, ForgeCar, ForgeGarden, ForgeCover, ForgeTravel, and ForgeHealth.",
+      "notes": "OrderedHome is emerging as a premium household operating system with one core visual system and module-level accents. Style guide defines responsive, calm, structured, high-legibility product direction across dashboard, documents, reminders, records, costs, history, and household module flows.\n\nCreated dedicated workspace at /home/stu/.openclaw/workspace/orderedhome with core identity files and STYLE_GUIDE.md seeded from the supplied OrderedHome style/design foundation.",
+      "status": "planning",
+      "tags": [
+        "orderedhome",
+        "household",
+        "product-family",
+        "design-system"
+      ],
+      "updatedAt": "2026-03-24T21:20:00+00:00",
+      "tasks": [
+        {
+          "id": "task-orderedhome-1",
+          "title": "Create OrderedHome product definition and family architecture",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "product",
+            "architecture",
+            "family"
+          ],
+          "notes": "Define OrderedHome as the parent platform and clarify the roles of ForgeHome, ForgeCar, ForgeGarden, ForgeCover, ForgeTravel, and ForgeHealth.",
+          "updatedAt": "2026-03-24T21:13:00+00:00"
+        },
+        {
+          "id": "task-orderedhome-2",
+          "title": "Capture OrderedHome design system and responsive shell",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "design-system",
+            "ui",
+            "responsive"
+          ],
+          "notes": "Turn the style guide into a formal design system covering palette, typography, spacing, cards, navigation, dashboard blocks, module accents, and dark mode.",
+          "updatedAt": "2026-03-24T21:13:00+00:00"
+        },
+        {
+          "id": "task-orderedhome-3",
+          "title": "Define module model for ForgeHome, ForgeCar, ForgeGarden, ForgeCover, ForgeTravel, and ForgeHealth",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "modules",
+            "family",
+            "product-model"
+          ],
+          "notes": "Clarify shared patterns vs module-specific data, workflows, and accent identities within the OrderedHome family.",
+          "updatedAt": "2026-03-24T21:13:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "forgedeck",
+      "name": "ForgeDeck",
+      "description": "FastAPI-based MCP-compatible deck builder that renders HTML slide templates with Playwright and assembles PPTX output with python-pptx.",
+      "notes": "Located at /home/stu/ForgeDeck with dedicated planning workspace at /home/stu/.openclaw/workspace/forgedeck/. FastAPI MCP-compatible deck builder using HTML/CSS -> Playwright -> PPTX architecture. ForgeDeck is positioned as the premium presentation foundry for the Forge ecosystem, distinct from PowerPoint MCP (editing toolkit). Planning pack now includes review, architecture spec, product roadmap, boundary doc, implementation backlog, template library v1 spec, and ecosystem integration spec.",
+      "status": "planning",
+      "tags": [
+        "presentations",
+        "mcp",
+        "fastapi",
+        "playwright",
+        "pptx"
+      ],
+      "updatedAt": "2026-03-24T20:15:00+00:00",
+      "tasks": [
+        {
+          "id": "task-forgedeck-1",
+          "title": "Document ForgeDeck architecture and deployment model",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "architecture",
+            "deployment"
+          ],
+          "notes": "Capture endpoints, rendering pipeline, docker/network mode, and storage/output behavior.",
+          "updatedAt": "2026-03-24T19:59:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-2",
+          "title": "Assess ForgeDeck fit within Forge ecosystem",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "strategy",
+            "integration"
+          ],
+          "notes": "Decide whether ForgeDeck becomes a standalone Forge product, internal service, or presentation subsystem used by other Forge tools.",
+          "updatedAt": "2026-03-24T19:59:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-3",
+          "title": "Define template contracts for Template Library v1",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "templates",
+            "schema",
+            "v1"
+          ],
+          "notes": "Document required/optional fields and validation rules for cover, section, statement, two-column, three-column, grid-6, roadmap, comparison, metrics, and summary templates.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-4",
+          "title": "Build base design token system for deck rendering",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "design-system",
+            "css",
+            "tokens"
+          ],
+          "notes": "Create a robust base.css / token layer aligned with Forge visual language, including typography, spacing, palette, and depth rules.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-5",
+          "title": "Add local/custom font support to ForgeDeck container",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "fonts",
+            "container",
+            "rendering"
+          ],
+          "notes": "Install and validate intended font stack inside the container so Playwright rendering uses premium typography rather than random fallbacks.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-6",
+          "title": "Improve ForgeDeck request validation by layout",
+          "status": "todo",
+          "priority": "high",
+          "dueDate": "",
+          "tags": [
+            "validation",
+            "api",
+            "mcp"
+          ],
+          "notes": "Validate layout existence, required fields, field counts, and malformed payloads before render. Add clearer error messaging.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-7",
+          "title": "Create template library v1 implementation priority set",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "templates",
+            "roadmap",
+            "implementation"
+          ],
+          "notes": "Start with cover, section divider, statement, two-column, three-column, grid-6, roadmap, comparison, metrics, and summary / next actions.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-8",
+          "title": "Define ForgePipeline to ForgeDeck reporting contract",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "integration",
+            "forgepipeline",
+            "reporting"
+          ],
+          "notes": "Specify canonical payloads for portfolio review decks, board packs, and project status decks generated from ForgePipeline data.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-9",
+          "title": "Define ForgeOrchestra to ForgeDeck invocation contract",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "integration",
+            "forgeorchestra",
+            "strategy"
+          ],
+          "notes": "Document standard payload shape and audience/theme expectations for strategy, architecture, and executive deck generation.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-10",
+          "title": "Define ForgeDiscord to ForgeDeck request flow",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "integration",
+            "forgediscord",
+            "routing"
+          ],
+          "notes": "Specify how Discord-based requests become ForgeDeck jobs and how artifact links/results should be posted back into threads/channels.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        },
+        {
+          "id": "task-forgedeck-11",
+          "title": "Document ForgeDeck and PowerPoint MCP handoff workflow",
+          "status": "todo",
+          "priority": "medium",
+          "dueDate": "",
+          "tags": [
+            "handoff",
+            "powerpoint-mcp",
+            "workflow"
+          ],
+          "notes": "Define when ForgeDeck generates the first-pass deck and when PowerPoint MCP should be used for native object-level edits.",
+          "updatedAt": "2026-03-24T20:15:00+00:00"
+        }
+      ]
     },
     {
       "id": "forgeorchestra",
