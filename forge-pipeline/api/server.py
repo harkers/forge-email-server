@@ -819,6 +819,91 @@ def task_matches(task: dict, query: str | None, status: str | None) -> bool:
     return True
 
 
+def compute_workspace_rollup(conn: sqlite3.Connection) -> dict:
+    """Compute aggregated metrics across all workspaces (by source tag)."""
+    projects = list_projects(conn)
+    workspaces = {}
+    now = datetime.now(timezone.utc)
+    
+    for project in projects:
+        # Find source tag for workspace
+        source_tag = None
+        for tag in project.get('tags', []):
+            if tag.startswith('source:'):
+                source_tag = tag.replace('source:', '')
+                break
+        
+        if not source_tag:
+            source_tag = 'default'
+        
+        if source_tag not in workspaces:
+            workspaces[source_tag] = {
+                'source': source_tag,
+                'projects': 0,
+                'tasks': 0,
+                'completed': 0,
+                'active': 0,
+                'blocked': 0,
+                'atRisk': 0,
+                'critical': 0,
+                'overdue': 0,
+                'lastUpdated': None,
+            }
+        
+        ws = workspaces[source_tag]
+        ws['projects'] += 1
+        
+        for task in project.get('tasks', []):
+            ws['tasks'] += 1
+            status = task.get('status', 'todo')
+            if status == 'done':
+                ws['completed'] += 1
+            elif status == 'in-progress':
+                ws['active'] += 1
+            elif status == 'blocked':
+                ws['blocked'] += 1
+            
+            risk = task.get('riskState', 'none')
+            if risk in ('at-risk', 'critical'):
+                ws['atRisk'] += 1
+            
+            priority = task.get('priority', 'medium')
+            if priority == 'critical':
+                ws['critical'] += 1
+            
+            due = task.get('dueDate')
+            if due and due != '':
+                try:
+                    due_date = datetime.fromisoformat(due.replace('Z', '+00:00'))
+                    if due_date < now and status != 'done':
+                        ws['overdue'] += 1
+                except:
+                    pass
+        
+        updated = project.get('updatedAt')
+        if updated:
+            if not ws['lastUpdated'] or updated > ws['lastUpdated']:
+                ws['lastUpdated'] = updated
+    
+    # Sort by task count
+    workspace_list = sorted(workspaces.values(), key=lambda w: -w['tasks'])
+    
+    return {
+        'workspaces': workspace_list,
+        'total': {
+            'workspaces': len(workspace_list),
+            'projects': sum(w['projects'] for w in workspace_list),
+            'tasks': sum(w['tasks'] for w in workspace_list),
+            'completed': sum(w['completed'] for w in workspace_list),
+            'active': sum(w['active'] for w in workspace_list),
+            'blocked': sum(w['blocked'] for w in workspace_list),
+            'atRisk': sum(w['atRisk'] for w in workspace_list),
+            'critical': sum(w['critical'] for w in workspace_list),
+            'overdue': sum(w['overdue'] for w in workspace_list),
+        }
+    }
+
+
 def upsert_project(conn: sqlite3.Connection, body: dict) -> tuple[dict, str]:
     clean = validate_project_payload(body, partial=True)
     source = derive_source(body)
@@ -999,6 +1084,12 @@ class Handler(BaseHTTPRequestHandler):
                 offset = int(q.get('offset', ['0'])[0])
                 events = list_events(conn, limit=limit, offset=offset)
                 self.send_json(200, {'events': events})
+                return
+
+            # FP-092: Workspace rollup endpoint
+            if parsed.path == '/api/rollup':
+                rollup = compute_workspace_rollup(conn)
+                self.send_json(200, rollup)
                 return
 
             self.send_json(404, {'error': 'not_found', 'path': parsed.path})

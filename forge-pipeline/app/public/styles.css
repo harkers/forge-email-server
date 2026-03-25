@@ -439,6 +439,15 @@ body[data-density="tight"] .badge { padding: 2px 6px; font-size: 10px; }
 .dependency-hint { font-size: 13px; margin-top: 8px; }
 .dependency-none { color: var(--muted); font-size: 13px; font-style: italic; }
 
+/* FP-092: Workspace Rollups */
+.exec-workspaces { padding: 16px 0; border-top: 1px solid var(--border); margin-top: 16px; }
+.exec-workspace-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.exec-workspace-card { padding: 12px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--border); }
+.exec-workspace-name { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.exec-workspace-stats { display: flex; gap: 8px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; }
+.exec-workspace-stats .danger { color: var(--danger); }
+.exec-workspace-stats .warning { color: var(--warning); }
+
 .kanban-board { display: grid; grid-template-columns: 1.15fr 0.85fr 1fr 1fr; gap: 16px; align-items: start; }
 .kanban-column { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
 .kanban-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

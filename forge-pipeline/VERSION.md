@@ -8,15 +8,22 @@
 ### v2.0.0 (2026-03-25)
 - FP-090: Enhanced Focus Now recommendation engine with scoring
 - FP-091: Task dependency visualization (blockedBy, blocking fields)
+- FP-092: Multi-workspace rollups by source tag
 - FP-093: Executive summary mode (Full View / Executive toggle)
 - FP-094: WebSocket infrastructure (disabled, polling fallback)
 
+**Multi-Workspace Rollups (FP-092):**
+- `/api/rollup` endpoint aggregates metrics by source tag
+- Workspace breakdown (projects, tasks, blocked, at-risk, critical, overdue)
+- Total portfolio aggregation
+- Executive summary shows workspace cards
+
 **Task Dependencies (FP-091):**
-- Added `blockedBy` and `blocking` fields to task schema
+- `blockedBy` and `blocking` fields on tasks
 - Database migration for dependency columns
-- Dependency graph API endpoint (`/api/dependencies`)
-- Dependency panel UI with clickable task links
-- Visual indicators for blocked/done/active status
+- `/api/dependencies` endpoint for dependency graph
+- Dependency panel UI with visual status indicators
+- Click to scroll to related tasks
 
 **Focus Now Improvements:**
 - Task scoring algorithm (priority, status, risk, due date, staleness)
@@ -29,6 +36,7 @@
 - Project cards with key metrics (total/active/blocked/at-risk)
 - Highlight panels for blocked/critical/overdue
 - View mode toggle (Full View / Executive)
+- Workspace breakdown section
 
 **WebSocket (Infrastructure):**
 - websocket_server.py module for real-time push

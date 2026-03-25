@@ -1368,11 +1368,25 @@ boot().catch(err => {
   document.body.innerHTML = `<pre style="padding:20px;color:white;">Failed to load Forge Pipeline\n${err}</pre>`;
 });
 
+// FP-092: Workspace Rollups
+async function loadWorkspaceRollups() {
+  try {
+    const response = await request('/rollup');
+    return response;
+  } catch (e) {
+    console.error('[Rollup] Error:', e);
+    return { workspaces: [], total: {} };
+  }
+}
+
 // FP-093: Executive Summary Mode
-function renderExecutiveSummary() {
+async function renderExecutiveSummary() {
   const projects = state.projects.filter(p => p.status !== 'cancelled');
   const tasks = allTasksWithProject().filter(t => t.projectStatus !== 'cancelled');
   const now = new Date();
+  
+  // Load workspace rollups
+  const rollup = await loadWorkspaceRollups();
   
   // Calculate executive metrics
   const metrics = {
@@ -1384,6 +1398,7 @@ function renderExecutiveSummary() {
     atRisk: tasks.filter(t => t.riskState === 'at-risk' || t.riskState === 'critical').length,
     critical: tasks.filter(t => t.priority === 'critical').length,
     overdue: tasks.filter(t => t.dueDate && new Date(t.dueDate) < now).length,
+    workspaces: rollup.total?.workspaces || rollup.workspaces?.length || 0,
   };
   
   // Project summaries
@@ -1461,6 +1476,29 @@ function renderExecutiveSummary() {
       ${overdueTasks.length ? `<div class="exec-highlight-list">${overdueTasks.map(t => escapeHtml(t.title)).slice(0, 3).join('<br>')}</div>` : ''}
     </div>
   `;
+  
+  // FP-092: Workspaces section
+  if (rollup.workspaces && rollup.workspaces.length > 1) {
+    const workspacesSection = document.createElement('div');
+    workspacesSection.className = 'exec-workspaces';
+    workspacesSection.innerHTML = `
+      <h3 style="margin: 0 0 12px 0; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;">Workspaces (${rollup.workspaces.length})</h3>
+      <div class="exec-workspace-grid">
+        ${rollup.workspaces.slice(0, 6).map(ws => `
+          <div class="exec-workspace-card">
+            <div class="exec-workspace-name">${escapeHtml(ws.source)}</div>
+            <div class="exec-workspace-stats">
+              <span>${ws.projects} proj</span>
+              <span>${ws.tasks} tasks</span>
+              ${ws.blocked ? `<span class="danger">${ws.blocked} blocked</span>` : ''}
+              ${ws.atRisk ? `<span class="warning">${ws.atRisk} at-risk</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    document.getElementById('execHighlights').after(workspacesSection);
+  }
 }
 
 // View mode toggle
