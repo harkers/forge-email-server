@@ -21,12 +21,12 @@
 ### ⚠️ Current Limitations
 
 1. **Port 4173 shared with DDH**: The `openclaw-dynamic-ddh-web` container (DDH frontend) runs in host network mode and listens on port 4173. Forge Pipeline correctly runs on port 4174. This is intentional, not a conflict.
-2. **No caching layer**: Every request hits SQLite directly
+2. ~~**No caching layer**~~ ✅ FIXED: Redis cache with 60s TTL on summary
 3. **No connection pooling**: SQLite is file-based, but concurrent writes could block
 4. **No rate limiting**: API is open if no key is set
-5. **No metrics/observability**: No request logging, no performance tracking
+5. ~~**No metrics/observability**~~ ✅ FIXED: Optional request logging (FORGE_PIPELINE_LOG_REQUESTS=true)
 6. **No search indexing**: Full-text search is naive string matching
-7. **No pagination**: `/api/projects` and `/api/tasks` return all results
+7. ~~**No pagination**~~ ✅ FIXED: limit/offset on projects, tasks, events
 8. **No background jobs**: No async processing for imports/exports
 9. **No WebSocket**: UI polls every 30s instead of real-time updates
 10. **No audit trail**: Events are stored but not exported/analyzed
@@ -276,24 +276,27 @@ session:{token}            # Future session storage
 
 ## Implementation Priority
 
-1. **Redis cache** — immediate performance gain
-3. **Pagination** — prevents future breakage
-4. **Request logging** — observability
-5. **Full-text search** — better UX
-6. **WebSocket** — real-time updates
-7. **Background jobs** — async processing
-8. **OpenAPI spec** — documentation
-9. **API versioning** — future-proofing
-10. **PostgreSQL option** — horizontal scale
+1. ~~**Redis cache** — immediate performance gain~~ ✅ DONE (2026-03-25)
+2. ~~**Pagination** — prevents OOM at scale~~ ✅ DONE (2026-03-25)
+3. ~~**Request logging** — observability~~ ✅ DONE (2026-03-25)
+4. **Full-text search** — better UX
+5. **WebSocket** — real-time updates
+6. **Background jobs** — async processing
+7. **OpenAPI spec** — documentation
+8. **API versioning** — future-proofing
+9. **PostgreSQL option** — horizontal scale
 
 ---
 
 ## Next Actions
 
-1. Add Redis service to docker-compose
-2. Implement summary caching in server.py
-3. Add pagination to list endpoints
-4. Add access logging
+1. ~~Add Redis service to docker-compose~~ ✅ DONE
+2. ~~Implement summary caching in server.py~~ ✅ DONE
+3. ~~Add pagination to list endpoints~~ ✅ DONE (projects, tasks, events)
+4. ~~Add access logging~~ ✅ DONE (optional, env: FORGE_PIPELINE_LOG_REQUESTS=true)
+5. Consider: Full-text search with SQLite FTS5
+6. Consider: Background job queue for imports/exports
+7. Consider: PostgreSQL option for scaling
 
 ---
 

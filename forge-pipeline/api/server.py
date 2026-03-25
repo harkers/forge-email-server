@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import time
 from datetime import datetime, timezone
 from functools import wraps
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -22,9 +23,11 @@ STORAGE_DIR = ROOT / "storage"
 DB_FILE = STORAGE_DIR / "forge-pipeline.db"
 LEGACY_JSON_FILE = STORAGE_DIR / "forge-pipeline.json"
 LEGACY_EVENTS_FILE = STORAGE_DIR / "events.json"
+LOG_FILE = STORAGE_DIR / "access.log"
 API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+LOG_REQUESTS = os.environ.get("FORGE_PIPELINE_LOG_REQUESTS", "false").lower() == "true"
 
 # Initialize Redis connection (lazy, optional)
 _redis = None
@@ -139,6 +142,19 @@ def invalidate_cache(pattern: str = '*'):
                 redis.delete(*keys)
         except Exception:
             pass  # Cache best-effort
+
+
+def log_request(method: str, path: str, status: int, duration_ms: float, user_agent: str = ''):
+    """Log requests to access log file."""
+    if not LOG_REQUESTS:
+        return
+    try:
+        STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+        log_line = f"{datetime.now(timezone.utc).isoformat()} {method} {path} {status} {duration_ms:.1f}ms {user_agent[:100]}\n"
+        with open(LOG_FILE, 'a') as f:
+            f.write(log_line)
+    except Exception:
+        pass  # Logging best-effort
 
 
 def db() -> sqlite3.Connection:
@@ -454,13 +470,17 @@ def get_task_by_title(conn: sqlite3.Connection, project_id: str, title: str):
     return row_to_task(row) if row else None
 
 
-def list_projects(conn: sqlite3.Connection) -> list[dict]:
-    rows = conn.execute('SELECT * FROM projects ORDER BY updated_at DESC').fetchall()
+def list_projects(conn: sqlite3.Connection, limit: int = 100, offset: int = 0) -> list[dict]:
+    rows = conn.execute('SELECT * FROM projects ORDER BY updated_at DESC LIMIT ? OFFSET ?', (limit, offset)).fetchall()
     return [row_to_project(conn, row) for row in rows]
 
 
-def list_events(conn: sqlite3.Connection, limit: int = 50) -> list[dict]:
-    rows = conn.execute('SELECT * FROM events ORDER BY created_at DESC LIMIT ?', (limit,)).fetchall()
+def count_projects(conn: sqlite3.Connection) -> int:
+    return conn.execute('SELECT COUNT(*) FROM projects').fetchone()[0]
+
+
+def list_events(conn: sqlite3.Connection, limit: int = 50, offset: int = 0) -> list[dict]:
+    rows = conn.execute('SELECT * FROM events ORDER BY created_at DESC LIMIT ? OFFSET ?', (limit, offset)).fetchall()
     return [
         {'id': row['id'], 'kind': row['kind'], 'createdAt': row['created_at'], 'payload': json.loads(row['payload_json'] or '{}')}
         for row in rows
@@ -593,6 +613,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
+        self.send_header('X-Response-Time', f'{getattr(self, "_start_time", time.time())}ms')
         self.end_headers()
         self.wfile.write(body)
 
@@ -624,6 +645,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(204, {})
 
     def do_GET(self):
+        self._start_time = time.time()
         parsed = urlparse(self.path)
         q = parse_qs(parsed.query)
         query = q.get('q', [None])[0]
@@ -650,6 +672,7 @@ class Handler(BaseHTTPRequestHandler):
                 'redis': redis_status,
                 'redisAvailable': REDIS_AVAILABLE,
             })
+            self.log_request_done(200)
             conn.close()
             return
 
@@ -657,12 +680,18 @@ class Handler(BaseHTTPRequestHandler):
             # Use cached summary (60s TTL)
             summary = _get_summary_cached(conn)
             self.send_json(200, summary)
+            self.log_request_done(200)
             conn.close()
             return
 
         if parsed.path == '/api/projects':
-            projects = [p for p in list_projects(conn) if project_matches(p, query, status)]
-            self.send_json(200, {'projects': projects})
+            limit = int(q.get('limit', ['100'])[0])
+            offset = int(q.get('offset', ['0'])[0])
+            total = count_projects(conn)
+            projects = [p for p in list_projects(conn, limit=limit, offset=offset) if project_matches(p, query, status)]
+            has_more = offset + limit < total
+            self.send_json(200, {'projects': projects, 'total': total, 'limit': limit, 'offset': offset, 'hasMore': has_more})
+            self.log_request_done(200)
             conn.close()
             return
 
@@ -678,12 +707,18 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == '/api/tasks':
-            tasks = []
-            for project in list_projects(conn):
+            limit = int(q.get('limit', ['100'])[0])
+            offset = int(q.get('offset', ['0'])[0])
+            all_tasks = []
+            for project in list_projects(conn, limit=1000, offset=0):  # Get all projects for task count
                 for task in project.get('tasks', []):
                     if task_matches(task, query, status):
-                        tasks.append({**task, 'projectId': project['id'], 'projectName': project['name']})
-            self.send_json(200, {'tasks': tasks})
+                        all_tasks.append({**task, 'projectId': project['id'], 'projectName': project['name']})
+            total = len(all_tasks)
+            tasks = all_tasks[offset:offset + limit]
+            has_more = offset + limit < total
+            self.send_json(200, {'tasks': tasks, 'total': total, 'limit': limit, 'offset': offset, 'hasMore': has_more})
+            self.log_request_done(200)
             conn.close()
             return
 
@@ -701,7 +736,12 @@ class Handler(BaseHTTPRequestHandler):
 
         if parsed.path == '/api/events':
             limit = int(q.get('limit', ['50'])[0])
-            self.send_json(200, {'events': list_events(conn, limit)})
+            offset = int(q.get('offset', ['0'])[0])
+            total = event_count(conn)
+            events = list_events(conn, limit=limit, offset=offset)
+            has_more = offset + limit < total
+            self.send_json(200, {'events': events, 'total': total, 'limit': limit, 'offset': offset, 'hasMore': has_more})
+            self.log_request_done(200)
             conn.close()
             return
 
@@ -1041,6 +1081,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         return
+
+    def log_request_done(self, status: int):
+        duration_ms = (time.time() - getattr(self, '_start_time', time.time())) * 1000
+        log_request(self.command, self.path, status, duration_ms, self.headers.get('User-Agent', ''))
 
 
 if __name__ == '__main__':
