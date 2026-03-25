@@ -77,6 +77,7 @@ Read `references/agent-catalog.md` for role definitions.
 Read `references/use-case-scaffolds.md` for recommended agent sets by workflow family.
 Read `references/agent-prompt-stubs.md` for short operating prompts for each scaffolded role.
 Read `references/openclaw-execution-playbook.md` for how to run the control plane natively inside OpenClaw.
+Read `references/manager-runbook.md` for concrete routing decisions across the current agent estate.
 
 ## Standard workflow
 
@@ -357,6 +358,7 @@ Read these when creating or refining the workflow:
 - `references/use-case-scaffolds.md` — recommended agent sets by workflow family
 - `references/agent-prompt-stubs.md` — short operating prompts for manager, workers, reviewers, and specialists
 - `references/openclaw-execution-playbook.md` — native OpenClaw routing, spawning, review, and verification patterns
+- `references/manager-runbook.md` — concrete routing/playbook guidance for real task families
 - `references/handoff-packet.md` — reusable handoff schema
 - `references/work-state-template.md` — lightweight state model
 - `references/dispatch-template.md` — prompt contract template for worker agents
