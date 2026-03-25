@@ -607,13 +607,14 @@ def upsert_task(conn: sqlite3.Connection, project_id: str, body: dict) -> tuple[
 class Handler(BaseHTTPRequestHandler):
     def send_json(self, status: int, payload):
         body = json.dumps(payload).encode('utf-8')
+        duration_ms = (time.time() - getattr(self, '_start_time', time.time())) * 1000
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
-        self.send_header('X-Response-Time', f'{getattr(self, "_start_time", time.time())}ms')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Response-Time')
+        self.send_header('X-Response-Time', f'{duration_ms:.1f}ms')
         self.end_headers()
         self.wfile.write(body)
 
