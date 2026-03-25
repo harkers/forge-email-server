@@ -381,10 +381,11 @@ function renderDashboard() {
 }
 
 function scoreTask(task) {
-  const priorityScore = { high: 3, medium: 2, low: 1 }[task.priority] || 0;
+  const priorityScore = { critical: 4, high: 3, medium: 2, low: 1 }[task.priority] || 0;
+  const riskScore = { critical: 3, 'at-risk': 2, watch: 1, none: 0 }[task.riskState] || 0;
   const statusScore = task.status === 'in-progress' ? 3 : task.status === 'todo' ? 2 : 0;
   const dueBonus = task.dueDate ? 2 : 0;
-  return priorityScore * 10 + statusScore * 5 + dueBonus;
+  return priorityScore * 10 + riskScore * 5 + statusScore * 3 + dueBonus;
 }
 
 function renderMiniList(targetId, items, emptyText) {
@@ -396,24 +397,72 @@ function renderMiniList(targetId, items, emptyText) {
 
   el.innerHTML = items.map(item => {
     // FP-020: Reduce metadata chip overload - show only essential badges
+    // FP-021/022/023: Add overdue/due-soon/stale visual states
     const badges = [];
+    const stateClasses = [];
+    
+    // Priority badge (only high/critical)
     if (item.priority === 'critical' || item.priority === 'high') {
       badges.push(`<span class="badge priority-${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>`);
     }
+    
+    // Status badge (only blocked)
     if (item.status === 'blocked') {
       badges.push(`<span class="badge status-blocked">blocked</span>`);
     }
+    
+    // Risk state badge (at-risk/critical)
     if (item.riskState && item.riskState !== 'none') {
       badges.push(`<span class="badge risk-${escapeHtml(item.riskState)}">${escapeHtml(item.riskState)}</span>`);
     }
     
+    // FP-021: Overdue state (due date passed)
+    const now = new Date();
+    const dueDate = item.dueDate ? new Date(item.dueDate) : null;
+    const isOverdue = dueDate && dueDate < now && item.status !== 'done';
+    const isDueSoon = dueDate && !isOverdue && (dueDate - now) <= 7 * 24 * 60 * 60 * 1000 && item.status !== 'done';
+    
+    if (isOverdue) {
+      badges.push(`<span class="badge overdue">overdue</span>`);
+      stateClasses.push('item-overdue');
+    } else if (isDueSoon) {
+      badges.push(`<span class="badge due-soon">due soon</span>`);
+      stateClasses.push('item-due-soon');
+    }
+    
+    // FP-023: Stale detection (5 working days = ~7 calendar days)
+    const updatedAt = item.updatedAt ? new Date(item.updatedAt) : null;
+    const daysSinceUpdate = updatedAt ? (now - updatedAt) / (1000 * 60 * 60 * 24) : 999;
+    const isStale = daysSinceUpdate > 7 && item.status !== 'done';
+    
+    if (isStale) {
+      stateClasses.push('item-stale');
+    }
+    
+    // FP-041: Timestamp on Recently changed
+    const timestamp = updatedAt ? formatRelativeTime(updatedAt) : '';
+    
     return `
-    <div class="mini-item">
+    <div class="mini-item ${stateClasses.join(' ')}">
       <div class="mini-title">${escapeHtml(item.title)}</div>
-      <div class="mini-sub">${escapeHtml(item.projectName || 'Unknown project')}</div>
+      <div class="mini-sub">${escapeHtml(item.projectName || 'Unknown project')}${timestamp ? ` · ${timestamp}` : ''}</div>
       ${badges.length ? `<div class="mini-meta">${badges.join('')}</div>` : ''}
     </div>
   `}).join('');
+}
+
+function formatRelativeTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
 }
 
 function collectSourceTags(item) {
@@ -553,8 +602,16 @@ function renderProjectCard(project) {
       </div>
 
       <div class="task-list">
-        ${visibleTasks.length ? visibleTasks.map(task => `
-          <div class="task-item">
+        ${visibleTasks.length ? visibleTasks.map(task => {
+          // FP-021/022: Overdue/due-soon detection
+          const now = new Date();
+          const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+          const isOverdue = dueDate && dueDate < now && task.status !== 'done';
+          const isDueSoon = dueDate && !isOverdue && (dueDate - now) <= 7 * 24 * 60 * 60 * 1000 && task.status !== 'done';
+          const taskClasses = isOverdue ? 'task-item task-overdue' : isDueSoon ? 'task-item task-due-soon' : 'task-item';
+          
+          return `
+          <div class="${taskClasses}">
             <div class="task-top">
               <input class="task-title-input" data-project-id="${project.id}" data-task-id="${task.id}" data-field="title" value="${escapeHtml(task.title || '')}" />
               <button class="icon-button danger small" data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}">Delete</button>
@@ -567,7 +624,12 @@ function renderProjectCard(project) {
               </label>
               <label>Priority
                 <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="priority">
-                  ${['low','medium','high'].map(s => `<option value="${s}" ${task.priority === s ? 'selected' : ''}>${s}</option>`).join('')}
+                  ${['low','medium','high','critical'].map(s => `<option value="${s}" ${task.priority === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </label>
+              <label>Risk
+                <select data-project-id="${project.id}" data-task-id="${task.id}" data-field="riskState">
+                  ${['none','watch','at-risk','critical'].map(s => `<option value="${s}" ${(task.riskState || 'none') === s ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
               </label>
               <label>Due
@@ -583,12 +645,14 @@ function renderProjectCard(project) {
             <div class="task-meta">
               <span class="badge">${task.status}</span>
               <span class="badge priority-${task.priority}">${task.priority}</span>
-              ${task.dueDate ? `<span class="badge">due ${task.dueDate}</span>` : ''}
+              ${task.riskState && task.riskState !== 'none' ? `<span class="badge risk-${task.riskState}">${task.riskState}</span>` : ''}
+              ${isOverdue ? `<span class="badge overdue">overdue</span>` : isDueSoon ? `<span class="badge due-soon">due soon</span>` : ''}
+              ${task.dueDate && !isOverdue && !isDueSoon ? `<span class="badge">due ${task.dueDate}</span>` : ''}
               ${(task.tags || []).map(tag => `<span class="badge">#${escapeHtml(tag)}</span>`).join('')}
               ${(project.tags || []).filter(isSourceTag).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('')}
             </div>
           </div>
-        `).join('') : `<div class="empty-tasks">No tasks match the current filters.</div>`}
+        `}).join('') : `<div class="empty-tasks">No tasks match the current filters.</div>`}
       </div>
     </article>
   `;

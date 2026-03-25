@@ -108,7 +108,10 @@ button.primary:hover { background: rgba(122,166,255,0.18); }
 .project-meta, .panel-sub, .empty-state, .empty-tasks { color: var(--muted); }
 .task-list { margin-top: 16px; display: grid; gap: 10px; }
 .task-item { padding: 14px; border-radius: 16px; }
-.task-edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+.task-edit-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)) repeat(2, minmax(0,0.8fr)); gap: 10px; margin-top: 12px; }
+.task-item { padding: 14px; border-radius: 18px; background: var(--panel-strong); border: 1px solid var(--border); }
+.task-item.task-overdue { border-left: 3px solid rgba(255,90,110,0.7); background: rgba(255,90,110,0.05); }
+.task-item.task-due-soon { border-left: 3px solid rgba(255,188,88,0.6); }
 .task-edit-grid label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
 .task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .badge {
@@ -121,10 +124,16 @@ button.primary:hover { background: rgba(122,166,255,0.18); }
 .badge.priority-medium { background: rgba(255,188,88,0.16); color: #ffe4b0; }
 .badge.priority-low { background: rgba(120,196,255,0.16); color: #d3edff; }
 .badge.priority-critical { background: rgba(255,60,80,0.22); color: #ffd5db; font-weight: 700; }
+.badge.overdue { background: rgba(255,60,80,0.22); color: #ffd5db; font-weight: 700; animation: pulse 2s infinite; }
+.badge.due-soon { background: rgba(255,188,88,0.22); color: #ffe4b0; }
 .badge.risk-none { background: rgba(120,196,255,0.12); color: #d3edff; }
 .badge.risk-watch { background: rgba(255,188,88,0.18); color: #ffe4b0; }
 .badge.risk-at-risk { background: rgba(255,127,152,0.18); color: #ffd5df; }
 .badge.risk-critical { background: rgba(255,60,80,0.22); color: #ffd5db; font-weight: 700; }
+.mini-item.item-overdue { border-left: 3px solid rgba(255,90,110,0.6); }
+.mini-item.item-due-soon { border-left: 3px solid rgba(255,188,88,0.6); }
+.mini-item.item-stale { opacity: 0.7; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 .empty-state, .empty-tasks {
   padding: 32px;
   text-align: center;
@@ -206,7 +215,7 @@ button.primary:hover { background: rgba(122,166,255,0.18); }
 .portfolio-count { color: var(--muted); font-size: 13px; }
 .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; }
 
-.kanban-board { display: grid; grid-template-columns: repeat(4, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+.kanban-board { display: grid; grid-template-columns: 1.15fr 0.85fr 1fr 1fr; gap: 16px; align-items: start; }
 .kanban-column { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
 .kanban-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .kanban-header h3 { margin: 0; text-transform: capitalize; }

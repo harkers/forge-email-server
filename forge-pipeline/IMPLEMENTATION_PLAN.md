@@ -67,12 +67,12 @@
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-040 | Rebalance board column widths (1.15 / 0.85 / 1.0) | 1h | TODO |
-| FP-041 | Add timestamps to Recently changed items | 1h | TODO |
-| FP-021 | Add overdue visual state to cards | 2h | TODO |
-| FP-022 | Add due-soon state (≤7 days) | 2h | TODO |
-| FP-023 | Implement stale detection (5 working days) | 2h | TODO |
-| FP-050 | Add risk state badges to cards | 1h | TODO |
+| FP-040 | Rebalance board column widths (1.15 / 0.85 / 1.0) | 1h | ✅ DONE |
+| FP-041 | Add timestamps to Recently changed items | 1h | ✅ DONE |
+| FP-021 | Add overdue visual state to cards | 2h | ✅ DONE |
+| FP-022 | Add due-soon state (≤7 days) | 2h | ✅ DONE |
+| FP-023 | Implement stale detection (5 working days) | 2h | ✅ DONE |
+| FP-050 | Add risk state badges to cards | 1h | ✅ DONE |
 
 **Deliverables:**
 - Stale/overdue/due-soon detection logic
