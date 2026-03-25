@@ -50,6 +50,39 @@
         </article>
       </section>
 
+      <!-- FP-051: Insight Strip -->
+      <section class="insight-strip" id="insightStrip">
+        <div class="insight-item" id="insightHighPriority">
+          <span class="insight-icon">🔥</span>
+          <span class="insight-label">High Priority Due This Week</span>
+          <span class="insight-value">0</span>
+        </div>
+        <div class="insight-item" id="insightBlockers">
+          <span class="insight-icon">🚫</span>
+          <span class="insight-label">Active Blockers</span>
+          <span class="insight-value">0</span>
+        </div>
+        <div class="insight-item" id="insightStale">
+          <span class="insight-icon">💤</span>
+          <span class="insight-label">Stale Items</span>
+          <span class="insight-value">0</span>
+        </div>
+        <div class="insight-item" id="insightAtRisk">
+          <span class="insight-icon">⚠️</span>
+          <span class="insight-label">At Risk</span>
+          <span class="insight-value">0</span>
+        </div>
+      </section>
+
+      <!-- FP-052: Focus Now Card -->
+      <section class="focus-now-panel" id="focusNowPanel" style="display: none;">
+        <div class="focus-header">
+          <h2>Focus Now</h2>
+          <span class="focus-reason" id="focusReason">Recommended next action</span>
+        </div>
+        <div class="focus-content" id="focusContent"></div>
+      </section>
+
       <main class="layout">
         <aside class="panel sidebar">
           <h2>Controls</h2>
@@ -74,6 +107,12 @@
           <div class="api-note">
             <strong>API-backed mode</strong>
             <span>This board reads/writes shared project data through the Forge Pipeline API.</span>
+          </div>
+
+          <!-- FP-054: Source Health Panel -->
+          <div class="source-health-panel" id="sourceHealthPanel">
+            <h3>Source Health</h3>
+            <div class="source-list" id="sourceList"></div>
           </div>
 
           <form id="projectForm" class="form-block">

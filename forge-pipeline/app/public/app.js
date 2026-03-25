@@ -333,6 +333,9 @@ function portfolioSectionFor(project) {
 
 function render() {
   renderDashboard();
+  renderInsightStrip();
+  renderFocusNow();
+  renderSourceHealth();
   renderMainPanelHeader();
   if (filters.viewMode === 'kanban') {
     renderKanban();
@@ -340,6 +343,194 @@ function render() {
     renderPortfolioProjects();
   }
   renderEvents();
+}
+
+// FP-051: Insight Strip
+function renderInsightStrip() {
+  const tasks = allTasksWithProject().filter(task => task.projectStatus !== 'cancelled');
+  const now = new Date();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  
+  // High priority due this week
+  const highPriorityDue = tasks.filter(task => {
+    if (task.status === 'done') return false;
+    if (task.priority !== 'critical' && task.priority !== 'high') return false;
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return due <= new Date(now.getTime() + oneWeek);
+  });
+  
+  // Active blockers
+  const blockers = tasks.filter(task => task.status === 'blocked');
+  
+  // Stale items (>7 days since update, not done)
+  const stale = tasks.filter(task => {
+    if (task.status === 'done') return false;
+    if (!task.updatedAt) return false;
+    const updated = new Date(task.updatedAt);
+    return (now - updated) > oneWeek;
+  });
+  
+  // At risk
+  const atRisk = tasks.filter(task => {
+    if (task.status === 'done') return false;
+    return task.riskState === 'at-risk' || task.riskState === 'critical';
+  });
+  
+  // Update DOM
+  document.getElementById('insightHighPriority').querySelector('.insight-value').textContent = highPriorityDue.length;
+  document.getElementById('insightBlockers').querySelector('.insight-value').textContent = blockers.length;
+  document.getElementById('insightStale').querySelector('.insight-value').textContent = stale.length;
+  document.getElementById('insightAtRisk').querySelector('.insight-value').textContent = atRisk.length;
+  
+  // Add warning classes
+  document.getElementById('insightHighPriority').classList.toggle('danger', highPriorityDue.length > 0);
+  document.getElementById('insightBlockers').classList.toggle('danger', blockers.length > 0);
+  document.getElementById('insightStale').classList.toggle('warning', stale.length > 0);
+  document.getElementById('insightAtRisk').classList.toggle('danger', atRisk.length > 0);
+}
+
+// FP-052: Focus Now
+function renderFocusNow() {
+  const tasks = allTasksWithProject().filter(task => task.projectStatus !== 'cancelled' && task.status !== 'done');
+  const now = new Date();
+  const panel = document.getElementById('focusNowPanel');
+  const content = document.getElementById('focusContent');
+  const reason = document.getElementById('focusReason');
+  
+  // Find focus candidates
+  const focusCandidates = [];
+  
+  // 1. Critical tasks
+  const critical = tasks.filter(t => t.priority === 'critical');
+  if (critical.length) {
+    focusCandidates.push({ tasks: critical, reason: 'Critical priority', icon: '🔴' });
+  }
+  
+  // 2. Blocked tasks
+  const blocked = tasks.filter(t => t.status === 'blocked');
+  if (blocked.length) {
+    focusCandidates.push({ tasks: blocked, reason: 'Needs unblocking', icon: '🚫' });
+  }
+  
+  // 3. At-risk tasks
+  const atRisk = tasks.filter(t => t.riskState === 'at-risk' || t.riskState === 'critical');
+  if (atRisk.length) {
+    focusCandidates.push({ tasks: atRisk, reason: 'At risk', icon: '⚠️' });
+  }
+  
+  // 4. Overdue tasks
+  const overdue = tasks.filter(t => {
+    if (!t.dueDate) return false;
+    return new Date(t.dueDate) < now;
+  });
+  if (overdue.length) {
+    focusCandidates.push({ tasks: overdue, reason: 'Overdue', icon: '🔥' });
+  }
+  
+  // 5. High priority due this week
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  const dueSoon = tasks.filter(t => {
+    if (t.priority !== 'high' && t.priority !== 'critical') return false;
+    if (!t.dueDate) return false;
+    const due = new Date(t.dueDate);
+    return due <= new Date(now.getTime() + oneWeek) && due >= now;
+  });
+  if (dueSoon.length) {
+    focusCandidates.push({ tasks: dueSoon, reason: 'Due this week', icon: '📅' });
+  }
+  
+  if (focusCandidates.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  
+  panel.style.display = 'block';
+  reason.textContent = focusCandidates[0].reason;
+  
+  // Render top 3 focus items
+  const topTasks = focusCandidates[0].tasks.slice(0, 3);
+  content.innerHTML = topTasks.map(task => `
+    <div class="focus-task" data-project-id="${task.projectId}" data-task-id="${task.id}">
+      <span class="focus-task-title">${escapeHtml(task.title)}</span>
+      <span class="focus-task-project">${escapeHtml(task.projectName || 'Unknown')}</span>
+      <div class="focus-task-badges">
+        ${task.priority === 'critical' ? '<span class="badge priority-critical">critical</span>' : ''}
+        ${task.priority === 'high' ? '<span class="badge priority-high">high</span>' : ''}
+        ${task.status === 'blocked' ? '<span class="badge status-blocked">blocked</span>' : ''}
+        ${task.riskState && task.riskState !== 'none' ? `<span class="badge risk-${task.riskState}">${task.riskState}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// FP-054: Source Health Panel
+function renderSourceHealth() {
+  const sources = new Map();
+  const now = new Date();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  
+  // Collect sources from projects and tasks
+  for (const project of state.projects) {
+    const projectSources = (project.tags || []).filter(isSourceTag);
+    for (const source of projectSources) {
+      if (!sources.has(source)) {
+        sources.set(source, { count: 0, projects: 0, lastUpdate: null });
+      }
+      const data = sources.get(source);
+      data.projects++;
+      data.count += (project.tasks || []).length;
+      if (project.updatedAt) {
+        const updated = new Date(project.updatedAt);
+        if (!data.lastUpdate || updated > data.lastUpdate) {
+          data.lastUpdate = updated;
+        }
+      }
+    }
+    
+    for (const task of project.tasks || []) {
+      const taskSources = (task.tags || []).filter(isSourceTag);
+      for (const source of taskSources) {
+        if (!sources.has(source)) {
+          sources.set(source, { count: 0, projects: 0, lastUpdate: null });
+        }
+        const data = sources.get(source);
+        data.count++;
+        if (task.updatedAt) {
+          const updated = new Date(task.updatedAt);
+          if (!data.lastUpdate || updated > data.lastUpdate) {
+            data.lastUpdate = updated;
+          }
+        }
+      }
+    }
+  }
+  
+  const container = document.getElementById('sourceList');
+  if (!container) return;
+  
+  if (sources.size === 0) {
+    container.innerHTML = '<div class="source-item"><span class="source-name">No sources yet</span></div>';
+    return;
+  }
+  
+  const sortedSources = [...sources.entries()].sort((a, b) => b[1].count - a[1].count);
+  
+  container.innerHTML = sortedSources.map(([source, data]) => {
+    let healthClass = 'healthy';
+    if (data.lastUpdate) {
+      const age = now - data.lastUpdate;
+      if (age > oneWeek) healthClass = 'warning';
+      if (age > 2 * oneWeek) healthClass = 'danger';
+    }
+    const displayName = source.replace('source:', '');
+    return `
+      <div class="source-item ${healthClass}">
+        <span class="source-name">${escapeHtml(displayName)}</span>
+        <span class="source-count">${data.count} tasks · ${data.projects} project${data.projects !== 1 ? 's' : ''}</span>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderMainPanelHeader() {

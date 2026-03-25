@@ -186,6 +186,39 @@ button.primary:hover { background: rgba(122,166,255,0.18); }
 .dash-panel { padding: 18px; }
 .dash-head { display: grid; gap: 4px; margin-bottom: 12px; }
 .dash-head h2 { margin: 0; font-size: 22px; }
+
+/* FP-051: Insight Strip */
+.insight-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.insight-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--panel-strong); border: 1px solid var(--border); }
+.insight-icon { font-size: 24px; }
+.insight-label { flex: 1; color: var(--text-secondary); font-size: 13px; }
+.insight-value { font-size: 28px; font-weight: 700; color: var(--accent-light); }
+.insight-item.warning { border-color: rgba(255,188,88,0.4); background: rgba(255,188,88,0.08); }
+.insight-item.danger { border-color: rgba(255,90,110,0.4); background: rgba(255,90,110,0.08); }
+
+/* FP-052: Focus Now Panel */
+.focus-now-panel { padding: 20px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(122,166,255,0.12) 0%, rgba(124,156,255,0.08) 100%); border: 1px solid rgba(122,166,255,0.2); margin-bottom: 20px; }
+.focus-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.focus-header h2 { margin: 0; font-size: 18px; color: var(--accent-light); }
+.focus-reason { color: var(--muted); font-size: 13px; }
+.focus-content { display: grid; gap: 8px; }
+.focus-task { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
+.focus-task:hover { border-color: var(--accent); }
+.focus-task-title { flex: 1; font-weight: 600; }
+.focus-task-project { color: var(--muted); font-size: 13px; }
+.focus-task-badges { display: flex; gap: 6px; }
+
+/* FP-054: Source Health Panel */
+.source-health-panel { margin-top: 16px; padding: 14px; border-radius: var(--radius-md); background: var(--panel-strong); border: 1px solid var(--border); }
+.source-health-panel h3 { margin: 0 0 10px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.source-list { display: grid; gap: 8px; }
+.source-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--panel); }
+.source-name { font-size: 13px; color: var(--text); }
+.source-count { font-size: 12px; color: var(--muted); }
+.source-item.healthy { border-left: 3px solid var(--accent-2); }
+.source-item.warning { border-left: 3px solid rgba(255,188,88,0.6); }
+.source-item.danger { border-left: 3px solid rgba(255,90,110,0.6); }
+
 .dash-note { color: var(--muted); font-size: 13px; }
 .mini-list { display: grid; gap: 10px; }
 .mini-item { padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }

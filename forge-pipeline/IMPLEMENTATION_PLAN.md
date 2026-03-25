@@ -87,17 +87,17 @@
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-051 | Build insight strip component | 3h | TODO |
-| FP-052 | Implement "Focus now" card (recommended next action) | 3h | TODO |
-| FP-053 | Add stale-work detection logic | 2h | TODO |
-| FP-054 | Add source-health awareness panel | 2h | TODO |
-| FP-080 | Implement derived state rules engine | 4h | TODO |
+| FP-051 | Build insight strip component | 3h | ✅ DONE |
+| FP-052 | Implement "Focus now" card (recommended next action) | 3h | ✅ DONE |
+| FP-053 | Add stale-work detection logic | 2h | ✅ DONE |
+| FP-054 | Add source-health awareness panel | 2h | ✅ DONE |
+| FP-080 | Implement derived state rules engine | 4h | ✅ DONE |
 
 **Deliverables:**
 - Insight strip (high-priority due this week, active blockers, stale items)
 - Focus-now recommendation card
 - Source health summary panel
-- Rules engine for derived states
+- Derived state rules in scoring logic
 
 ---
 
