@@ -1,34 +1,35 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.6.0** — 2026-03-25
+**v2.0.0** — 2026-03-25
 
 ## Changelog
 
-### v1.6.0 (2026-03-25)
-- FP-070: Design tokens (colors, spacing, typography, radii)
-- FP-071: ForgeOrchestra parent alignment
-- FP-072: Component specification documentation
-- FP-073: Semantic color system
+### v2.0.0 (2026-03-25)
+- FP-090: Enhanced Focus Now recommendation engine with scoring
+- FP-093: Executive summary mode (Full View / Executive toggle)
 
-**Design System Enhancements:**
-- Motion tokens (transitions, easing curves, animations)
-- Typography scale (modular 1.25, Inter + SF Mono)
-- Spacing scale (8pt base)
-- Animation classes (fade, slide, scale, pulse)
-- Hover/focus utilities
-- Skeleton loading states
-- Design tokens documentation (DESIGN_TOKENS.md)
+**Focus Now Improvements:**
+- Task scoring algorithm (priority, status, risk, due date, staleness)
+- Weighted focus score (0-125 points)
+- Click-to-scroll to highlighted task
+- Visual focus score badge on tasks
+
+**Executive Summary:**
+- Condensed high-level project view
+- Project cards with key metrics (total/active/blocked/at-risk)
+- Highlight panels for blocked/critical/overdue
+- View mode toggle (Full View / Executive)
+- Click tasks in Focus Now to scroll and highlight
+
+### v1.6.0 (2026-03-25)
+- FP-070-073: Design System Alignment
 
 ### v1.5.0 (2026-03-25)
-- FP-060: Full filter bar (priority, risk, status, source, sort)
-- FP-061: Task detail drawer (slide-out editor)
-- FP-062: Quick actions menu on task cards (edit, done, delete)
-- FP-063: Sorting logic (priority, due date, updated)
-- FP-064: Density modes (comfortable, compact, tight)
+- FP-060-064: Filters & Interaction
 
 ### v1.4.0 (2026-03-25)
-- FP-DB1-DB6: PostgreSQL migration (disabled pending connection pool fix)
+- FP-DB1-DB6: PostgreSQL migration (disabled pending pool fix)
 
 ### v1.3.0 (2026-03-25)
 - FP-051-054: Management Insight Layer

@@ -181,6 +181,9 @@ function bindUI() {
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
   document.getElementById('drawerCancel').addEventListener('click', closeDrawer);
   document.getElementById('drawerSave').addEventListener('click', saveDrawerChanges);
+  
+  // FP-093: View mode toggle
+  setupViewModeToggle();
 }
 
 // FP-061: Task Detail Drawer
@@ -559,68 +562,120 @@ function renderInsightStrip() {
   document.getElementById('insightAtRisk').classList.toggle('danger', atRisk.length > 0);
 }
 
+// FP-090: Enhanced Focus Now Recommendation Engine
+function calculateTaskScore(task, now = new Date()) {
+  let score = 0;
+  const reasons = [];
+  
+  // Priority scoring (0-40 points)
+  const priorityScores = { critical: 40, high: 25, medium: 10, low: 5 };
+  score += priorityScores[task.priority] || 0;
+  if (task.priority === 'critical') reasons.push('Critical priority');
+  
+  // Status scoring (0-30 points)
+  if (task.status === 'blocked') {
+    score += 30;
+    reasons.push('Blocked');
+  } else if (task.status === 'in-progress') {
+    score += 5; // Small boost for in-progress tasks
+  }
+  
+  // Risk state scoring (0-25 points)
+  const riskScores = { critical: 25, 'at-risk': 20, watch: 10, none: 0 };
+  score += riskScores[task.riskState] || 0;
+  if (task.riskState === 'critical') reasons.push('Critical risk');
+  else if (task.riskState === 'at-risk') reasons.push('At risk');
+  
+  // Due date scoring (0-30 points, increasing as deadline approaches)
+  if (task.dueDate) {
+    const due = new Date(task.dueDate);
+    const daysUntilDue = (due - now) / (1000 * 60 * 60 * 24);
+    
+    if (daysUntilDue < 0) {
+      score += 30; // Overdue
+      reasons.push(`Overdue by ${Math.abs(Math.round(daysUntilDue))}d`);
+    } else if (daysUntilDue < 1) {
+      score += 25; // Due today
+      reasons.push('Due today');
+    } else if (daysUntilDue < 3) {
+      score += 20; // Due in 1-2 days
+      reasons.push('Due soon');
+    } else if (daysUntilDue < 7) {
+      score += 10; // Due this week
+    }
+  }
+  
+  // Staleness penalty (deduct for tasks not updated recently)
+  if (task.updatedAt) {
+    const lastUpdate = new Date(task.updatedAt);
+    const daysSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+    if (daysSinceUpdate > 14) {
+      score += 5; // Slight boost - stale tasks need attention
+      reasons.push(`Stale (${Math.round(daysSinceUpdate)}d)`);
+    }
+  }
+  
+  return { score, reasons };
+}
+
+function findFocusCandidates(tasks, now = new Date()) {
+  // Score all tasks
+  const scoredTasks = tasks
+    .filter(t => t.projectStatus !== 'cancelled' && t.status !== 'done')
+    .map(task => {
+      const { score, reasons } = calculateTaskScore(task, now);
+      return { ...task, focusScore: score, focusReasons: reasons };
+    })
+    .sort((a, b) => b.focusScore - a.focusScore);
+  
+  // Group by primary reason for display
+  const groups = [
+    { filter: t => t.priority === 'critical', reason: 'Critical priority', icon: '🔴' },
+    { filter: t => t.status === 'blocked', reason: 'Needs unblocking', icon: '🚫' },
+    { filter: t => t.riskState === 'critical' || t.riskState === 'at-risk', reason: 'At risk', icon: '⚠️' },
+    { filter: t => t.dueDate && new Date(t.dueDate) < now, reason: 'Overdue', icon: '🔥' },
+    { filter: t => t.focusReasons.some(r => r.includes('Due today')), reason: 'Due today', icon: '📅' },
+    { filter: t => t.focusReasons.some(r => r.includes('Stale')), reason: 'Needs attention', icon: '📝' },
+  ];
+  
+  const candidates = [];
+  for (const group of groups) {
+    const matching = scoredTasks.filter(group.filter);
+    if (matching.length > 0) {
+      candidates.push({
+        tasks: matching.slice(0, 5),
+        reason: group.reason,
+        icon: group.icon,
+        totalScore: matching.reduce((sum, t) => sum + t.focusScore, 0)
+      });
+    }
+  }
+  
+  return { candidates, topTasks: scoredTasks.slice(0, 5) };
+}
+
 // FP-052: Focus Now
 function renderFocusNow() {
-  const tasks = allTasksWithProject().filter(task => task.projectStatus !== 'cancelled' && task.status !== 'done');
+  const tasks = allTasksWithProject();
   const now = new Date();
   const panel = document.getElementById('focusNowPanel');
   const content = document.getElementById('focusContent');
   const reason = document.getElementById('focusReason');
   
-  // Find focus candidates
-  const focusCandidates = [];
+  const { candidates, topTasks } = findFocusCandidates(tasks, now);
   
-  // 1. Critical tasks
-  const critical = tasks.filter(t => t.priority === 'critical');
-  if (critical.length) {
-    focusCandidates.push({ tasks: critical, reason: 'Critical priority', icon: '🔴' });
-  }
-  
-  // 2. Blocked tasks
-  const blocked = tasks.filter(t => t.status === 'blocked');
-  if (blocked.length) {
-    focusCandidates.push({ tasks: blocked, reason: 'Needs unblocking', icon: '🚫' });
-  }
-  
-  // 3. At-risk tasks
-  const atRisk = tasks.filter(t => t.riskState === 'at-risk' || t.riskState === 'critical');
-  if (atRisk.length) {
-    focusCandidates.push({ tasks: atRisk, reason: 'At risk', icon: '⚠️' });
-  }
-  
-  // 4. Overdue tasks
-  const overdue = tasks.filter(t => {
-    if (!t.dueDate) return false;
-    return new Date(t.dueDate) < now;
-  });
-  if (overdue.length) {
-    focusCandidates.push({ tasks: overdue, reason: 'Overdue', icon: '🔥' });
-  }
-  
-  // 5. High priority due this week
-  const oneWeek = 7 * 24 * 60 * 60 * 1000;
-  const dueSoon = tasks.filter(t => {
-    if (t.priority !== 'high' && t.priority !== 'critical') return false;
-    if (!t.dueDate) return false;
-    const due = new Date(t.dueDate);
-    return due <= new Date(now.getTime() + oneWeek) && due >= now;
-  });
-  if (dueSoon.length) {
-    focusCandidates.push({ tasks: dueSoon, reason: 'Due this week', icon: '📅' });
-  }
-  
-  if (focusCandidates.length === 0) {
+  if (candidates.length === 0) {
     panel.style.display = 'none';
     return;
   }
   
   panel.style.display = 'block';
-  reason.textContent = focusCandidates[0].reason;
+  const topCandidate = candidates[0];
+  reason.textContent = topCandidate.reason;
   
-  // Render top 3 focus items
-  const topTasks = focusCandidates[0].tasks.slice(0, 3);
-  content.innerHTML = topTasks.map(task => `
-    <div class="focus-task" data-project-id="${task.projectId}" data-task-id="${task.id}">
+  // Render top 3 focus items with scores
+  content.innerHTML = topTasks.slice(0, 3).map(task => `
+    <div class="focus-task" data-project-id="${task.projectId}" data-task-id="${task.id}" onclick="scrollToTask('${task.projectId}', '${task.id}')">
       <span class="focus-task-title">${escapeHtml(task.title)}</span>
       <span class="focus-task-project">${escapeHtml(task.projectName || 'Unknown')}</span>
       <div class="focus-task-badges">
@@ -629,8 +684,33 @@ function renderFocusNow() {
         ${task.status === 'blocked' ? '<span class="badge status-blocked">blocked</span>' : ''}
         ${task.riskState && task.riskState !== 'none' ? `<span class="badge risk-${task.riskState}">${task.riskState}</span>` : ''}
       </div>
+      <span class="focus-score" title="Focus score: ${task.focusScore}">${task.focusScore}</span>
     </div>
   `).join('');
+}
+
+function scrollToTask(projectId, taskId) {
+  // Close drawer if open
+  closeDrawer();
+  // Find and highlight the task
+  const taskEl = document.querySelector(`[data-project-id="${projectId}"][data-task-id="${taskId}"]`);
+  if (taskEl) {
+    taskEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    taskEl.classList.add('highlight');
+    setTimeout(() => taskEl.classList.remove('highlight'), 2000);
+  }
+}
+
+function allTasksWithProject() {
+  return state.projects.flatMap(project => 
+    (project.tasks || []).map(task => ({
+      ...task,
+      projectId: project.id,
+      projectName: project.name,
+      projectStatus: project.status,
+      projectTags: project.tags || []
+    }))
+  );
 }
 
 // FP-054: Source Health Panel
@@ -1192,3 +1272,129 @@ function escapeHtml(value) {
 boot().catch(err => {
   document.body.innerHTML = `<pre style="padding:20px;color:white;">Failed to load Forge Pipeline\n${err}</pre>`;
 });
+
+// FP-093: Executive Summary Mode
+function renderExecutiveSummary() {
+  const projects = state.projects.filter(p => p.status !== 'cancelled');
+  const tasks = allTasksWithProject().filter(t => t.projectStatus !== 'cancelled');
+  const now = new Date();
+  
+  // Calculate executive metrics
+  const metrics = {
+    totalProjects: projects.length,
+    totalTasks: tasks.length,
+    completed: tasks.filter(t => t.status === 'done').length,
+    inProgress: tasks.filter(t => t.status === 'in-progress').length,
+    blocked: tasks.filter(t => t.status === 'blocked').length,
+    atRisk: tasks.filter(t => t.riskState === 'at-risk' || t.riskState === 'critical').length,
+    critical: tasks.filter(t => t.priority === 'critical').length,
+    overdue: tasks.filter(t => t.dueDate && new Date(t.dueDate) < now).length,
+  };
+  
+  // Project summaries
+  const projectSummaries = projects.map(p => {
+    const pTasks = (p.tasks || []).filter(t => t.status !== 'done');
+    return {
+      name: p.name,
+      status: p.status,
+      total: (p.tasks || []).length,
+      active: pTasks.length,
+      blocked: pTasks.filter(t => t.status === 'blocked').length,
+      atRisk: pTasks.filter(t => t.riskState === 'at-risk' || t.riskState === 'critical').length,
+    };
+  }).sort((a, b) => {
+    // Sort by blocked/at-risk first
+    if (a.blocked !== b.blocked) return b.blocked - a.blocked;
+    if (a.atRisk !== b.atRisk) return b.atRisk - a.atRisk;
+    return b.active - a.active;
+  }).slice(0, 6);
+  
+  // Highlight items
+  const blockedTasks = tasks.filter(t => t.status === 'blocked').slice(0, 5);
+  const criticalTasks = tasks.filter(t => t.priority === 'critical' && t.status !== 'done').slice(0, 5);
+  const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < now && t.status !== 'done').slice(0, 5);
+  
+  const grid = document.getElementById('execGrid');
+  const highlights = document.getElementById('execHighlights');
+  const timestamp = document.getElementById('execTimestamp');
+  
+  timestamp.textContent = `As of ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+  
+  // Project cards
+  grid.innerHTML = projectSummaries.map(p => `
+    <div class="exec-project">
+      <div class="exec-project-header">
+        <span class="exec-project-name">${escapeHtml(p.name)}</span>
+        ${projectStatusBadge(p.status)}
+      </div>
+      <div class="exec-metrics">
+        <div class="exec-metric">
+          <div class="exec-metric-value">${p.total}</div>
+          <div class="exec-metric-label">Total</div>
+        </div>
+        <div class="exec-metric">
+          <div class="exec-metric-value">${p.active}</div>
+          <div class="exec-metric-label">Active</div>
+        </div>
+        <div class="exec-metric">
+          <div class="exec-metric-value ${p.blocked ? 'danger' : ''}">${p.blocked}</div>
+          <div class="exec-metric-label">Blocked</div>
+        </div>
+        <div class="exec-metric">
+          <div class="exec-metric-value ${p.atRisk ? 'warning' : ''}">${p.atRisk}</div>
+          <div class="exec-metric-label">At Risk</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  // Highlights
+  highlights.innerHTML = `
+    <div class="exec-highlight ${blockedTasks.length ? 'danger' : ''}">
+      <div class="exec-highlight-title">Blocked Tasks</div>
+      <div class="exec-highlight-count">${metrics.blocked}</div>
+      ${blockedTasks.length ? `<div class="exec-highlight-list">${blockedTasks.map(t => escapeHtml(t.title)).slice(0, 3).join('<br>')}</div>` : ''}
+    </div>
+    <div class="exec-highlight ${criticalTasks.length ? 'danger' : ''}">
+      <div class="exec-highlight-title">Critical Priority</div>
+      <div class="exec-highlight-count">${metrics.critical}</div>
+      ${criticalTasks.length ? `<div class="exec-highlight-list">${criticalTasks.map(t => escapeHtml(t.title)).slice(0, 3).join('<br>')}</div>` : ''}
+    </div>
+    <div class="exec-highlight ${overdueTasks.length ? 'warning' : ''}">
+      <div class="exec-highlight-title">Overdue</div>
+      <div class="exec-highlight-count">${metrics.overdue}</div>
+      ${overdueTasks.length ? `<div class="exec-highlight-list">${overdueTasks.map(t => escapeHtml(t.title)).slice(0, 3).join('<br>')}</div>` : ''}
+    </div>
+  `;
+}
+
+// View mode toggle
+function setupViewModeToggle() {
+  const buttons = document.querySelectorAll('.view-mode-btn');
+  const executiveSummary = document.getElementById('executiveSummary');
+  const insightStrip = document.getElementById('insightStrip');
+  const focusNowPanel = document.getElementById('focusNowPanel');
+  const mainLayout = document.querySelector('.layout:not(.executive-summary)');
+  
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const mode = btn.dataset.mode;
+      if (mode === 'executive') {
+        executiveSummary.style.display = 'block';
+        insightStrip.style.display = 'none';
+        focusNowPanel.style.display = 'none';
+        mainLayout.style.display = 'none';
+        renderExecutiveSummary();
+      } else {
+        executiveSummary.style.display = 'none';
+        insightStrip.style.display = 'grid';
+        renderFocusNow();
+        mainLayout.style.display = 'grid';
+        render();
+      }
+    });
+  });
+}

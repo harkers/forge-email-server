@@ -193,10 +193,10 @@ services:
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-090 | Build recommendation engine (Focus now algorithm) | 4h | TODO |
+| FP-090 | Build recommendation engine (Focus now algorithm) | 4h | ✅ DONE |
 | FP-091 | Add dependency visualisation (task links, blockers) | 4h | TODO |
 | FP-092 | Implement multi-workspace rollups | 4h | TODO |
-| FP-093 | Build executive summary mode | 3h | TODO |
+| FP-093 | Build executive summary mode | 3h | ✅ DONE |
 | FP-094 | Add WebSocket for real-time updates (replace polling) | 3h | TODO |
 
 **Deliverables:**

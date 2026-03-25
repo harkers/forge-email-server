@@ -24,7 +24,21 @@
           <div class="metric"><span id="blockedCount">0</span><label>Blocked</label></div>
           <div class="metric"><span id="atRiskCount">0</span><label>At Risk</label></div>
         </div>
+        <div class="view-mode-toggle">
+          <button class="view-mode-btn active" data-mode="full">Full View</button>
+          <button class="view-mode-btn" data-mode="executive">Executive</button>
+        </div>
       </header>
+
+      <!-- FP-093: Executive Summary -->
+      <section class="executive-summary" id="executiveSummary" style="display: none;">
+        <div class="exec-header">
+          <h2>Executive Summary</h2>
+          <span class="exec-timestamp" id="execTimestamp">As of —</span>
+        </div>
+        <div class="exec-grid" id="execGrid"></div>
+        <div class="exec-highlights" id="execHighlights"></div>
+      </section>
 
       <section class="dashboard-grid">
         <article class="panel dash-panel">
