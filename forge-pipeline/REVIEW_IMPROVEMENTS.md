@@ -20,7 +20,7 @@
 
 ### ⚠️ Current Limitations
 
-1. **Port conflict**: Host nginx occupies 4173, blocking web container startup
+1. **Port 4173 shared with DDH**: The `openclaw-dynamic-ddh-web` container (DDH frontend) runs in host network mode and listens on port 4173. Forge Pipeline correctly runs on port 4174. This is intentional, not a conflict.
 2. **No caching layer**: Every request hits SQLite directly
 3. **No connection pooling**: SQLite is file-based, but concurrent writes could block
 4. **No rate limiting**: API is open if no key is set
@@ -37,14 +37,7 @@
 
 ### 🔴 Critical (Do Now)
 
-#### 1. Resolve Port Conflict
-**Problem:** Host nginx occupies port 4173  
-**Solution:** 
-- Stop host nginx: `sudo systemctl stop nginx`
-- Or change compose port to 4174
-- Or configure host nginx to proxy_pass to container
-
-**Impact:** Blocks deployment entirely
+_No critical blockers identified. Forge Pipeline is operational on port 4174._
 
 ---
 
@@ -283,8 +276,7 @@ session:{token}            # Future session storage
 
 ## Implementation Priority
 
-1. **Port conflict** — blocks deployment
-2. **Redis cache** — immediate performance gain
+1. **Redis cache** — immediate performance gain
 3. **Pagination** — prevents future breakage
 4. **Request logging** — observability
 5. **Full-text search** — better UX
@@ -298,11 +290,18 @@ session:{token}            # Future session storage
 
 ## Next Actions
 
-1. Fix port conflict (stop host nginx or change port)
-2. Add Redis service to docker-compose
-3. Implement summary caching in server.py
-4. Add pagination to list endpoints
-5. Add access logging
+1. Add Redis service to docker-compose
+2. Implement summary caching in server.py
+3. Add pagination to list endpoints
+4. Add access logging
+
+---
+
+## Port Configuration Note
+
+**Port 4173** is occupied by `openclaw-dynamic-ddh-web` (DDH frontend), which runs in Docker host network mode and binds directly to port 4173 on the host. This is intentional — DDH and Forge Pipeline share the same API (port 4181) but have separate web frontends.
+
+**Port 4174** is the correct port for Forge Pipeline web UI. This is working as designed.
 
 ---
 

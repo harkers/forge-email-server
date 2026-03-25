@@ -18,36 +18,13 @@ docker-compose up -d --build
 
 ## Default Ports
 
-- **UI:** `http://localhost:4174` (4173 occupied by host nginx)
+- **UI:** `http://localhost:4174`
 - **API (direct):** `http://localhost:4181`
 - **API (via UI proxy):** `http://localhost:4174/api/health`
 
-### Port 4173 Conflict
+### Port 4173 / 4174 Note
 
-Host nginx occupies 4173 (system service). To reclaim it:
-```bash
-sudo systemctl stop nginx
-# Then edit docker-compose.yml to use 4173:80
-```
-
-Or configure host nginx to proxy_pass to this container.
-
-### Option 3: Configure host nginx as reverse proxy
-Add upstream in host nginx config:
-```nginx
-upstream forge_pipeline {
-    server 127.0.0.1:4173;
-}
-
-server {
-    listen 4173;
-    location / {
-        proxy_pass http://forge_pipeline;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+Port 4173 is occupied by `openclaw-dynamic-ddh-web`, which runs in Docker host network mode and serves the DDH frontend. Forge Pipeline correctly runs on port 4174. Both services share the same API backend (port 4181). This is working as designed.
 
 ## Architecture
 
@@ -64,7 +41,7 @@ Both containers have healthchecks:
 Check status:
 ```bash
 docker-compose ps
-curl http://localhost:4173/api/health
+curl http://localhost:4174/api/health
 ```
 
 ## Environment Variables
@@ -80,9 +57,9 @@ If `FORGE_PIPELINE_API_KEY` is set:
 
 ## URLs
 
-- **UI**: `http://localhost:4173`
+- **UI**: `http://localhost:4174`
 - **API (direct)**: `http://localhost:4181`
-- **API (via UI proxy)**: `http://localhost:4173/api/health`
+- **API (via UI proxy)**: `http://localhost:4174/api/health`
 
 ## Logs
 
