@@ -109,6 +109,69 @@ Minimum evidence before acceptance:
 - roadmap distinctions between idea/planning/implementation are clear
 - next actions are concrete
 
+## Evidence examples
+
+### Build/fix evidence
+Valid evidence:
+- `git log --oneline -5` showing commits in expected scope
+- `git diff main --stat` showing changed files
+- `npm run test` or equivalent passing with output
+- `npm run build` or equivalent succeeding
+- file paths confirmed to exist: `ls -la src/components/NewComponent.tsx`
+
+Invalid evidence:
+- "done" or "fixed" without specifics
+- commit hash only without showing what changed
+- test command that doesn't exist in repo
+- claiming files exist without listing them
+
+### Deployment evidence
+Valid evidence:
+- `curl -s http://localhost:4173/health` returning expected response
+- `docker ps` showing container running
+- screenshot or endpoint response confirming service is live
+- rollback procedure documented before deployment
+
+Invalid evidence:
+- "deployed" without verification
+- container started without health check
+- no rollback plan for production
+
+### Research/advisory evidence
+Valid evidence:
+- citations with source URLs
+- quotes from original documents
+- explicit "unknown" sections for gaps
+- confidence level stated
+
+Invalid evidence:
+- findings without sources
+- hiding uncertainty in polished language
+- claiming expertise without evidence
+
+## Failure handling
+
+### When verification fails
+1. **First pass:** Ask worker to tighten evidence
+   - Request specific proof
+   - Ask for missing files/commands/outputs
+2. **Second pass:** If still ambiguous, escalate to manager
+3. **Manager decision:**
+   - Reject with clear defects
+   - Reroute to different specialist
+   - Accept with documented uncertainty
+   - Escalate to human
+
+### How many tightening passes?
+- Maximum 2 passes before escalation
+- If evidence is ambiguous after 2 passes, the task is not well-defined enough
+- Escalate to human or decompose further
+
+### Reject vs reroute
+- **Reject:** Worker did the wrong thing or quality is insufficient
+- **Reroute:** Worker is wrong role for the task (e.g., sent coding-worker for research task)
+- **Escalate:** Manager cannot resolve ambiguity, needs human decision
+
 ## Triage questions for the manager
 
 Ask internally:
@@ -133,6 +196,16 @@ Do not:
 - let drafting hide uncertainty from research or incident work
 - mark Forge Pipeline or roadmap status ahead of reality
 - turn deployment diagnosis into speculative guesswork
+
+## Companion documents
+
+- **agent-catalog.md** — role definitions, ownership boundaries, workflow patterns
+- **model-routing-matrix.md** — model assignments, escalation paths, cost guidance
+- **openclaw-execution-playbook.md** — how to spawn/steer sessions in OpenClaw
+
+Use the catalog for "what roles exist" and "what each owns".
+Use the routing matrix for "which model for which role".
+Use this runbook for "how to route work to agents".
 
 ## OpenClaw execution note
 

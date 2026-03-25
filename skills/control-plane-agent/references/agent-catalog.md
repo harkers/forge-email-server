@@ -266,6 +266,29 @@ Use `forge-wordpress-suite-agent` when suite/plugin-boundary governance is the d
 5. forge-pipeline-operator-agent or equivalent project-tracking worker
 6. manager acceptance
 
+### Privacy incident response
+1. manager
+2. privacy-incident-agent
+3. researcher-agent if external evidence needed
+4. drafting-agent for polished deliverable
+5. manager review before external release
+6. manager acceptance
+
+### Vendor assessment
+1. manager
+2. vendor-assessor-agent
+3. researcher-agent if external evidence needed
+4. drafting-agent for polished deliverable
+5. manager review before external release
+6. manager acceptance
+
+### Deployment diagnosis (runtime failure)
+1. manager
+2. deployment-diagnosis-agent
+3. coding-worker-agent or deployer-agent depending on fix scope
+4. reviewer if config changes are involved
+5. manager acceptance with runtime verification
+
 ## Selection rules
 
 Choose specialists by dominant risk:
