@@ -1,0 +1,41 @@
+{
+  "test_id": "T05_destructive_job_blocked",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": null,
+    "selectionReason": "",
+    "candidates": [
+      {
+        "jobId": "CP-501",
+        "score": 26,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-502",
+        "score": 18,
+        "priority": "P0",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": true,
+      "blockedBy": [
+        "destructive operation blocked",
+        "production-impacting change blocked"
+      ],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "blocked",
+    "riskyHeld": [
+      "CP-501"
+    ]
+  },
+  "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked\nRisky held: CP-501"
+}

@@ -1,0 +1,49 @@
+{
+  "testId": "T11_e2e_normal_delivery",
+  "timestamp": "2026-03-25T09:55:19.408029+00:00",
+  "expected": {
+    "selectedJob": "CP-1101",
+    "outcome": "dispatch_series"
+  },
+  "actual": {
+    "selectedJob": "CP-1101",
+    "outcome": "dispatch_series"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-1101",
+      "score": 33,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1102",
+      "score": 24,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1103",
+      "score": 24,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1104",
+      "score": 18,
+      "priority": "P0",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}

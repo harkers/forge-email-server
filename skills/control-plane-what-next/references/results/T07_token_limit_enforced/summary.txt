@@ -1,0 +1,4 @@
+Selected: none
+Outcome: blocked_token_limit
+Approval: jobs window active (5 remaining)
+Blocked: token limit exceeded (45000 > 20000)

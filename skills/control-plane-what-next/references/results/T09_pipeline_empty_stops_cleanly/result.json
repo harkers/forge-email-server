@@ -1,0 +1,23 @@
+{
+  "test_id": "T09_pipeline_empty_stops_cleanly",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": null,
+    "selectionReason": "",
+    "candidates": [],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "no_work",
+    "riskyHeld": []
+  },
+  "summary": "Selected: none\nOutcome: no_work\nApproval: jobs window active (5 remaining)"
+}

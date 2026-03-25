@@ -1,0 +1,5 @@
+Selected: CP-1301
+Outcome: failure_chain_paused
+Priority: P0 (score: 34)
+Title: Repair broken queue scheduler
+Approval: jobs window active (5 remaining)

@@ -1,0 +1,5 @@
+Selected: CP-106
+Outcome: dispatch
+Priority: P0 (score: 34)
+Title: Repair pipeline auth for worker group
+Approval: jobs window active (5 remaining)

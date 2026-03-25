@@ -1,0 +1,30 @@
+{
+  "test_id": "T04_time_window_expires",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": null,
+    "selectionReason": "",
+    "candidates": [
+      {
+        "jobId": "CP-401",
+        "score": 22,
+        "priority": "P0",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": false,
+      "mode": "time",
+      "reason": "time window expired"
+    },
+    "outcome": "approval_required",
+    "riskyHeld": []
+  },
+  "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired"
+}

@@ -1,0 +1,31 @@
+{
+  "testId": "T04_time_window_expires",
+  "timestamp": "2026-03-25T09:55:19.404510+00:00",
+  "expected": {
+    "selectedJob": null,
+    "outcome": "approval_required"
+  },
+  "actual": {
+    "selectedJob": null,
+    "outcome": "approval_required"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-401",
+      "score": 22,
+      "priority": "P0",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": false,
+    "mode": "time",
+    "reason": "time window expired"
+  }
+}

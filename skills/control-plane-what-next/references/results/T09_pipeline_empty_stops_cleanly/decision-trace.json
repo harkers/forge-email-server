@@ -1,0 +1,24 @@
+{
+  "testId": "T09_pipeline_empty_stops_cleanly",
+  "timestamp": "2026-03-25T09:55:19.407345+00:00",
+  "expected": {
+    "selectedJob": null,
+    "outcome": "no_work"
+  },
+  "actual": {
+    "selectedJob": null,
+    "outcome": "no_work"
+  },
+  "passed": true,
+  "candidates": [],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "timestamp": "2026-03-25T09:55:19.406310+00:00",
+  "expected": {
+    "selectedJob": "CP-801",
+    "outcome": "dependents_blocked_after_failure"
+  },
+  "actual": {
+    "selectedJob": "CP-801",
+    "outcome": "dependents_blocked_after_failure"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-801",
+      "score": 34,
+      "priority": "P0",
+      "eligible": false
+    },
+    {
+      "jobId": "CP-802",
+      "score": 24,
+      "priority": "P0",
+      "eligible": false
+    },
+    {
+      "jobId": "CP-803",
+      "score": 24,
+      "priority": "P0",
+      "eligible": false
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "testId": "T10_session_restart_state_recovery",
+  "timestamp": "2026-03-25T09:55:19.407690+00:00",
+  "expected": {
+    "selectedJob": "CP-1004",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-1004",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-1004",
+      "score": 20,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1005",
+      "score": 18,
+      "priority": "P0",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (3 remaining)"
+  }
+}

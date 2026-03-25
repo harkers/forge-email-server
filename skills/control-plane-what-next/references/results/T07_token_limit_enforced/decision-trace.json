@@ -1,0 +1,39 @@
+{
+  "testId": "T07_token_limit_enforced",
+  "timestamp": "2026-03-25T09:55:19.405856+00:00",
+  "expected": {
+    "selectedJob": null,
+    "outcome": "blocked_token_limit"
+  },
+  "actual": {
+    "selectedJob": null,
+    "outcome": "blocked_token_limit"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-701",
+      "score": 22,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-702",
+      "score": 18,
+      "priority": "P0",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": true,
+    "blockedBy": [
+      "token limit exceeded (45000 > 20000)"
+    ],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "jobId": "CP-106",
+    "title": "Repair pipeline auth for worker group",
+    "taskType": "infrastructure",
+    "impact": "high",
+    "deadline": "2026-03-25T18:00:00Z",
+    "blocks": [
+      "CP-107",
+      "CP-109",
+      "CP-110"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 42000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-112",
+    "title": "Refactor logging wrapper",
+    "taskType": "coding",
+    "impact": "medium",
+    "deadline": "2026-03-25T14:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 18000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-118",
+    "title": "Write ops runbook summary",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-27T12:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 8000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-119",
+    "title": "Code review for cache patch",
+    "taskType": "review",
+    "impact": "medium",
+    "deadline": "2026-03-25T17:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 16000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "test_id": "T12_e2e_risky_job_mid_run",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-1201",
+    "selectionReason": "Selected CP-1201 (score: 25, priority: P0)",
+    "candidates": [
+      {
+        "jobId": "CP-1201",
+        "score": 25,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1203",
+        "score": 25,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1202",
+        "score": 18,
+        "priority": "P0",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "risky_job_held",
+    "riskyHeld": [
+      "CP-1203"
+    ]
+  },
+  "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203"
+}

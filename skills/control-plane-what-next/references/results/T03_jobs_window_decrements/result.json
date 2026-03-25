@@ -1,0 +1,36 @@
+{
+  "test_id": "T03_jobs_window_decrements",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-301",
+    "selectionReason": "Selected CP-301 (score: 20, priority: P0)",
+    "candidates": [
+      {
+        "jobId": "CP-301",
+        "score": 20,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-302",
+        "score": 16,
+        "priority": "P1",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (2 remaining)"
+    },
+    "outcome": "dispatch",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 20)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)"
+}

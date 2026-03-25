@@ -1,0 +1,48 @@
+{
+  "test_id": "T01_priority_p0_beats_all",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-106",
+    "selectionReason": "Selected CP-106 (score: 34, priority: P0)",
+    "candidates": [
+      {
+        "jobId": "CP-106",
+        "score": 34,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-112",
+        "score": 20,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-119",
+        "score": 20,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-118",
+        "score": 16,
+        "priority": "P1",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "dispatch",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-106\nOutcome: dispatch\nPriority: P0 (score: 34)\nTitle: Repair pipeline auth for worker group\nApproval: jobs window active (5 remaining)"
+}

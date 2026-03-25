@@ -1,0 +1,36 @@
+{
+  "test_id": "T06_retry_then_quarantine",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-601",
+    "selectionReason": "",
+    "candidates": [
+      {
+        "jobId": "CP-601",
+        "score": 34,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-602",
+        "score": 24,
+        "priority": "P0",
+        "eligible": false
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "quarantined_after_retry",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)"
+}

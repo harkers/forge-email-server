@@ -1,0 +1,508 @@
+[
+  {
+    "test_id": "T01_priority_p0_beats_all",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-106",
+      "selectionReason": "Selected CP-106 (score: 34, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-106",
+          "score": 34,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-112",
+          "score": 20,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-119",
+          "score": 20,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-118",
+          "score": 16,
+          "priority": "P1",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "dispatch",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-106\nOutcome: dispatch\nPriority: P0 (score: 34)\nTitle: Repair pipeline auth for worker group\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T02_tiebreak_deadline",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-202",
+      "selectionReason": "Selected CP-202 (score: 25, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-202",
+          "score": 25,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-203",
+          "score": 23,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-204",
+          "score": 16,
+          "priority": "P1",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "dispatch",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-202\nOutcome: dispatch\nPriority: P0 (score: 25)\nTitle: Review release checklist before handoff\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T03_jobs_window_decrements",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-301",
+      "selectionReason": "Selected CP-301 (score: 20, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-301",
+          "score": 20,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-302",
+          "score": 16,
+          "priority": "P1",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (2 remaining)"
+      },
+      "outcome": "dispatch",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 20)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)"
+  },
+  {
+    "test_id": "T04_time_window_expires",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": null,
+      "selectionReason": "",
+      "candidates": [
+        {
+          "jobId": "CP-401",
+          "score": 22,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": false,
+        "mode": "time",
+        "reason": "time window expired"
+      },
+      "outcome": "approval_required",
+      "riskyHeld": []
+    },
+    "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired"
+  },
+  {
+    "test_id": "T05_destructive_job_blocked",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": null,
+      "selectionReason": "",
+      "candidates": [
+        {
+          "jobId": "CP-501",
+          "score": 26,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-502",
+          "score": 18,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": true,
+        "blockedBy": [
+          "destructive operation blocked",
+          "production-impacting change blocked"
+        ],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "blocked",
+      "riskyHeld": [
+        "CP-501"
+      ]
+    },
+    "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked\nRisky held: CP-501"
+  },
+  {
+    "test_id": "T06_retry_then_quarantine",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-601",
+      "selectionReason": "",
+      "candidates": [
+        {
+          "jobId": "CP-601",
+          "score": 34,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-602",
+          "score": 24,
+          "priority": "P0",
+          "eligible": false
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "quarantined_after_retry",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T07_token_limit_enforced",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": null,
+      "selectionReason": "",
+      "candidates": [
+        {
+          "jobId": "CP-701",
+          "score": 22,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-702",
+          "score": 18,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": true,
+        "blockedBy": [
+          "token limit exceeded (45000 > 20000)"
+        ],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "blocked_token_limit",
+      "riskyHeld": []
+    },
+    "summary": "Selected: none\nOutcome: blocked_token_limit\nApproval: jobs window active (5 remaining)\nBlocked: token limit exceeded (45000 > 20000)"
+  },
+  {
+    "test_id": "T08_dependency_failure_blocks_children",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-801",
+      "selectionReason": "Parent CP-801 failed; 2 dependents blocked",
+      "candidates": [
+        {
+          "jobId": "CP-801",
+          "score": 34,
+          "priority": "P0",
+          "eligible": false
+        },
+        {
+          "jobId": "CP-802",
+          "score": 24,
+          "priority": "P0",
+          "eligible": false
+        },
+        {
+          "jobId": "CP-803",
+          "score": 24,
+          "priority": "P0",
+          "eligible": false
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "dependents_blocked_after_failure",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T09_pipeline_empty_stops_cleanly",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": null,
+      "selectionReason": "",
+      "candidates": [],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "no_work",
+      "riskyHeld": []
+    },
+    "summary": "Selected: none\nOutcome: no_work\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T10_session_restart_state_recovery",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-1004",
+      "selectionReason": "Selected CP-1004 (score: 20, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-1004",
+          "score": 20,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1005",
+          "score": 18,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (3 remaining)"
+      },
+      "outcome": "dispatch",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-1004\nOutcome: dispatch\nPriority: P0 (score: 20)\nTitle: Resume safe backlog processing after restart\nApproval: jobs window active (3 remaining)"
+  },
+  {
+    "test_id": "T11_e2e_normal_delivery",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-1101",
+      "selectionReason": "Selected CP-1101 (score: 33, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-1101",
+          "score": 33,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1102",
+          "score": 24,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1103",
+          "score": 24,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1104",
+          "score": 18,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "dispatch_series",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)"
+  },
+  {
+    "test_id": "T12_e2e_risky_job_mid_run",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-1201",
+      "selectionReason": "Selected CP-1201 (score: 25, priority: P0)",
+      "candidates": [
+        {
+          "jobId": "CP-1201",
+          "score": 25,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1203",
+          "score": 25,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1202",
+          "score": 18,
+          "priority": "P0",
+          "eligible": true
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "risky_job_held",
+      "riskyHeld": [
+        "CP-1203"
+      ]
+    },
+    "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203"
+  },
+  {
+    "test_id": "T13_e2e_failure_chain",
+    "passed": true,
+    "errors": [],
+    "result": {
+      "selectedJob": "CP-1301",
+      "selectionReason": "",
+      "candidates": [
+        {
+          "jobId": "CP-1301",
+          "score": 34,
+          "priority": "P0",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1303",
+          "score": 25,
+          "priority": "P0",
+          "eligible": false
+        },
+        {
+          "jobId": "CP-1302",
+          "score": 24,
+          "priority": "P0",
+          "eligible": false
+        }
+      ],
+      "safetyEvaluation": {
+        "blocked": false,
+        "blockedBy": [],
+        "requiresOperatorApproval": false
+      },
+      "approvalDecision": {
+        "approved": true,
+        "mode": "jobs",
+        "reason": "jobs window active (5 remaining)"
+      },
+      "outcome": "failure_chain_paused",
+      "riskyHeld": []
+    },
+    "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)"
+  }
+]

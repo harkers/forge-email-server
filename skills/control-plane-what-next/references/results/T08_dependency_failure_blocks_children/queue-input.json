@@ -1,0 +1,54 @@
+[
+  {
+    "jobId": "CP-801",
+    "title": "Repair shared dependency resolver",
+    "taskType": "coding",
+    "impact": "high",
+    "deadline": "2026-03-25T12:30:00Z",
+    "blocks": [
+      "CP-802",
+      "CP-803"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 28000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": "Force this job to fail twice."
+  },
+  {
+    "jobId": "CP-802",
+    "title": "Execute dependent worker sync",
+    "taskType": "infrastructure",
+    "impact": "medium",
+    "deadline": "2026-03-25T15:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 15000,
+    "dependencies": [
+      "CP-801"
+    ],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-803",
+    "title": "Run dependent validation",
+    "taskType": "review",
+    "impact": "medium",
+    "deadline": "2026-03-25T16:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 10000,
+    "dependencies": [
+      "CP-801"
+    ],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

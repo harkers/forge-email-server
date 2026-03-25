@@ -1,0 +1,43 @@
+{
+  "testId": "T02_tiebreak_deadline",
+  "timestamp": "2026-03-25T09:55:19.402788+00:00",
+  "expected": {
+    "selectedJob": "CP-202",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-202",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-202",
+      "score": 25,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-203",
+      "score": 23,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-204",
+      "score": 16,
+      "priority": "P1",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}

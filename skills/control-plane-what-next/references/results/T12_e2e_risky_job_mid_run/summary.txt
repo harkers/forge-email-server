@@ -1,0 +1,6 @@
+Selected: CP-1201
+Outcome: risky_job_held
+Priority: P0 (score: 25)
+Title: Apply safe log routing fix
+Approval: jobs window active (5 remaining)
+Risky held: CP-1203

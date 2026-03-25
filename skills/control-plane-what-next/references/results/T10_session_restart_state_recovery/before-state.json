@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "mode": "jobs",
+  "jobsRemaining": 3,
+  "maxJobs": 5,
+  "windowStartedAt": "2026-03-25T09:00:00Z",
+  "windowExpiresAt": null,
+  "followNewJobs": false,
+  "allowDestructive": false,
+  "allowProdChanges": false,
+  "maxTokensPerJob": 120000,
+  "maxTokensPerWindow": 400000,
+  "windowTokensUsed": 91000,
+  "windowCompletedJobs": [
+    "CP-1001",
+    "CP-1002"
+  ],
+  "sessionCompletedJobs": [
+    "CP-901",
+    "CP-902",
+    "CP-1001",
+    "CP-1002"
+  ],
+  "lastDispatchedJobId": "CP-1002",
+  "lastUpdatedAt": "2026-03-25T10:20:00Z"
+}

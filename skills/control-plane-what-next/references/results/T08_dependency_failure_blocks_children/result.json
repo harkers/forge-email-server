@@ -1,0 +1,42 @@
+{
+  "test_id": "T08_dependency_failure_blocks_children",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-801",
+    "selectionReason": "Parent CP-801 failed; 2 dependents blocked",
+    "candidates": [
+      {
+        "jobId": "CP-801",
+        "score": 34,
+        "priority": "P0",
+        "eligible": false
+      },
+      {
+        "jobId": "CP-802",
+        "score": 24,
+        "priority": "P0",
+        "eligible": false
+      },
+      {
+        "jobId": "CP-803",
+        "score": 24,
+        "priority": "P0",
+        "eligible": false
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "dependents_blocked_after_failure",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)"
+}

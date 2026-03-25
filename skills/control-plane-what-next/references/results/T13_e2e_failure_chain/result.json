@@ -1,0 +1,42 @@
+{
+  "test_id": "T13_e2e_failure_chain",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-1301",
+    "selectionReason": "",
+    "candidates": [
+      {
+        "jobId": "CP-1301",
+        "score": 34,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1303",
+        "score": 25,
+        "priority": "P0",
+        "eligible": false
+      },
+      {
+        "jobId": "CP-1302",
+        "score": 24,
+        "priority": "P0",
+        "eligible": false
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "failure_chain_paused",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)"
+}

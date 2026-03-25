@@ -1,0 +1,48 @@
+{
+  "test_id": "T11_e2e_normal_delivery",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-1101",
+    "selectionReason": "Selected CP-1101 (score: 33, priority: P0)",
+    "candidates": [
+      {
+        "jobId": "CP-1101",
+        "score": 33,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1102",
+        "score": 24,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1103",
+        "score": 24,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1104",
+        "score": 18,
+        "priority": "P0",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (5 remaining)"
+    },
+    "outcome": "dispatch_series",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)"
+}

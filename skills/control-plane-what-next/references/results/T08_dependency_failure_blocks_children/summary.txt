@@ -1,0 +1,5 @@
+Selected: CP-801
+Outcome: dependents_blocked_after_failure
+Priority: P0 (score: 34)
+Title: Repair shared dependency resolver
+Approval: jobs window active (5 remaining)

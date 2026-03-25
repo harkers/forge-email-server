@@ -1,0 +1,36 @@
+[
+  {
+    "jobId": "CP-601",
+    "title": "Patch malformed pipeline metadata parser",
+    "taskType": "coding",
+    "impact": "high",
+    "deadline": "2026-03-25T13:00:00Z",
+    "blocks": [
+      "CP-602"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 24000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": "Simulate transient failure then repeated failure."
+  },
+  {
+    "jobId": "CP-602",
+    "title": "Continue downstream dispatcher test",
+    "taskType": "coding",
+    "impact": "medium",
+    "deadline": "2026-03-25T16:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 12000,
+    "dependencies": [
+      "CP-601"
+    ],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

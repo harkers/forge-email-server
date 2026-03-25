@@ -1,0 +1,36 @@
+{
+  "test_id": "T10_session_restart_state_recovery",
+  "passed": true,
+  "errors": [],
+  "result": {
+    "selectedJob": "CP-1004",
+    "selectionReason": "Selected CP-1004 (score: 20, priority: P0)",
+    "candidates": [
+      {
+        "jobId": "CP-1004",
+        "score": 20,
+        "priority": "P0",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1005",
+        "score": 18,
+        "priority": "P0",
+        "eligible": true
+      }
+    ],
+    "safetyEvaluation": {
+      "blocked": false,
+      "blockedBy": [],
+      "requiresOperatorApproval": false
+    },
+    "approvalDecision": {
+      "approved": true,
+      "mode": "jobs",
+      "reason": "jobs window active (3 remaining)"
+    },
+    "outcome": "dispatch",
+    "riskyHeld": []
+  },
+  "summary": "Selected: CP-1004\nOutcome: dispatch\nPriority: P0 (score: 20)\nTitle: Resume safe backlog processing after restart\nApproval: jobs window active (3 remaining)"
+}

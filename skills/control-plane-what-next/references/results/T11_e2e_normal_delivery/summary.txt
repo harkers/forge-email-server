@@ -1,0 +1,5 @@
+Selected: CP-1101
+Outcome: dispatch_series
+Priority: P0 (score: 33)
+Title: Restore worker auth trust chain
+Approval: jobs window active (5 remaining)

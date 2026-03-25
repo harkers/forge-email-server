@@ -1,0 +1,43 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "timestamp": "2026-03-25T09:55:19.408371+00:00",
+  "expected": {
+    "selectedJob": "CP-1201",
+    "outcome": "risky_job_held"
+  },
+  "actual": {
+    "selectedJob": "CP-1201",
+    "outcome": "risky_job_held"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-1201",
+      "score": 25,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1203",
+      "score": 25,
+      "priority": "P0",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1202",
+      "score": 18,
+      "priority": "P0",
+      "eligible": true
+    }
+  ],
+  "safetyEvaluation": {
+    "blocked": false,
+    "blockedBy": [],
+    "requiresOperatorApproval": false
+  },
+  "approvalDecision": {
+    "approved": true,
+    "mode": "jobs",
+    "reason": "jobs window active (5 remaining)"
+  }
+}
