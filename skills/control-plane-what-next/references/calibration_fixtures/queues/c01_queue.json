@@ -1,0 +1,37 @@
+[
+  {
+    "jobId": "CP-C01-A",
+    "title": "Restore auth chain for stalled release train",
+    "taskType": "infrastructure",
+    "impact": "critical",
+    "deadline": "2026-03-25T14:00:00Z",
+    "blocks": [
+      "CP-C01-B",
+      "CP-C01-C",
+      "CP-C01-D",
+      "CP-C01-E"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 28000,
+    "dependencies": [],
+    "confidence": 0.97,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T09:00:00Z"
+  },
+  {
+    "jobId": "CP-C01-B",
+    "title": "Update docs",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-27T12:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 6000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T09:05:00Z"
+  }
+]

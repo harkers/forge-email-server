@@ -1,0 +1,8 @@
+{
+  "testId": "C02_true_p1_important_deadline",
+  "jobId": "CP-C02-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

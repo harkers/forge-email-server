@@ -1,0 +1,78 @@
+{
+  "testId": "C10_mixed_queue_distribution",
+  "timestamp": "2026-03-25T13:43:43.766340+00:00",
+  "expected": {
+    "selectedJob": "CP-C10-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C10-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C10-A",
+      "priorityScore": 27,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 15000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C10-D",
+      "priorityScore": 24,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 2,
+      "executionReadiness": 3,
+      "executionEffort": 2,
+      "estimatedTokens": 17000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-C10-A",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C10-B",
+      "priorityScore": 12,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 1,
+      "businessImpact": 3,
+      "executionReadiness": 3,
+      "executionEffort": 2,
+      "estimatedTokens": 20000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-C10-A",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C10-C",
+      "priorityScore": 6,
+      "assignedPriority": "P3",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 1,
+      "businessImpact": 0,
+      "executionReadiness": 2,
+      "executionEffort": 1,
+      "estimatedTokens": 7000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-C10-A",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

@@ -1,0 +1,8 @@
+{
+  "testId": "C10_mixed_queue_distribution",
+  "passed": true,
+  "selectedJob": "CP-C10-A",
+  "selectedPriority": "P1",
+  "selectedScore": 27,
+  "errors": []
+}

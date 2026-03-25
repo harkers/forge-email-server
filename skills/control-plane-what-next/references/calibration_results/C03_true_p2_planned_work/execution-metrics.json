@@ -1,0 +1,10 @@
+{
+  "testId": "C03_true_p2_planned_work",
+  "jobId": "CP-C03-A",
+  "runtimeMs": 1075,
+  "actualTokensUsed": 13140,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 18000,
+  "auditRuntimeMs": 0
+}

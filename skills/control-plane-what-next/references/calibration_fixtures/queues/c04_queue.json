@@ -1,0 +1,17 @@
+[
+  {
+    "jobId": "CP-C04-A",
+    "title": "Polish dashboard spacing",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-04-02T10:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 6000,
+    "dependencies": [],
+    "confidence": 0.55,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T11:10:00Z"
+  }
+]

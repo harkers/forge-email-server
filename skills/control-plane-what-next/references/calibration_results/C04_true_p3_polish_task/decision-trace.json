@@ -1,0 +1,33 @@
+{
+  "testId": "C04_true_p3_polish_task",
+  "timestamp": "2026-03-25T13:43:43.762836+00:00",
+  "expected": {
+    "selectedJob": "CP-C04-A",
+    "priority": "P3",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C04-A",
+    "priority": "P3",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C04-A",
+      "priorityScore": 6,
+      "assignedPriority": "P3",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 1,
+      "businessImpact": 0,
+      "executionReadiness": 2,
+      "executionEffort": 1,
+      "estimatedTokens": 6000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

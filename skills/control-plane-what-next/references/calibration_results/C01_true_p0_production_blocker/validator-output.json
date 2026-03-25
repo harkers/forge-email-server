@@ -1,0 +1,8 @@
+{
+  "testId": "C01_true_p0_production_blocker",
+  "passed": true,
+  "selectedJob": "CP-C01-A",
+  "selectedPriority": "P0",
+  "selectedScore": 52,
+  "errors": []
+}

@@ -3,7 +3,7 @@ name: control-plane-what-next
 description: "Determine the next priority work item after control-plane completes a task. Query Forge Pipeline for pending items, apply deterministic priority scoring, validate against safety gates and approval windows, and dispatch or hold accordingly. Use when control-plane finishes work, when user asks 'what's next', or when setting auto-approve windows."
 ---
 
-# Control Plane: What Next (v2)
+# Control Plane: What Next (v3)
 
 Continuously determine the highest-ranked eligible item in Forge Pipeline, validate against policy and approval rules, select an execution model, and either dispatch or request renewed operator approval.
 
@@ -30,14 +30,14 @@ Continuously determine the highest-ranked eligible item in Forge Pipeline, valid
 
 ## Priority Scoring Model
 
-Each eligible task receives a weighted score:
+Each eligible task receives a calibrated weighted score:
 
 ```
 priorityScore =
   (severity * 3) +
-  (blockingImpact * 3) +
-  (dependencyBreadth * 2) +
+  (blockingBreadth * 3) +
   (deadlineProximity * 2) +
+  (businessImpact * 2) +
   (executionReadiness * 1) -
   (executionEffort * 1)
 ```
@@ -47,27 +47,36 @@ priorityScore =
 | Dimension | Range | Description |
 |-----------|-------|-------------|
 | Severity | 0-5 | Seriousness if not handled |
-| Blocking Impact | 0-5 | Blocks other work |
-| Dependency Breadth | 0-5 | Downstream items affected |
+| Blocking Breadth | 0-5 | Breadth of downstream work blocked |
 | Deadline Proximity | 0-5 | Time urgency |
+| Business Impact | 0-5 | Operational/business significance |
 | Execution Readiness | 0-5 | Well-specified and ready |
 | Execution Effort | 0-5 | Cost (subtractive) |
 
 ### Priority Bands
 
-- **P0** (score 18+): Critical blockers, production issues, security events
-- **P1** (score 13-17): High importance with real urgency or dependency impact
-- **P2** (score 8-12): Standard planned work
-- **P3** (score 0-7): Low-impact improvements, exploratory work
+- **P0** (score 24+): rare, genuine urgency only
+- **P1** (score 16-23): normal important work
+- **P2** (score 8-15): planned work
+- **P3** (score 0-7): polish / low-impact work
+
+### Mandatory P0 Cap Rule
+
+A task must **not** be assigned **P0** unless at least one of these is true:
+- `severity >= 4`
+- `blockingBreadth >= 3`
+- `deadlineProximity >= 4`
+
+If score is in the P0 range but none of those conditions hold, assigned priority is capped at **P1**.
 
 ### Tie-Break Rules
 
-When scores are equal:
-1. Higher blocking impact
-2. Earlier due date
-3. Higher execution readiness
+When scores are equal, apply tie-breaks in this exact order:
+1. Higher blocking breadth
+2. Earlier deadline
+3. Higher business impact
 4. Lower estimated token cost
-5. Older queue age
+5. Older queue insertion time
 6. Lexical taskId as final tie-break
 
 ## Selection Flow
@@ -251,7 +260,9 @@ Action: holding for explicit approval
 
 ## Test Suite
 
-The skill includes a comprehensive test suite validated against 13 test scenarios:
+The skill includes two validated suites:
+
+### Regression suite
 
 | Test ID | Purpose | Status |
 |---------|---------|--------|
@@ -269,9 +280,25 @@ The skill includes a comprehensive test suite validated against 13 test scenario
 | T12 | Risky job held | ✓ |
 | T13 | Failure chain paused | ✓ |
 
+### Calibration suite
+
+| Test ID | Purpose | Status |
+|---------|---------|--------|
+| C01 | True P0 production blocker / genuine urgency | ✓ |
+| C02 | True P1 important deadline | ✓ |
+| C03 | True P2 planned work | ✓ |
+| C04 | True P3 polish task | ✓ |
+| C05 | High score but capped to P1 | ✓ |
+| C06 | Tie-break by blocking breadth | ✓ |
+| C07 | Tie-break by deadline | ✓ |
+| C08 | Tie-break by business impact | ✓ |
+| C09 | Tie-break by estimated tokens | ✓ |
+| C10 | Mixed queue distribution | ✓ |
+
 Run tests:
 ```bash
 python3 skills/control-plane-what-next/references/run_tests.py
+python3 skills/control-plane-what-next/references/run_calibration.py
 ```
 
 ## References

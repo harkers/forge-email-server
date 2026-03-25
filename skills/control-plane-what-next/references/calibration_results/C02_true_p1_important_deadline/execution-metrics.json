@@ -1,0 +1,10 @@
+{
+  "testId": "C02_true_p1_important_deadline",
+  "jobId": "CP-C02-A",
+  "runtimeMs": 852,
+  "actualTokensUsed": 10220,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 14000,
+  "auditRuntimeMs": 0
+}

@@ -1,0 +1,9 @@
+Next job selected: CP-C03-A
+Priority: P2
+Score: 12
+Reason: Highest priority score
+Tie-break: none
+Estimated tokens: 18000
+Safety status: eligible
+Approval window: jobs / jobs window active (5 remaining)
+Action: dispatching now

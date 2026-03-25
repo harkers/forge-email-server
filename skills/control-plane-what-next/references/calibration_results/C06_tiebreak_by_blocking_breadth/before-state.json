@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "jobs",
+  "jobsRemaining": 5,
+  "maxJobs": 5,
+  "windowStartedAt": "2026-03-25T09:00:00Z",
+  "windowExpiresAt": null,
+  "followNewJobs": false,
+  "allowDestructive": false,
+  "allowProdChanges": false,
+  "maxTokensPerJob": 120000,
+  "maxTokensPerWindow": 400000,
+  "windowTokensUsed": 0,
+  "windowCompletedJobs": [],
+  "sessionCompletedJobs": [],
+  "lastDispatchedJobId": null,
+  "lastUpdatedAt": "2026-03-25T09:00:00Z"
+}

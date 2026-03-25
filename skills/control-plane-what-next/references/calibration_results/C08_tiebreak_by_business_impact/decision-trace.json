@@ -1,0 +1,48 @@
+{
+  "testId": "C08_tiebreak_by_business_impact",
+  "timestamp": "2026-03-25T13:43:43.765037+00:00",
+  "expected": {
+    "selectedJob": "CP-C08-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C08-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C08-A",
+      "priorityScore": 23,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 2,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 20000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C08-B",
+      "priorityScore": 21,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 20000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-C08-A",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

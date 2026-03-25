@@ -1,0 +1,17 @@
+[
+  {
+    "jobId": "CP-C03-A",
+    "title": "Planned integration cleanup",
+    "taskType": "coding",
+    "impact": "low",
+    "deadline": "2026-03-29T10:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 18000,
+    "dependencies": [],
+    "confidence": 0.8,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T11:00:00Z"
+  }
+]

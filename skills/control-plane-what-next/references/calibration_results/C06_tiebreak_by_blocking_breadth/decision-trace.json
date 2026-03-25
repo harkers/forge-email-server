@@ -1,0 +1,50 @@
+{
+  "testId": "C06_tiebreak_by_blocking_breadth",
+  "timestamp": "2026-03-25T13:43:43.764113+00:00",
+  "expected": {
+    "selectedJob": "CP-C06-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C06-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C06-A",
+      "priorityScore": 23,
+      "assignedPriority": "P1",
+      "severity": 1,
+      "blockingBreadth": 3,
+      "deadlineProximity": 2,
+      "businessImpact": 3,
+      "executionReadiness": 3,
+      "executionEffort": 2,
+      "estimatedTokens": 18000,
+      "selected": true,
+      "selectedReason": "Highest priority score after tie-break by higher blockingBreadth",
+      "tieBreakReason": "higher blockingBreadth",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C06-B",
+      "priorityScore": 23,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 2,
+      "executionReadiness": 3,
+      "executionEffort": 3,
+      "estimatedTokens": 25000,
+      "selected": false,
+      "selectedReason": "Lost tie-break to CP-C06-A by higher blockingBreadth",
+      "tieBreakReason": "higher blockingBreadth",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": "higher blockingBreadth"
+}

@@ -1,0 +1,10 @@
+{
+  "testId": "C09_tiebreak_by_estimated_tokens",
+  "jobId": "CP-C09-A",
+  "runtimeMs": 963,
+  "actualTokensUsed": 11680,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 16000,
+  "auditRuntimeMs": 0
+}

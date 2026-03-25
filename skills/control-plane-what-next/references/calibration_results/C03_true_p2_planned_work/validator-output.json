@@ -1,0 +1,8 @@
+{
+  "testId": "C03_true_p2_planned_work",
+  "passed": true,
+  "selectedJob": "CP-C03-A",
+  "selectedPriority": "P2",
+  "selectedScore": 12,
+  "errors": []
+}

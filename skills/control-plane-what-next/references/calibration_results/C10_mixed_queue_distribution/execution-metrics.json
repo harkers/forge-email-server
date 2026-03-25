@@ -1,0 +1,10 @@
+{
+  "testId": "C10_mixed_queue_distribution",
+  "jobId": "CP-C10-A",
+  "runtimeMs": 908,
+  "actualTokensUsed": 10950,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 15000,
+  "auditRuntimeMs": 0
+}

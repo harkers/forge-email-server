@@ -1,0 +1,33 @@
+{
+  "testId": "C03_true_p2_planned_work",
+  "timestamp": "2026-03-25T13:43:43.762423+00:00",
+  "expected": {
+    "selectedJob": "CP-C03-A",
+    "priority": "P2",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C03-A",
+    "priority": "P2",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C03-A",
+      "priorityScore": 12,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 1,
+      "businessImpact": 3,
+      "executionReadiness": 3,
+      "executionEffort": 2,
+      "estimatedTokens": 18000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

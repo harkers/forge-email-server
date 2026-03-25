@@ -1,0 +1,10 @@
+{
+  "testId": "C07_tiebreak_by_deadline",
+  "jobId": "CP-C07-A",
+  "runtimeMs": 1075,
+  "actualTokensUsed": 13140,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 18000,
+  "auditRuntimeMs": 0
+}

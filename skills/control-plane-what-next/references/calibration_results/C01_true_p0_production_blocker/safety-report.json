@@ -1,0 +1,8 @@
+{
+  "testId": "C01_true_p0_production_blocker",
+  "jobId": "CP-C01-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

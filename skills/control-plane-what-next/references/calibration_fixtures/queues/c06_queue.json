@@ -1,0 +1,37 @@
+[
+  {
+    "jobId": "CP-C06-A",
+    "title": "Broader blocker",
+    "taskType": "coding",
+    "impact": "low",
+    "deadline": "2026-03-26T18:00:00Z",
+    "blocks": [
+      "A",
+      "B"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 18000,
+    "dependencies": [],
+    "confidence": 0.72,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T08:00:00Z"
+  },
+  {
+    "jobId": "CP-C06-B",
+    "title": "Narrow blocker",
+    "taskType": "planning",
+    "impact": "medium",
+    "deadline": "2026-03-26T18:00:00Z",
+    "blocks": [
+      "A"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 25000,
+    "dependencies": [],
+    "confidence": 0.72,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T08:05:00Z"
+  }
+]

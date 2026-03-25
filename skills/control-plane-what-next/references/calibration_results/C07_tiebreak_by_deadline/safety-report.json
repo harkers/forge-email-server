@@ -1,0 +1,8 @@
+{
+  "testId": "C07_tiebreak_by_deadline",
+  "jobId": "CP-C07-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

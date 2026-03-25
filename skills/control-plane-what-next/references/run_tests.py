@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Control-plane-what-next test runner v4
-Validates priority scoring, safety gates, state transitions, and audit-grade evidence.
+Control-plane-what-next test runner v5
+- calibrated priority model
+- deterministic tie-breaks
+- audit-grade evidence exports
+- legacy regression suite + calibration suite
 """
 
 import json
@@ -13,19 +16,20 @@ from copy import deepcopy
 SCRIPT_DIR = Path(__file__).parent
 FIXTURES_DIR = SCRIPT_DIR / "fixtures"
 RESULTS_DIR = SCRIPT_DIR / "results"
-
-WEIGHTS = {
-    "severity": 3,
-    "blocking_impact": 3,
-    "dependency_breadth": 2,
-    "deadline_proximity": 2,
-    "execution_readiness": 1,
-    "execution_effort": -1,
-}
+CALIBRATION_FIXTURES_DIR = SCRIPT_DIR / "calibration_fixtures"
+CALIBRATION_RESULTS_DIR = SCRIPT_DIR / "calibration_results"
 
 DEADLINE_SCORES = [
-    (4, 5), (24, 4), (72, 3), (168, 2), (float("inf"), 1),
+    (2, 5),
+    (8, 4),
+    (24, 3),
+    (72, 2),
+    (float("inf"), 1),
 ]
+
+
+def now_utc() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class TestState:
@@ -46,13 +50,12 @@ class TestState:
         self.downstream_blocked = {}
         self.slot_consumption_events = []
         self.window_token_events = []
-        self.last_dispatched_job_id = None
-
-    def failure_count(self, job_id: str) -> int:
-        return self.retry_counts.get(job_id, 0)
 
     def is_quarantined(self, job_id: str) -> bool:
         return job_id in self.quarantined_jobs
+
+    def failure_count(self, job_id: str) -> int:
+        return self.retry_counts.get(job_id, 0)
 
     def register_attempt(self, job_id: str):
         self.dispatch_attempts[job_id] = self.dispatch_attempts.get(job_id, 0) + 1
@@ -70,7 +73,7 @@ class TestState:
             "quarantined": True,
             "reason": reason,
             "failedAttempts": self.retry_counts.get(job_id, 0),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": now_utc().isoformat(),
         }
 
     def register_complete(self, job_id: str, actual_tokens: int, runtime_ms: int):
@@ -78,7 +81,6 @@ class TestState:
             self.completed_jobs.append(job_id)
         self.actual_tokens[job_id] = actual_tokens
         self.runtime_ms[job_id] = runtime_ms
-        self.last_dispatched_job_id = job_id
 
         window_tokens_before = self.state.get("windowTokensUsed", 0)
         window_tokens_after = window_tokens_before + actual_tokens
@@ -90,14 +92,14 @@ class TestState:
             jobs_after = max(0, jobs_before - 1)
             self.state["jobsRemaining"] = jobs_after
 
-        self.state["lastDispatchedJobId"] = job_id
-        self.state["lastUpdatedAt"] = datetime.now(timezone.utc).isoformat()
         self.state.setdefault("windowCompletedJobs", [])
         self.state.setdefault("sessionCompletedJobs", [])
         if job_id not in self.state["windowCompletedJobs"]:
             self.state["windowCompletedJobs"].append(job_id)
         if job_id not in self.state["sessionCompletedJobs"]:
             self.state["sessionCompletedJobs"].append(job_id)
+        self.state["lastDispatchedJobId"] = job_id
+        self.state["lastUpdatedAt"] = now_utc().isoformat()
 
         self.window_token_events.append({
             "jobId": job_id,
@@ -125,127 +127,187 @@ class TestState:
         self.downstream_blocked[root_job_id] = blocked_jobs
 
 
-def score_impact(impact: str) -> int:
-    return {"critical": 5, "high": 4, "medium": 3, "low": 2, "trivial": 1}.get(impact, 2)
+# ---------- calibrated priority model ----------
+
+def normalize_deadline(deadline: str) -> datetime:
+    return datetime.fromisoformat(deadline.replace("Z", "+00:00"))
 
 
-def score_deadline(deadline: str) -> int:
-    try:
-        deadline_dt = datetime.fromisoformat(deadline.replace("Z", "+00:00"))
-        now = datetime.now(timezone.utc)
-        hours_until = (deadline_dt - now).total_seconds() / 3600
-        for threshold, score in DEADLINE_SCORES:
-            if hours_until <= threshold:
-                return score
-        return 0
-    except Exception:
-        return 0
+def score_severity(job: dict) -> int:
+    impact = job.get("impact", "medium")
+    mapping = {"critical": 5, "high": 4, "medium": 3, "low": 1, "trivial": 0}
+    score = mapping.get(impact, 2)
+    if job.get("productionImpact"):
+        score = max(score, 4)
+    return min(score, 5)
 
 
-def score_blocking(blocks: list) -> int:
-    count = len(blocks)
-    if count >= 5:
+def score_blocking_breadth(job: dict) -> int:
+    count = len(job.get("blocks", []))
+    if count >= 4:
         return 5
     if count >= 3:
         return 4
-    if count >= 1:
+    if count >= 2:
         return 3
+    if count >= 1:
+        return 2
     return 0
 
 
-def score_dependencies(deps: list) -> int:
-    count = len(deps)
-    if count == 0:
+def score_deadline_proximity(job: dict) -> int:
+    try:
+        hours_until = (normalize_deadline(job.get("deadline", now_utc().isoformat())) - now_utc()).total_seconds() / 3600
+    except Exception:
         return 0
-    if count == 1:
-        return 2
-    if count <= 3:
-        return 3
-    if count <= 5:
+    if hours_until <= 2:
+        return 5
+    if hours_until <= 8:
         return 4
-    return 5
+    if hours_until <= 24:
+        return 3
+    if hours_until <= 72:
+        return 2
+    return 1
 
 
-def score_tokens(tokens: int) -> int:
-    if tokens < 10000:
+def score_business_impact(job: dict) -> int:
+    base = {"infrastructure": 4, "security": 5, "coding": 3, "review": 3, "docs": 0, "planning": 2}.get(job.get("taskType", "coding"), 2)
+    impact = job.get("impact", "medium")
+    if impact == "high":
+        base += 1
+    if impact == "critical":
+        base += 2
+    if job.get("productionImpact"):
+        base += 1
+    return max(0, min(base, 5))
+
+
+def score_execution_readiness(job: dict) -> int:
+    confidence = job.get("confidence", 0.8)
+    if not job.get("ready", True):
         return 1
-    if tokens < 30000:
-        return 2
-    if tokens < 60000:
+    if confidence >= 0.95:
+        return 5
+    if confidence >= 0.85:
+        return 4
+    if confidence >= 0.7:
         return 3
-    if tokens < 100000:
+    if confidence >= 0.5:
+        return 2
+    return 1
+
+
+def score_execution_effort(job: dict) -> int:
+    tokens = job.get("estimatedTokens", 0)
+    if tokens <= 8000:
+        return 1
+    if tokens <= 20000:
+        return 2
+    if tokens <= 40000:
+        return 3
+    if tokens <= 70000:
         return 4
     return 5
 
 
-def calculate_priority_score(job: dict) -> tuple[int, str]:
-    severity = score_impact(job.get("impact", "medium"))
-    blocking = score_blocking(job.get("blocks", []))
-    breadth = score_dependencies(job.get("dependencies", []))
-    deadline = score_deadline(job.get("deadline", ""))
-    readiness = 5 if job.get("ready", True) else 2
-    effort = score_tokens(job.get("estimatedTokens", 50000))
+def compute_priority_factors(job: dict) -> dict:
+    return {
+        "severity": score_severity(job),
+        "blockingBreadth": score_blocking_breadth(job),
+        "deadlineProximity": score_deadline_proximity(job),
+        "businessImpact": score_business_impact(job),
+        "executionReadiness": score_execution_readiness(job),
+        "executionEffort": score_execution_effort(job),
+    }
 
-    score = (
-        severity * WEIGHTS["severity"]
-        + blocking * WEIGHTS["blocking_impact"]
-        + breadth * WEIGHTS["dependency_breadth"]
-        + deadline * WEIGHTS["deadline_proximity"]
-        + readiness * WEIGHTS["execution_readiness"]
-        + effort * WEIGHTS["execution_effort"]
+
+def priority_score_from_factors(f: dict) -> int:
+    return (
+        (f["severity"] * 3)
+        + (f["blockingBreadth"] * 3)
+        + (f["deadlineProximity"] * 2)
+        + (f["businessImpact"] * 2)
+        + (f["executionReadiness"] * 1)
+        - (f["executionEffort"] * 1)
     )
 
+
+def assigned_priority_from_score_and_cap(score: int, f: dict) -> str:
+    if score >= 24:
+        if f["severity"] >= 4 or f["blockingBreadth"] >= 3 or f["deadlineProximity"] >= 4:
+            return "P0"
+        return "P1"
+    if score >= 16:
+        return "P1"
+    if score >= 8:
+        return "P2"
+    return "P3"
+
+
+def legacy_assigned_priority(job: dict) -> str:
+    impact = score_severity(job)
+    blocking = score_blocking_breadth(job)
+    breadth = 0 if len(job.get("dependencies", [])) == 0 else min(5, max(2, len(job.get("dependencies", [])) + 1))
+    deadline = score_deadline_proximity(job)
+    readiness = 5 if job.get("ready", True) else 2
+    effort = score_execution_effort(job)
+    score = (impact * 3) + (blocking * 3) + (breadth * 2) + (deadline * 2) + readiness - effort
     if score >= 18:
-        band = "P0"
-    elif score >= 13:
-        band = "P1"
-    elif score >= 8:
-        band = "P2"
-    else:
-        band = "P3"
-    return score, band
+        return "P0"
+    if score >= 13:
+        return "P1"
+    if score >= 8:
+        return "P2"
+    return "P3"
 
 
-def tie_break(jobs: list[dict]) -> dict:
-    def key(job):
-        return (
-            -len(job.get("blocks", [])),
-            job.get("deadline", "9999-99-99"),
-            -1 if job.get("ready", True) else 0,
-            job.get("estimatedTokens", 50000),
-            job.get("jobId", ""),
-        )
-    return sorted(jobs, key=key)[0]
+def tie_break_reason(a: dict, b: dict) -> str | None:
+    if a["factors"]["blockingBreadth"] != b["factors"]["blockingBreadth"]:
+        return "higher blockingBreadth"
+    if a["job"].get("deadline") != b["job"].get("deadline"):
+        return "earlier deadline"
+    if a["factors"]["businessImpact"] != b["factors"]["businessImpact"]:
+        return "higher businessImpact"
+    if a["job"].get("estimatedTokens", 0) != b["job"].get("estimatedTokens", 0):
+        return "lower estimatedTokens"
+    if a["job"].get("queueInsertedAt", "") != b["job"].get("queueInsertedAt", ""):
+        return "older queue insertion time"
+    return None
 
+
+def sort_key(scored_job: dict):
+    return (
+        -scored_job["priorityScore"],
+        -scored_job["factors"]["blockingBreadth"],
+        scored_job["job"].get("deadline", "9999-12-31T23:59:59Z"),
+        -scored_job["factors"]["businessImpact"],
+        scored_job["job"].get("estimatedTokens", 0),
+        scored_job["job"].get("queueInsertedAt", "9999-12-31T23:59:59Z"),
+        scored_job["job"].get("jobId", ""),
+    )
+
+
+# ---------- control-plane behavior ----------
 
 def check_safety_gates(job: dict, state: dict, test_state: TestState | None = None) -> tuple[bool, list[str]]:
     reasons = []
-    job_id = job.get("jobId", "")
-
-    if test_state and test_state.is_quarantined(job_id):
+    if test_state and test_state.is_quarantined(job.get("jobId", "")):
         reasons.append("job is quarantined after repeated failure")
-
     if test_state:
         for dep_id in job.get("dependencies", []):
             if dep_id in test_state.failed_jobs or dep_id in test_state.quarantined_jobs:
                 reasons.append(f"blocked by failed dependency {dep_id}")
-
     if job.get("destructive", False) and not state.get("allowDestructive", False):
         reasons.append("destructive operation blocked")
-
     if job.get("productionImpact", False) and not state.get("allowProdChanges", False):
         reasons.append("production-impacting change blocked")
-
-    max_per_job = state.get("maxTokensPerJob", 120000)
-    if job.get("estimatedTokens", 0) > max_per_job:
-        reasons.append(f"token limit exceeded ({job.get('estimatedTokens')} > {max_per_job})")
-
+    if job.get("estimatedTokens", 0) > state.get("maxTokensPerJob", 120000):
+        reasons.append(f"token limit exceeded ({job.get('estimatedTokens')} > {state.get('maxTokensPerJob', 120000)})")
     if not job.get("ready", True):
         reasons.append("job not ready for execution")
-
     if job.get("confidence", 1) < 0.5:
         reasons.append("confidence below threshold")
-
     return len(reasons) == 0, reasons
 
 
@@ -255,10 +317,8 @@ def check_approval_window(state: dict) -> tuple[bool, str]:
         return False, "no approval window"
     if mode == "time":
         expires = state.get("windowExpiresAt")
-        if expires:
-            expires_dt = datetime.fromisoformat(expires.replace("Z", "+00:00"))
-            if datetime.now(timezone.utc) > expires_dt:
-                return False, "time window expired"
+        if expires and now_utc() > normalize_deadline(expires):
+            return False, "time window expired"
         return True, "time window active"
     if mode == "jobs":
         remaining = state.get("jobsRemaining", 0)
@@ -272,90 +332,32 @@ def check_approval_window(state: dict) -> tuple[bool, str]:
 
 def deterministic_actual_tokens(job: dict, attempt: int = 1) -> int:
     est = job.get("estimatedTokens", 0)
-    base = int(est * (0.72 + ((len(job.get("jobId", "")) % 5) * 0.03)))
-    return max(800, base + (attempt - 1) * 250)
+    return max(800, int(est * 0.73) + (attempt - 1) * 250)
 
 
 def deterministic_runtime_ms(job: dict, attempt: int = 1) -> int:
-    est = job.get("estimatedTokens", 0)
-    return max(150, int(est / 18) + attempt * 75)
+    return max(150, int(job.get("estimatedTokens", 0) / 18) + attempt * 75)
 
 
-def build_evidence(test: dict, queue: list[dict], before_state: dict, test_state: TestState, result: dict) -> dict:
-    selected_job_id = result.get("selectedJob")
-    selected_job = next((j for j in queue if j.get("jobId") == selected_job_id), None)
-    retry_count = test_state.retry_counts.get(selected_job_id, 0) if selected_job_id else 0
-    actual_tokens = test_state.actual_tokens.get(selected_job_id, 0) if selected_job_id else 0
-    runtime_ms = test_state.runtime_ms.get(selected_job_id, 0) if selected_job_id else 0
-    quarantine = test_state.quarantine_metadata.get(selected_job_id) if selected_job_id else None
-
-    blocked_root = None
-    blocked_jobs = []
-    if test_state.downstream_blocked:
-        blocked_root = next(iter(test_state.downstream_blocked.keys()))
-        blocked_jobs = test_state.downstream_blocked[blocked_root]
-
-    latest_window = test_state.window_token_events[-1] if test_state.window_token_events else {
-        "windowTokensBefore": before_state.get("windowTokensUsed", 0),
-        "windowTokensAfter": test_state.state.get("windowTokensUsed", before_state.get("windowTokensUsed", 0)),
-        "actualTokensUsed": 0,
-    }
-    latest_slot = test_state.slot_consumption_events[-1] if test_state.slot_consumption_events else {
-        "jobsRemainingBefore": before_state.get("jobsRemaining"),
-        "jobsRemainingAfter": test_state.state.get("jobsRemaining"),
-        "slotConsumed": False,
-    }
-
-    execution_metrics = {
-        "testId": test["id"],
-        "jobId": selected_job_id,
-        "runtimeMs": runtime_ms,
-        "actualTokensUsed": actual_tokens,
-        "retryCount": retry_count,
-        "dispatchAttempts": test_state.dispatch_attempts.get(selected_job_id, 0) if selected_job_id else 0,
-        "estimatedTokens": selected_job.get("estimatedTokens") if selected_job else None,
-    }
-
-    window_accounting = {
-        "testId": test["id"],
-        "jobId": selected_job_id,
-        "mode": before_state.get("mode"),
-        "jobsRemainingBefore": latest_slot["jobsRemainingBefore"],
-        "jobsRemainingAfter": latest_slot["jobsRemainingAfter"],
-        "windowTokensBefore": latest_window["windowTokensBefore"],
-        "windowTokensAfter": latest_window["windowTokensAfter"],
-        "actualTokensUsed": latest_window["actualTokensUsed"],
-    }
-
-    slot_consumption = {
-        "testId": test["id"],
-        "jobId": selected_job_id,
-        "jobsRemainingBefore": latest_slot["jobsRemainingBefore"],
-        "jobsRemainingAfter": latest_slot["jobsRemainingAfter"],
-        "slotConsumed": latest_slot["slotConsumed"],
-        "evidence": "dispatch entered execution" if latest_slot["slotConsumed"] else "no slot consumed",
-    }
-
-    blocked_downstream = {
-        "testId": test["id"],
-        "rootFailedJobId": blocked_root,
-        "blockedJobs": blocked_jobs,
-        "count": len(blocked_jobs),
-    }
-
-    return {
-        "after_state": deepcopy(test_state.state),
-        "execution_metrics": execution_metrics,
-        "quarantine": quarantine or {
-            "jobId": selected_job_id,
-            "quarantined": False,
-            "reason": None,
-            "failedAttempts": retry_count,
-        },
-        "blocked_downstream": blocked_downstream,
-        "window_accounting": window_accounting,
-        "slot_consumption": slot_consumption,
-    }
+def score_queue(queue: list[dict], test_state: TestState | None = None) -> list[dict]:
+    scored = []
+    for job in queue:
+        factors = compute_priority_factors(job)
+        priority_score = priority_score_from_factors(factors)
+        assigned_priority = assigned_priority_from_score_and_cap(priority_score, factors)
+        eligible = job.get("ready", True) and not (test_state and test_state.is_quarantined(job.get("jobId", "")))
+        if test_state:
+            for dep_id in job.get("dependencies", []):
+                if dep_id in test_state.failed_jobs or dep_id in test_state.quarantined_jobs:
+                    eligible = False
+        scored.append({
+            "job": job,
+            "factors": factors,
+            "priorityScore": priority_score,
+            "assignedPriority": assigned_priority,
+            "eligible": eligible,
+        })
+    return scored
 
 
 def run_selection(queue: list[dict], state: dict, test_state: TestState | None = None, simulate_failure: bool = False, check_all: bool = False) -> dict:
@@ -367,72 +369,106 @@ def run_selection(queue: list[dict], state: dict, test_state: TestState | None =
         "approvalDecision": {"approved": False, "mode": state.get("mode", "none"), "reason": ""},
         "outcome": "unknown",
         "riskyHeld": [],
+        "tieBreakReason": None,
+        "selectedPriority": None,
+        "selectedScore": None,
     }
 
-    for job in queue:
-        score, band = calculate_priority_score(job)
-        eligible = job.get("ready", True) and not (test_state and test_state.is_quarantined(job.get("jobId", "")))
-        if test_state:
-            for dep_id in job.get("dependencies", []):
-                if dep_id in test_state.failed_jobs or dep_id in test_state.quarantined_jobs:
-                    eligible = False
-        result["candidates"].append({"jobId": job.get("jobId"), "score": score, "priority": band, "eligible": eligible})
+    scored = score_queue(queue, test_state)
+    ordered = sorted(scored, key=sort_key)
 
-    result["candidates"].sort(key=lambda x: x["score"], reverse=True)
-
-    if test_state is not None and check_all:
-        for job in queue:
+    if check_all and test_state:
+        for item in scored:
+            job = item["job"]
             if (job.get("destructive") and not state.get("allowDestructive")) or (job.get("productionImpact") and not state.get("allowProdChanges")):
                 test_state.register_risky_held(job["jobId"])
                 result["riskyHeld"].append(job["jobId"])
 
-    approved, reason = check_approval_window(state)
-    result["approvalDecision"]["approved"] = approved
-    result["approvalDecision"]["reason"] = reason
+    approved, approval_reason = check_approval_window(state)
+    result["approvalDecision"] = {"approved": approved, "mode": state.get("mode", "none"), "reason": approval_reason}
+
+    top = None
+    if approved:
+        for item in ordered:
+            if item["eligible"]:
+                top = item
+                break
+
+    if top:
+        tied = [item for item in ordered if item["eligible"] and item["priorityScore"] == top["priorityScore"]]
+        if len(tied) > 1:
+            for contender in tied[1:]:
+                reason = tie_break_reason(top, contender)
+                if reason:
+                    result["tieBreakReason"] = reason
+                    break
+
+    for item in ordered:
+        job = item["job"]
+        selected = top is not None and job["jobId"] == top["job"]["jobId"]
+        selected_reason = None
+        tie_reason = None
+        if selected:
+            selected_reason = "Highest priority score"
+            if result["tieBreakReason"]:
+                selected_reason += f" after tie-break by {result['tieBreakReason']}"
+                tie_reason = result["tieBreakReason"]
+        else:
+            if top is None:
+                selected_reason = "No selection made"
+            elif item["priorityScore"] < top["priorityScore"]:
+                selected_reason = f"Lower priority score than {top['job']['jobId']}"
+            else:
+                losing_reason = tie_break_reason(top, item)
+                tie_reason = losing_reason
+                selected_reason = f"Lost tie-break to {top['job']['jobId']} by {losing_reason}" if losing_reason else f"Lost final lexical tie-break to {top['job']['jobId']}"
+        result["candidates"].append({
+            "jobId": job["jobId"],
+            "priorityScore": item["priorityScore"],
+            "assignedPriority": item["assignedPriority"],
+            "severity": item["factors"]["severity"],
+            "blockingBreadth": item["factors"]["blockingBreadth"],
+            "deadlineProximity": item["factors"]["deadlineProximity"],
+            "businessImpact": item["factors"]["businessImpact"],
+            "executionReadiness": item["factors"]["executionReadiness"],
+            "executionEffort": item["factors"]["executionEffort"],
+            "estimatedTokens": job.get("estimatedTokens", 0),
+            "selected": selected,
+            "selectedReason": selected_reason,
+            **({"tieBreakReason": tie_reason} if tie_reason else {}),
+            "eligible": item["eligible"],
+        })
+
     if not approved:
         result["outcome"] = "approval_required"
         return result
 
-    available = [j for j in queue if j.get("ready", True)]
-    if test_state:
-        available = [j for j in available if not test_state.is_quarantined(j.get("jobId", ""))]
-    if not available:
+    if not top:
         result["outcome"] = "no_work"
         return result
 
-    top_candidates = [c for c in result["candidates"] if c["eligible"]]
-    if not top_candidates:
-        result["outcome"] = "no_work"
-        return result
-
-    top_score = top_candidates[0]["score"]
-    top_job_ids = [c["jobId"] for c in top_candidates if c["score"] == top_score]
-    selected_job = tie_break([j for j in available if j["jobId"] in top_job_ids]) if len(top_job_ids) > 1 else next((j for j in available if j["jobId"] == top_job_ids[0]), None)
-    if not selected_job:
-        result["outcome"] = "no_work"
-        return result
-
+    selected_job = top["job"]
     selected_job_id = selected_job["jobId"]
     if test_state:
         test_state.register_attempt(selected_job_id)
 
-    passed, blocked_reasons = check_safety_gates(selected_job, state, test_state)
+    passed, blocked = check_safety_gates(selected_job, state, test_state)
     if not passed:
         result["safetyEvaluation"]["blocked"] = True
-        result["safetyEvaluation"]["blockedBy"] = blocked_reasons
+        result["safetyEvaluation"]["blockedBy"] = blocked
         if test_state:
-            test_state.register_blocked(selected_job_id, blocked_reasons)
-        result["outcome"] = "blocked_token_limit" if any("token limit" in r for r in blocked_reasons) else "blocked"
+            test_state.register_blocked(selected_job_id, blocked)
+        result["outcome"] = "blocked_token_limit" if any("token limit" in r for r in blocked) else "blocked"
         return result
 
     result["selectedJob"] = selected_job_id
-    score, band = calculate_priority_score(selected_job)
-    result["selectionReason"] = f"Selected {selected_job_id} (score: {score}, priority: {band})"
+    result["selectedPriority"] = top["assignedPriority"]
+    result["selectedScore"] = top["priorityScore"]
+    result["selectionReason"] = next(c["selectedReason"] for c in result["candidates"] if c["jobId"] == selected_job_id)
 
     if simulate_failure and test_state:
         test_state.register_failure(selected_job_id)
-        failures = test_state.failure_count(selected_job_id)
-        if failures >= 2:
+        if test_state.failure_count(selected_job_id) >= 2:
             test_state.register_quarantine(selected_job_id)
             result["outcome"] = "quarantined_after_retry"
         else:
@@ -447,26 +483,106 @@ def run_selection(queue: list[dict], state: dict, test_state: TestState | None =
 
 
 def generate_operator_summary(result: dict, queue: list[dict]) -> str:
-    job = next((j for j in queue if j["jobId"] == result["selectedJob"]), None) if result["selectedJob"] else None
-    candidate = next((c for c in result["candidates"] if c["jobId"] == result["selectedJob"]), None) if result["selectedJob"] else None
-    lines = [f"Selected: {result['selectedJob'] or 'none'}", f"Outcome: {result['outcome']}"]
-    if candidate:
-        lines.append(f"Priority: {candidate['priority']} (score: {candidate['score']})")
-    if job:
-        lines.append(f"Title: {job.get('title', 'N/A')}")
-    lines.append(f"Approval: {result['approvalDecision']['reason']}")
-    if result["safetyEvaluation"]["blocked"]:
-        lines.append(f"Blocked: {'; '.join(result['safetyEvaluation']['blockedBy'])}")
-    if result.get("riskyHeld"):
-        lines.append(f"Risky held: {', '.join(result['riskyHeld'])}")
+    job = next((j for j in queue if j.get("jobId") == result.get("selectedJob")), None)
+    estimated_tokens = job.get("estimatedTokens", 0) if job else 0
+    safety = "blocked" if result["safetyEvaluation"]["blocked"] else "eligible"
+    action = "ask for approval" if result["outcome"] == "approval_required" else ("hold" if "blocked" in result["outcome"] else "dispatching now")
+    lines = [
+        f"Next job selected: {result.get('selectedJob') or 'none'}",
+        f"Priority: {result.get('selectedPriority') or 'n/a'}",
+        f"Score: {result.get('selectedScore') if result.get('selectedScore') is not None else 'n/a'}",
+        f"Reason: {result.get('selectionReason') or 'none'}",
+        f"Tie-break: {result.get('tieBreakReason') or 'none'}",
+        f"Estimated tokens: {estimated_tokens}",
+        f"Safety status: {safety}",
+        f"Approval window: {result['approvalDecision']['mode']} / {result['approvalDecision']['reason']}",
+        f"Action: {action}",
+    ]
     return "\n".join(lines)
 
 
-def run_test(test: dict) -> dict:
-    queue_path = FIXTURES_DIR / "queues" / test["queue"]
-    state_path = FIXTURES_DIR / "states" / test["state"]
-    queue = json.loads(queue_path.read_text())
-    state = json.loads(state_path.read_text())
+def build_evidence(test: dict, queue: list[dict], before_state: dict, test_state: TestState, result: dict) -> dict:
+    selected_job_id = result.get("selectedJob")
+    selected_job = next((j for j in queue if j.get("jobId") == selected_job_id), None)
+    retry_count = test_state.retry_counts.get(selected_job_id, 0) if selected_job_id else 0
+    actual_tokens = test_state.actual_tokens.get(selected_job_id, 0) if selected_job_id else 0
+    runtime_ms = test_state.runtime_ms.get(selected_job_id, 0) if selected_job_id else 0
+    latest_window = test_state.window_token_events[-1] if test_state.window_token_events else {
+        "windowTokensBefore": before_state.get("windowTokensUsed", 0),
+        "windowTokensAfter": test_state.state.get("windowTokensUsed", before_state.get("windowTokensUsed", 0)),
+        "actualTokensUsed": 0,
+    }
+    latest_slot = test_state.slot_consumption_events[-1] if test_state.slot_consumption_events else {
+        "jobsRemainingBefore": before_state.get("jobsRemaining"),
+        "jobsRemainingAfter": test_state.state.get("jobsRemaining"),
+        "slotConsumed": False,
+    }
+    blocked_root = next(iter(test_state.downstream_blocked.keys()), None)
+    blocked_jobs = test_state.downstream_blocked.get(blocked_root, []) if blocked_root else []
+    safety_report = {
+        "testId": test["id"],
+        "jobId": selected_job_id,
+        "eligible": not result["safetyEvaluation"]["blocked"],
+        "blocked": result["safetyEvaluation"]["blocked"],
+        "blockedBy": result["safetyEvaluation"]["blockedBy"],
+        "approvalReason": result["approvalDecision"]["reason"],
+    }
+    validator_output = {
+        "testId": test["id"],
+        "passed": True,
+        "selectedJob": result.get("selectedJob"),
+        "selectedPriority": result.get("selectedPriority"),
+        "selectedScore": result.get("selectedScore"),
+    }
+    return {
+        "after_state": deepcopy(test_state.state),
+        "execution_metrics": {
+            "testId": test["id"],
+            "jobId": selected_job_id,
+            "runtimeMs": runtime_ms,
+            "actualTokensUsed": actual_tokens,
+            "retryCount": retry_count,
+            "dispatchAttempts": test_state.dispatch_attempts.get(selected_job_id, 0) if selected_job_id else 0,
+            "estimatedTokens": selected_job.get("estimatedTokens") if selected_job else None,
+        },
+        "quarantine": test_state.quarantine_metadata.get(selected_job_id, {
+            "jobId": selected_job_id,
+            "quarantined": False,
+            "reason": None,
+            "failedAttempts": retry_count,
+        }),
+        "blocked_downstream": {
+            "testId": test["id"],
+            "rootFailedJobId": blocked_root,
+            "blockedJobs": blocked_jobs,
+            "count": len(blocked_jobs),
+        },
+        "window_accounting": {
+            "testId": test["id"],
+            "jobId": selected_job_id,
+            "mode": before_state.get("mode"),
+            "jobsRemainingBefore": latest_slot["jobsRemainingBefore"],
+            "jobsRemainingAfter": latest_slot["jobsRemainingAfter"],
+            "windowTokensBefore": latest_window["windowTokensBefore"],
+            "windowTokensAfter": latest_window["windowTokensAfter"],
+            "actualTokensUsed": latest_window["actualTokensUsed"],
+        },
+        "slot_consumption": {
+            "testId": test["id"],
+            "jobId": selected_job_id,
+            "jobsRemainingBefore": latest_slot["jobsRemainingBefore"],
+            "jobsRemainingAfter": latest_slot["jobsRemainingAfter"],
+            "slotConsumed": latest_slot["slotConsumed"],
+            "evidence": "dispatch entered execution" if latest_slot["slotConsumed"] else "no slot consumed",
+        },
+        "safety_report": safety_report,
+        "validator_output": validator_output,
+    }
+
+
+def run_test(test: dict, fixtures_dir: Path = FIXTURES_DIR) -> dict:
+    queue = json.loads((fixtures_dir / "queues" / test["queue"]).read_text())
+    state = json.loads((fixtures_dir / "states" / test["state"]).read_text())
     before_state = deepcopy(state)
     test_state = TestState(state)
     started = time.perf_counter()
@@ -478,13 +594,16 @@ def run_test(test: dict) -> dict:
         parent = next((j for j in queue if j.get("blocks")), None)
         if parent:
             test_state.register_failure(parent["jobId"])
-            test_state.register_quarantine(parent["jobId"], reason="dependency_root_failure")
-            dependents = [j["jobId"] for j in queue if parent["jobId"] in j.get("dependencies", [])]
-            test_state.register_downstream_blocked(parent["jobId"], dependents)
+            test_state.register_quarantine(parent["jobId"], "dependency_root_failure")
+            blocked = [j["jobId"] for j in queue if parent["jobId"] in j.get("dependencies", [])]
+            test_state.register_downstream_blocked(parent["jobId"], blocked)
             result = run_selection(queue, test_state.state, test_state)
             result["selectedJob"] = parent["jobId"]
+            selected = next((s for s in score_queue(queue) if s["job"]["jobId"] == parent["jobId"]), None)
+            result["selectedPriority"] = selected["assignedPriority"] if selected else None
+            result["selectedScore"] = selected["priorityScore"] if selected else None
             result["outcome"] = "dependents_blocked_after_failure"
-            result["selectionReason"] = f"Parent {parent['jobId']} failed; {len(dependents)} dependents blocked"
+            result["selectionReason"] = f"Highest priority root failed; downstream jobs blocked: {', '.join(blocked)}"
         else:
             result = run_selection(queue, test_state.state, test_state)
     elif test["id"] == "T11_e2e_normal_delivery":
@@ -493,16 +612,24 @@ def run_test(test: dict) -> dict:
     elif test["id"] == "T12_e2e_risky_job_mid_run":
         result = run_selection(queue, test_state.state, test_state, check_all=True)
         if result.get("riskyHeld"):
+            safe_queue = [j for j in queue if not j.get("productionImpact") and not j.get("destructive")]
+            safe_result = run_selection(safe_queue, test_state.state, test_state)
+            result["selectedJob"] = safe_result.get("selectedJob")
+            result["selectedPriority"] = safe_result.get("selectedPriority")
+            result["selectedScore"] = safe_result.get("selectedScore")
+            result["selectionReason"] = safe_result.get("selectionReason")
+            result["tieBreakReason"] = safe_result.get("tieBreakReason")
             result["outcome"] = "risky_job_held"
     elif test["id"] == "T13_e2e_failure_chain":
         first = run_selection(queue, test_state.state, test_state, simulate_failure=True)
         result = run_selection(queue, test_state.state, test_state, simulate_failure=True)
         root = result.get("selectedJob") or first.get("selectedJob")
-        dependents = [j["jobId"] for j in queue if root in j.get("dependencies", [])] if root else []
+        blocked = [j["jobId"] for j in queue if root and root in j.get("dependencies", [])]
         if root:
-            test_state.register_downstream_blocked(root, dependents)
+            test_state.register_downstream_blocked(root, blocked)
         if result["outcome"] == "quarantined_after_retry":
             result["outcome"] = "failure_chain_paused"
+            result["selectionReason"] = f"Root failed twice and paused downstream jobs: {', '.join(blocked)}"
     else:
         result = run_selection(queue, test_state.state, test_state)
 
@@ -510,15 +637,20 @@ def run_test(test: dict) -> dict:
     summary = generate_operator_summary(result, queue)
     passed = True
     errors = []
-    if test.get("expected_selected_job") is not None and result["selectedJob"] != test["expected_selected_job"]:
+    if test.get("expected_selected_job") is not None and result.get("selectedJob") != test["expected_selected_job"]:
         passed = False
-        errors.append(f"Expected job {test['expected_selected_job']}, got {result['selectedJob']}")
-    if result["outcome"] != test["expected_outcome"] and test["expected_outcome"] not in result["outcome"]:
+        errors.append(f"Expected job {test['expected_selected_job']}, got {result.get('selectedJob')}")
+    if test.get("expected_outcome") and result.get("outcome") != test["expected_outcome"] and test["expected_outcome"] not in str(result.get("outcome")):
         passed = False
-        errors.append(f"Expected outcome {test['expected_outcome']}, got {result['outcome']}")
+        errors.append(f"Expected outcome {test['expected_outcome']}, got {result.get('outcome')}")
+    if test.get("expected_priority") and result.get("selectedPriority") != test["expected_priority"]:
+        passed = False
+        errors.append(f"Expected priority {test['expected_priority']}, got {result.get('selectedPriority')}")
 
     evidence = build_evidence(test, queue, before_state, test_state, result)
     evidence["execution_metrics"]["auditRuntimeMs"] = audit_runtime_ms
+    evidence["validator_output"]["passed"] = passed and not errors
+    evidence["validator_output"]["errors"] = errors
 
     return {
         "test_id": test["id"],
@@ -530,10 +662,43 @@ def run_test(test: dict) -> dict:
     }
 
 
+def write_legacy_results(test_matrix: list[dict], results: list[dict]):
+    RESULTS_DIR.mkdir(exist_ok=True)
+    (RESULTS_DIR / "test-results.json").write_text(json.dumps(results, indent=2))
+    for test, test_result in zip(test_matrix, results):
+        queue = json.loads((FIXTURES_DIR / "queues" / test["queue"]).read_text())
+        state = json.loads((FIXTURES_DIR / "states" / test["state"]).read_text())
+        test_dir = RESULTS_DIR / test["id"]
+        test_dir.mkdir(exist_ok=True)
+        (test_dir / "queue-input.json").write_text(json.dumps(queue, indent=2))
+        (test_dir / "before-state.json").write_text(json.dumps(state, indent=2))
+        (test_dir / "after-state.json").write_text(json.dumps(test_result["evidence"]["after_state"], indent=2))
+        (test_dir / "result.json").write_text(json.dumps(test_result, indent=2))
+        (test_dir / "summary.txt").write_text(test_result["summary"])
+        (test_dir / "decision-trace.json").write_text(json.dumps({
+            "testId": test["id"],
+            "timestamp": now_utc().isoformat(),
+            "expected": {"selectedJob": test.get("expected_selected_job"), "outcome": test["expected_outcome"]},
+            "actual": {"selectedJob": test_result["result"].get("selectedJob"), "outcome": test_result["result"].get("outcome")},
+            "passed": test_result["passed"],
+            "candidates": test_result["result"]["candidates"],
+            "safetyEvaluation": test_result["result"]["safetyEvaluation"],
+            "approvalDecision": test_result["result"]["approvalDecision"],
+            "tieBreakReason": test_result["result"].get("tieBreakReason"),
+        }, indent=2))
+        (test_dir / "execution-metrics.json").write_text(json.dumps(test_result["evidence"]["execution_metrics"], indent=2))
+        (test_dir / "quarantine.json").write_text(json.dumps(test_result["evidence"]["quarantine"], indent=2))
+        (test_dir / "blocked-downstream.json").write_text(json.dumps(test_result["evidence"]["blocked_downstream"], indent=2))
+        (test_dir / "window-accounting.json").write_text(json.dumps(test_result["evidence"]["window_accounting"], indent=2))
+        (test_dir / "slot-consumption.json").write_text(json.dumps(test_result["evidence"]["slot_consumption"], indent=2))
+        (test_dir / "safety-report.json").write_text(json.dumps(test_result["evidence"]["safety_report"], indent=2))
+        (test_dir / "validator-output.json").write_text(json.dumps(test_result["evidence"]["validator_output"], indent=2))
+
+
 def main():
     test_matrix = json.loads((SCRIPT_DIR / "test-matrix.json").read_text())
     print("=" * 60)
-    print("Control-plane-what-next Test Runner v4")
+    print("Control-plane-what-next Test Runner v5")
     print("=" * 60)
     results = []
     passed_count = 0
@@ -547,14 +712,13 @@ def main():
         failed_count += 0 if ok else 1
         print(f"\n{test['id']}: {status}")
         print(f"  Expected: {test.get('expected_selected_job', 'none')} → {test['expected_outcome']}")
-        print(f"  Got: {test_result['result']['selectedJob']} → {test_result['result']['outcome']}")
+        print(f"  Got: {test_result['result'].get('selectedJob')} → {test_result['result'].get('outcome')}")
         for err in test_result["errors"]:
             print(f"  Error: {err}")
     print("\n" + "=" * 60)
     print(f"Results: {passed_count} passed, {failed_count} failed")
     print("=" * 60)
-    RESULTS_DIR.mkdir(exist_ok=True)
-    (RESULTS_DIR / "test-results.json").write_text(json.dumps(results, indent=2))
+    write_legacy_results(test_matrix, results)
     return failed_count == 0
 
 

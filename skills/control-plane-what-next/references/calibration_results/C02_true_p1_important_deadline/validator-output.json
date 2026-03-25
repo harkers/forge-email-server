@@ -1,0 +1,8 @@
+{
+  "testId": "C02_true_p1_important_deadline",
+  "passed": true,
+  "selectedJob": "CP-C02-A",
+  "selectedPriority": "P1",
+  "selectedScore": 27,
+  "errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "testId": "C10_mixed_queue_distribution",
+  "jobId": "CP-C10-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

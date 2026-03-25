@@ -1,0 +1,48 @@
+{
+  "testId": "C02_true_p1_important_deadline",
+  "timestamp": "2026-03-25T13:43:43.761896+00:00",
+  "expected": {
+    "selectedJob": "CP-C02-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C02-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C02-A",
+      "priorityScore": 27,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 14000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C02-B",
+      "priorityScore": 8,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 1,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 7000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-C02-A",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

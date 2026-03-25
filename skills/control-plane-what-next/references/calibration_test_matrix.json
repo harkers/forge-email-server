@@ -1,0 +1,92 @@
+[
+  {
+    "id": "C01_true_p0_production_blocker",
+    "purpose": "True P0 is reserved for severe urgent blockers.",
+    "queue": "c01_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C01-A",
+    "expected_priority": "P0",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C02_true_p1_important_deadline",
+    "purpose": "Important work with urgency should land in P1, not P0.",
+    "queue": "c02_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C02-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C03_true_p2_planned_work",
+    "purpose": "Planned work should map into P2.",
+    "queue": "c03_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C03-A",
+    "expected_priority": "P2",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C04_true_p3_polish_task",
+    "purpose": "Minor polish should map into P3.",
+    "queue": "c04_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C04-A",
+    "expected_priority": "P3",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C05_high_score_but_cap_to_p1",
+    "purpose": "P0 cap rule should demote high-score but non-catastrophic work to P1.",
+    "queue": "c05_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C05-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C06_tiebreak_by_blocking_breadth",
+    "purpose": "Equal-score jobs should break by higher blocking breadth.",
+    "queue": "c06_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C06-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C07_tiebreak_by_deadline",
+    "purpose": "Equal-score jobs should break by earlier deadline.",
+    "queue": "c07_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C07-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C08_tiebreak_by_business_impact",
+    "purpose": "Equal-score jobs should break by higher business impact.",
+    "queue": "c08_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C08-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C09_tiebreak_by_estimated_tokens",
+    "purpose": "Equal-score jobs should break by lower estimated tokens.",
+    "queue": "c09_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C09-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "C10_mixed_queue_distribution",
+    "purpose": "Mixed queue should show believable distribution with P1/P2/P3 and rare P0.",
+    "queue": "c10_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-C10-A",
+    "expected_priority": "P1",
+    "expected_outcome": "dispatch"
+  }
+]

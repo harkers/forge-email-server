@@ -1,0 +1,10 @@
+{
+  "testId": "C01_true_p0_production_blocker",
+  "jobId": "CP-C01-A",
+  "runtimeMs": 1630,
+  "actualTokensUsed": 20440,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 28000,
+  "auditRuntimeMs": 0
+}

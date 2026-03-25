@@ -1,0 +1,10 @@
+{
+  "testId": "C06_tiebreak_by_blocking_breadth",
+  "jobId": "CP-C06-A",
+  "runtimeMs": 1075,
+  "actualTokensUsed": 13140,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 18000,
+  "auditRuntimeMs": 0
+}

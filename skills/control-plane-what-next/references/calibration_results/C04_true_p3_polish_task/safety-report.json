@@ -1,0 +1,8 @@
+{
+  "testId": "C04_true_p3_polish_task",
+  "jobId": "CP-C04-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

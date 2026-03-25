@@ -1,0 +1,8 @@
+{
+  "testId": "C09_tiebreak_by_estimated_tokens",
+  "jobId": "CP-C09-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

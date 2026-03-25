@@ -1,0 +1,18 @@
+{
+  "totalCandidatesEvaluated": 19,
+  "p0Count": 1,
+  "p1Count": 12,
+  "p2Count": 4,
+  "p3Count": 2,
+  "p0Percent": 5.26,
+  "p1Percent": 63.16,
+  "p2Percent": 21.05,
+  "p3Percent": 10.53,
+  "legacyP0Count": 12,
+  "legacyP1Count": 1,
+  "legacyP2Count": 6,
+  "legacyP3Count": 0,
+  "mixedQueueHasP2": true,
+  "mixedQueueHasP3": true,
+  "tieBreakVisible": true
+}

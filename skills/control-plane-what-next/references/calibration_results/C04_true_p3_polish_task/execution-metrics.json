@@ -1,0 +1,10 @@
+{
+  "testId": "C04_true_p3_polish_task",
+  "jobId": "CP-C04-A",
+  "runtimeMs": 408,
+  "actualTokensUsed": 4380,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 6000,
+  "auditRuntimeMs": 0
+}

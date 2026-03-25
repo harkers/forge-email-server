@@ -1,0 +1,33 @@
+{
+  "testId": "C05_high_score_but_cap_to_p1",
+  "timestamp": "2026-03-25T13:43:43.763585+00:00",
+  "expected": {
+    "selectedJob": "CP-C05-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C05-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C05-A",
+      "priorityScore": 28,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 3,
+      "businessImpact": 3,
+      "executionReadiness": 3,
+      "executionEffort": 2,
+      "estimatedTokens": 18000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": null
+}

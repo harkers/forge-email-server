@@ -1,0 +1,8 @@
+{
+  "testId": "C05_high_score_but_cap_to_p1",
+  "jobId": "CP-C05-A",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

@@ -1,0 +1,50 @@
+{
+  "testId": "C09_tiebreak_by_estimated_tokens",
+  "timestamp": "2026-03-25T13:43:43.765822+00:00",
+  "expected": {
+    "selectedJob": "CP-C09-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "actual": {
+    "selectedJob": "CP-C09-A",
+    "priority": "P1",
+    "outcome": "dispatch"
+  },
+  "passed": true,
+  "candidates": [
+    {
+      "jobId": "CP-C09-A",
+      "priorityScore": 27,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 16000,
+      "selected": true,
+      "selectedReason": "Highest priority score after tie-break by lower estimatedTokens",
+      "tieBreakReason": "lower estimatedTokens",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-C09-B",
+      "priorityScore": 27,
+      "assignedPriority": "P1",
+      "severity": 3,
+      "blockingBreadth": 2,
+      "deadlineProximity": 2,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 19000,
+      "selected": false,
+      "selectedReason": "Lost tie-break to CP-C09-A by lower estimatedTokens",
+      "tieBreakReason": "lower estimatedTokens",
+      "eligible": true
+    }
+  ],
+  "tieBreakReason": "lower estimatedTokens"
+}

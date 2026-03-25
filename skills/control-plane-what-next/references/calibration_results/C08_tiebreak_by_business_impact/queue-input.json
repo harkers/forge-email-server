@@ -1,0 +1,34 @@
+[
+  {
+    "jobId": "CP-C08-A",
+    "title": "Higher business impact candidate",
+    "taskType": "infrastructure",
+    "impact": "medium",
+    "deadline": "2026-03-27T19:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 20000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T06:00:00Z"
+  },
+  {
+    "jobId": "CP-C08-B",
+    "title": "Lower business impact candidate",
+    "taskType": "docs",
+    "impact": "medium",
+    "deadline": "2026-03-27T19:00:00Z",
+    "blocks": [
+      "A"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 20000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T06:05:00Z"
+  }
+]

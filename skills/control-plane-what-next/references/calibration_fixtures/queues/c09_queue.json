@@ -1,0 +1,36 @@
+[
+  {
+    "jobId": "CP-C09-A",
+    "title": "Lower token candidate",
+    "taskType": "coding",
+    "impact": "medium",
+    "deadline": "2026-03-26T17:00:00Z",
+    "blocks": [
+      "A"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 16000,
+    "dependencies": [],
+    "confidence": 0.85,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T05:00:00Z"
+  },
+  {
+    "jobId": "CP-C09-B",
+    "title": "Higher token candidate",
+    "taskType": "coding",
+    "impact": "medium",
+    "deadline": "2026-03-26T17:00:00Z",
+    "blocks": [
+      "A"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 19000,
+    "dependencies": [],
+    "confidence": 0.85,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T04:55:00Z"
+  }
+]

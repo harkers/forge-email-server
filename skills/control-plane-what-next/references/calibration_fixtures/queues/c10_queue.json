@@ -1,0 +1,66 @@
+[
+  {
+    "jobId": "CP-C10-A",
+    "title": "Important queue coordinator",
+    "taskType": "review",
+    "impact": "medium",
+    "deadline": "2026-03-26T15:30:00Z",
+    "blocks": [
+      "X"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 15000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T04:00:00Z"
+  },
+  {
+    "jobId": "CP-C10-B",
+    "title": "Planned backend cleanup",
+    "taskType": "coding",
+    "impact": "low",
+    "deadline": "2026-03-29T09:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 20000,
+    "dependencies": [],
+    "confidence": 0.82,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T04:10:00Z"
+  },
+  {
+    "jobId": "CP-C10-C",
+    "title": "Docs polish",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-04-03T09:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 7000,
+    "dependencies": [],
+    "confidence": 0.55,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T04:20:00Z"
+  },
+  {
+    "jobId": "CP-C10-D",
+    "title": "Large but non-catastrophic planning pass",
+    "taskType": "planning",
+    "impact": "medium",
+    "deadline": "2026-03-27T18:00:00Z",
+    "blocks": [
+      "Y"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 17000,
+    "dependencies": [],
+    "confidence": 0.78,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T04:30:00Z"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "jobId": "CP-C05-A",
+    "title": "Important review bundle with high score but no P0 trigger",
+    "taskType": "review",
+    "impact": "medium",
+    "deadline": "2026-03-26T10:00:00Z",
+    "blocks": [
+      "CP-C05-B"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 18000,
+    "dependencies": [],
+    "confidence": 0.82,
+    "ready": true,
+    "queueInsertedAt": "2026-03-25T09:30:00Z"
+  }
+]
