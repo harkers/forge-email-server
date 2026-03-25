@@ -151,7 +151,11 @@ services:
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-060 | Build full filter bar (priority, risk, due window, sort, density) | 4h | TODO |
+| FP-060 | Build full filter bar (priority, risk, due window, sort, density) | 4h | ✅ DONE |
+| FP-061 | Task detail drawer | 2h | ✅ DONE |
+| FP-062 | Quick actions menu on task cards | 2h | ✅ DONE |
+| FP-063 | Sorting logic | 2h | ✅ DONE |
+| FP-064 | Density modes (comfortable/compact/tight) | 2h | ✅ DONE |
 | FP-061 | Add task detail drawer (expandable card) | 3h | TODO |
 | FP-062 | Add quick actions menu to task cards | 2h | TODO |
 | FP-063 | Add sorting logic (priority, due date, updated, created) | 2h | TODO |
@@ -171,10 +175,10 @@ services:
 
 | Ticket | Feature | Effort | Status |
 |--------|---------|--------|--------|
-| FP-070 | Define Forge Pipeline design tokens | 2h | TODO |
-| FP-071 | Align tokens with ForgeOrchestra parent | 2h | TODO |
-| FP-072 | Document component specs for reuse | 3h | TODO |
-| FP-073 | Implement semantic color system | 2h | TODO |
+| FP-070 | Define Forge Pipeline design tokens | 2h | ✅ DONE |
+| FP-071 | Align tokens with ForgeOrchestra parent | 2h | ✅ DONE |
+| FP-072 | Document component specs for reuse | 3h | ✅ DONE |
+| FP-073 | Implement semantic color system | 2h | ✅ DONE |
 
 **Deliverables:**
 - Design tokens (colors, spacing, typography, radii)

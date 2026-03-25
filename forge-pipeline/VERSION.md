@@ -1,9 +1,24 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.5.0** — 2026-03-25
+**v1.6.0** — 2026-03-25
 
 ## Changelog
+
+### v1.6.0 (2026-03-25)
+- FP-070: Design tokens (colors, spacing, typography, radii)
+- FP-071: ForgeOrchestra parent alignment
+- FP-072: Component specification documentation
+- FP-073: Semantic color system
+
+**Design System Enhancements:**
+- Motion tokens (transitions, easing curves, animations)
+- Typography scale (modular 1.25, Inter + SF Mono)
+- Spacing scale (8pt base)
+- Animation classes (fade, slide, scale, pulse)
+- Hover/focus utilities
+- Skeleton loading states
+- Design tokens documentation (DESIGN_TOKENS.md)
 
 ### v1.5.0 (2026-03-25)
 - FP-060: Full filter bar (priority, risk, status, source, sort)
@@ -11,14 +26,6 @@
 - FP-062: Quick actions menu on task cards (edit, done, delete)
 - FP-063: Sorting logic (priority, due date, updated)
 - FP-064: Density modes (comfortable, compact, tight)
-
-**UI Enhancements:**
-- Priority filter dropdown (critical/high/medium/low)
-- Risk state filter (none/watch/at-risk/critical)
-- Sort order selector (priority, due date, recently updated)
-- Density toggle buttons for comfortable/compact/tight views
-- Task drawer for detailed editing
-- Quick action buttons on hover (edit ✓ ×)
 
 ### v1.4.0 (2026-03-25)
 - FP-DB1-DB6: PostgreSQL migration (disabled pending connection pool fix)
@@ -36,3 +43,4 @@
 
 ## Design System
 ForgeOrchestra Obsidian Intelligence — see `/forgeorchestra/DESIGN_GUIDE.md`
+Component Tokens — see `DESIGN_TOKENS.md`
