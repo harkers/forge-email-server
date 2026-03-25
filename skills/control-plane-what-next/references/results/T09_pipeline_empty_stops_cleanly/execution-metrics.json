@@ -1,0 +1,10 @@
+{
+  "testId": "T09_pipeline_empty_stops_cleanly",
+  "jobId": null,
+  "runtimeMs": 0,
+  "actualTokensUsed": 0,
+  "retryCount": 0,
+  "dispatchAttempts": 0,
+  "estimatedTokens": null,
+  "auditRuntimeMs": 0
+}

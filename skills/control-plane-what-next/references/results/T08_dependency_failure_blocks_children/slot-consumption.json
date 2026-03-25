@@ -1,0 +1,8 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "jobId": "CP-801",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "slotConsumed": false,
+  "evidence": "no slot consumed"
+}

@@ -1,6 +1,6 @@
 {
   "testId": "T08_dependency_failure_blocks_children",
-  "timestamp": "2026-03-25T09:55:19.406310+00:00",
+  "timestamp": "2026-03-25T12:58:26.950043+00:00",
   "expected": {
     "selectedJob": "CP-801",
     "outcome": "dependents_blocked_after_failure"
@@ -19,13 +19,13 @@
     },
     {
       "jobId": "CP-802",
-      "score": 24,
+      "score": 26,
       "priority": "P0",
       "eligible": false
     },
     {
       "jobId": "CP-803",
-      "score": 24,
+      "score": 26,
       "priority": "P0",
       "eligible": false
     }

@@ -1,0 +1,7 @@
+{
+  "jobId": "CP-1301",
+  "quarantined": true,
+  "reason": "repeated_failure",
+  "failedAttempts": 2,
+  "timestamp": "2026-03-25T12:58:26.952768+00:00"
+}

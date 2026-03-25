@@ -1,5 +1,5 @@
 Selected: CP-301
 Outcome: dispatch
-Priority: P0 (score: 20)
+Priority: P0 (score: 22)
 Title: Apply safe config cleanup
 Approval: jobs window active (2 remaining)

@@ -1,0 +1,10 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "jobId": "CP-1201",
+  "runtimeMs": 1297,
+  "actualTokensUsed": 17160,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 22000,
+  "auditRuntimeMs": 0
+}

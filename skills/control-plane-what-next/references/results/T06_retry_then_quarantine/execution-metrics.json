@@ -1,0 +1,10 @@
+{
+  "testId": "T06_retry_then_quarantine",
+  "jobId": "CP-601",
+  "runtimeMs": 0,
+  "actualTokensUsed": 0,
+  "retryCount": 2,
+  "dispatchAttempts": 2,
+  "estimatedTokens": 24000,
+  "auditRuntimeMs": 0
+}

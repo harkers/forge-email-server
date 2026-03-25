@@ -1,0 +1,8 @@
+{
+  "testId": "T03_jobs_window_decrements",
+  "jobId": "CP-301",
+  "jobsRemainingBefore": 2,
+  "jobsRemainingAfter": 1,
+  "slotConsumed": true,
+  "evidence": "dispatch entered execution"
+}

@@ -1,0 +1,10 @@
+{
+  "testId": "T06_retry_then_quarantine",
+  "jobId": "CP-601",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 0,
+  "actualTokensUsed": 0
+}

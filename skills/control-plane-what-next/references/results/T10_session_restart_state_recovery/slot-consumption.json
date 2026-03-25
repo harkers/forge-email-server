@@ -1,0 +1,8 @@
+{
+  "testId": "T10_session_restart_state_recovery",
+  "jobId": "CP-1004",
+  "jobsRemainingBefore": 3,
+  "jobsRemainingAfter": 2,
+  "slotConsumed": true,
+  "evidence": "dispatch entered execution"
+}

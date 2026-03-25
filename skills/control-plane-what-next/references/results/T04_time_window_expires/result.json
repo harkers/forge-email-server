@@ -26,5 +26,71 @@
     "outcome": "approval_required",
     "riskyHeld": []
   },
-  "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired"
+  "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "time",
+      "jobsRemaining": null,
+      "maxJobs": null,
+      "windowStartedAt": "2026-03-25T01:00:00Z",
+      "windowExpiresAt": "2026-03-25T07:00:00Z",
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 83000,
+      "windowCompletedJobs": [
+        "CP-401A",
+        "CP-401B"
+      ],
+      "sessionCompletedJobs": [
+        "CP-401A",
+        "CP-401B"
+      ],
+      "lastDispatchedJobId": "CP-401B",
+      "lastUpdatedAt": "2026-03-25T07:05:00Z"
+    },
+    "execution_metrics": {
+      "testId": "T04_time_window_expires",
+      "jobId": null,
+      "runtimeMs": 0,
+      "actualTokensUsed": 0,
+      "retryCount": 0,
+      "dispatchAttempts": 0,
+      "estimatedTokens": null,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": null,
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T04_time_window_expires",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T04_time_window_expires",
+      "jobId": null,
+      "mode": "time",
+      "jobsRemainingBefore": null,
+      "jobsRemainingAfter": null,
+      "windowTokensBefore": 83000,
+      "windowTokensAfter": 83000,
+      "actualTokensUsed": 0
+    },
+    "slot_consumption": {
+      "testId": "T04_time_window_expires",
+      "jobId": null,
+      "jobsRemainingBefore": null,
+      "jobsRemainingAfter": null,
+      "slotConsumed": false,
+      "evidence": "no slot consumed"
+    }
+  }
 }

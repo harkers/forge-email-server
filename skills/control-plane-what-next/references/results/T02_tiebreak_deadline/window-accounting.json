@@ -1,0 +1,10 @@
+{
+  "testId": "T02_tiebreak_deadline",
+  "jobId": "CP-202",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 11250,
+  "actualTokensUsed": 11250
+}

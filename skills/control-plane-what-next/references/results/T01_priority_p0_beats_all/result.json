@@ -14,7 +14,7 @@
       },
       {
         "jobId": "CP-112",
-        "score": 20,
+        "score": 22,
         "priority": "P0",
         "eligible": true
       },
@@ -44,5 +44,69 @@
     "outcome": "dispatch",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-106\nOutcome: dispatch\nPriority: P0 (score: 34)\nTitle: Repair pipeline auth for worker group\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-106\nOutcome: dispatch\nPriority: P0 (score: 34)\nTitle: Repair pipeline auth for worker group\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 4,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 31500,
+      "windowCompletedJobs": [
+        "CP-106"
+      ],
+      "sessionCompletedJobs": [
+        "CP-106"
+      ],
+      "lastDispatchedJobId": "CP-106",
+      "lastUpdatedAt": "2026-03-25T12:58:26.944872+00:00"
+    },
+    "execution_metrics": {
+      "testId": "T01_priority_p0_beats_all",
+      "jobId": "CP-106",
+      "runtimeMs": 2408,
+      "actualTokensUsed": 31500,
+      "retryCount": 0,
+      "dispatchAttempts": 1,
+      "estimatedTokens": 42000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-106",
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T01_priority_p0_beats_all",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T01_priority_p0_beats_all",
+      "jobId": "CP-106",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 31500,
+      "actualTokensUsed": 31500
+    },
+    "slot_consumption": {
+      "testId": "T01_priority_p0_beats_all",
+      "jobId": "CP-106",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "slotConsumed": true,
+      "evidence": "dispatch entered execution"
+    }
+  }
 }

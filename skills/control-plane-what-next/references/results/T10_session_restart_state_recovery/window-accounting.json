@@ -1,0 +1,10 @@
+{
+  "testId": "T10_session_restart_state_recovery",
+  "jobId": "CP-1004",
+  "mode": "jobs",
+  "jobsRemainingBefore": 3,
+  "jobsRemainingAfter": 2,
+  "windowTokensBefore": 91000,
+  "windowTokensAfter": 104260,
+  "actualTokensUsed": 13260
+}

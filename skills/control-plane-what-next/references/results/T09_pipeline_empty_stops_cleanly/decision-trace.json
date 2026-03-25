@@ -1,6 +1,6 @@
 {
   "testId": "T09_pipeline_empty_stops_cleanly",
-  "timestamp": "2026-03-25T09:55:19.407345+00:00",
+  "timestamp": "2026-03-25T12:58:26.950537+00:00",
   "expected": {
     "selectedJob": null,
     "outcome": "no_work"

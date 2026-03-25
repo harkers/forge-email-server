@@ -1,0 +1,10 @@
+{
+  "testId": "T01_priority_p0_beats_all",
+  "jobId": "CP-106",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 31500,
+  "actualTokensUsed": 31500
+}

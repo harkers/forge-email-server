@@ -1,0 +1,9 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "rootFailedJobId": "CP-801",
+  "blockedJobs": [
+    "CP-802",
+    "CP-803"
+  ],
+  "count": 2
+}

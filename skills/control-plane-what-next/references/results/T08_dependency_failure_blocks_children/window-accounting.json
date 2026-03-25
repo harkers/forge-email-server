@@ -1,0 +1,10 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "jobId": "CP-801",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 0,
+  "actualTokensUsed": 0
+}

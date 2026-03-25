@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "mode": "jobs",
+  "jobsRemaining": 1,
+  "maxJobs": 2,
+  "windowStartedAt": "2026-03-25T09:00:00Z",
+  "windowExpiresAt": null,
+  "followNewJobs": false,
+  "allowDestructive": false,
+  "allowProdChanges": false,
+  "maxTokensPerJob": 120000,
+  "maxTokensPerWindow": 200000,
+  "windowTokensUsed": 9000,
+  "windowCompletedJobs": [
+    "CP-301"
+  ],
+  "sessionCompletedJobs": [
+    "CP-301"
+  ],
+  "lastDispatchedJobId": "CP-301",
+  "lastUpdatedAt": "2026-03-25T12:58:26.946239+00:00"
+}

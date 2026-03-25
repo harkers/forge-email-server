@@ -1,0 +1,10 @@
+{
+  "testId": "T04_time_window_expires",
+  "jobId": null,
+  "mode": "time",
+  "jobsRemainingBefore": null,
+  "jobsRemainingAfter": null,
+  "windowTokensBefore": 83000,
+  "windowTokensAfter": 83000,
+  "actualTokensUsed": 0
+}

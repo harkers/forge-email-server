@@ -1,6 +1,6 @@
 {
   "testId": "T05_destructive_job_blocked",
-  "timestamp": "2026-03-25T09:55:19.404995+00:00",
+  "timestamp": "2026-03-25T12:58:26.948191+00:00",
   "expected": {
     "selectedJob": null,
     "outcome": "blocked"

@@ -1,0 +1,8 @@
+{
+  "testId": "T11_e2e_normal_delivery",
+  "jobId": "CP-1101",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "slotConsumed": true,
+  "evidence": "dispatch entered execution"
+}

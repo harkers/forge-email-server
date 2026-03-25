@@ -1,0 +1,8 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "jobId": "CP-1201",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "slotConsumed": true,
+  "evidence": "dispatch entered execution"
+}

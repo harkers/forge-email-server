@@ -1,6 +1,6 @@
 {
   "testId": "T11_e2e_normal_delivery",
-  "timestamp": "2026-03-25T09:55:19.408029+00:00",
+  "timestamp": "2026-03-25T12:58:26.951775+00:00",
   "expected": {
     "selectedJob": "CP-1101",
     "outcome": "dispatch_series"
@@ -19,13 +19,13 @@
     },
     {
       "jobId": "CP-1102",
-      "score": 24,
+      "score": 26,
       "priority": "P0",
       "eligible": true
     },
     {
       "jobId": "CP-1103",
-      "score": 24,
+      "score": 26,
       "priority": "P0",
       "eligible": true
     },

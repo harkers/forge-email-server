@@ -1,6 +1,6 @@
 {
   "testId": "T13_e2e_failure_chain",
-  "timestamp": "2026-03-25T09:55:19.408858+00:00",
+  "timestamp": "2026-03-25T12:58:26.952995+00:00",
   "expected": {
     "selectedJob": "CP-1301",
     "outcome": "failure_chain_paused"
@@ -19,13 +19,13 @@
     },
     {
       "jobId": "CP-1303",
-      "score": 25,
+      "score": 27,
       "priority": "P0",
       "eligible": false
     },
     {
       "jobId": "CP-1302",
-      "score": 24,
+      "score": 26,
       "priority": "P0",
       "eligible": false
     }

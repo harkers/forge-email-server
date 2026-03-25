@@ -1,0 +1,10 @@
+{
+  "testId": "T02_tiebreak_deadline",
+  "jobId": "CP-202",
+  "runtimeMs": 908,
+  "actualTokensUsed": 11250,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 15000,
+  "auditRuntimeMs": 0
+}

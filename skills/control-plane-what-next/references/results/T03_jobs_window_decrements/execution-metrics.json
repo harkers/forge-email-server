@@ -1,0 +1,10 @@
+{
+  "testId": "T03_jobs_window_decrements",
+  "jobId": "CP-301",
+  "runtimeMs": 741,
+  "actualTokensUsed": 9000,
+  "retryCount": 0,
+  "dispatchAttempts": 1,
+  "estimatedTokens": 12000,
+  "auditRuntimeMs": 0
+}

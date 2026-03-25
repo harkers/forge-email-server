@@ -1,0 +1,10 @@
+{
+  "testId": "T11_e2e_normal_delivery",
+  "jobId": "CP-1101",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 24960,
+  "actualTokensUsed": 24960
+}

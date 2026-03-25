@@ -1,5 +1,5 @@
 Selected: CP-1004
 Outcome: dispatch
-Priority: P0 (score: 20)
+Priority: P0 (score: 22)
 Title: Resume safe backlog processing after restart
 Approval: jobs window active (3 remaining)

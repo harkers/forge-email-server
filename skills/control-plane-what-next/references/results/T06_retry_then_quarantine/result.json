@@ -4,7 +4,7 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-601",
-    "selectionReason": "",
+    "selectionReason": "Selected CP-601 (score: 34, priority: P0)",
     "candidates": [
       {
         "jobId": "CP-601",
@@ -14,7 +14,7 @@
       },
       {
         "jobId": "CP-602",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": false
       }
@@ -32,5 +32,66 @@
     "outcome": "quarantined_after_retry",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 5,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 0,
+      "windowCompletedJobs": [],
+      "sessionCompletedJobs": [],
+      "lastDispatchedJobId": null,
+      "lastUpdatedAt": "2026-03-25T09:00:00Z"
+    },
+    "execution_metrics": {
+      "testId": "T06_retry_then_quarantine",
+      "jobId": "CP-601",
+      "runtimeMs": 0,
+      "actualTokensUsed": 0,
+      "retryCount": 2,
+      "dispatchAttempts": 2,
+      "estimatedTokens": 24000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-601",
+      "quarantined": true,
+      "reason": "repeated_failure",
+      "failedAttempts": 2,
+      "timestamp": "2026-03-25T12:58:26.948559+00:00"
+    },
+    "blocked_downstream": {
+      "testId": "T06_retry_then_quarantine",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T06_retry_then_quarantine",
+      "jobId": "CP-601",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 0,
+      "actualTokensUsed": 0
+    },
+    "slot_consumption": {
+      "testId": "T06_retry_then_quarantine",
+      "jobId": "CP-601",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "slotConsumed": false,
+      "evidence": "no slot consumed"
+    }
+  }
 }

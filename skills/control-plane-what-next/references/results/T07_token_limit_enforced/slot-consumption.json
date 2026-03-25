@@ -1,0 +1,8 @@
+{
+  "testId": "T07_token_limit_enforced",
+  "jobId": null,
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "slotConsumed": false,
+  "evidence": "no slot consumed"
+}

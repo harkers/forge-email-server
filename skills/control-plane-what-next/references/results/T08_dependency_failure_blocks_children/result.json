@@ -14,13 +14,13 @@
       },
       {
         "jobId": "CP-802",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": false
       },
       {
         "jobId": "CP-803",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": false
       }
@@ -38,5 +38,69 @@
     "outcome": "dependents_blocked_after_failure",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 5,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 0,
+      "windowCompletedJobs": [],
+      "sessionCompletedJobs": [],
+      "lastDispatchedJobId": null,
+      "lastUpdatedAt": "2026-03-25T09:00:00Z"
+    },
+    "execution_metrics": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "jobId": "CP-801",
+      "runtimeMs": 0,
+      "actualTokensUsed": 0,
+      "retryCount": 1,
+      "dispatchAttempts": 0,
+      "estimatedTokens": 28000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-801",
+      "quarantined": true,
+      "reason": "dependency_root_failure",
+      "failedAttempts": 1,
+      "timestamp": "2026-03-25T12:58:26.949738+00:00"
+    },
+    "blocked_downstream": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "rootFailedJobId": "CP-801",
+      "blockedJobs": [
+        "CP-802",
+        "CP-803"
+      ],
+      "count": 2
+    },
+    "window_accounting": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "jobId": "CP-801",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 0,
+      "actualTokensUsed": 0
+    },
+    "slot_consumption": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "jobId": "CP-801",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "slotConsumed": false,
+      "evidence": "no slot consumed"
+    }
+  }
 }

@@ -1,0 +1,8 @@
+{
+  "testId": "T06_retry_then_quarantine",
+  "jobId": "CP-601",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "slotConsumed": false,
+  "evidence": "no slot consumed"
+}

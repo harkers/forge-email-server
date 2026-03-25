@@ -4,18 +4,18 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-301",
-    "selectionReason": "Selected CP-301 (score: 20, priority: P0)",
+    "selectionReason": "Selected CP-301 (score: 22, priority: P0)",
     "candidates": [
       {
         "jobId": "CP-301",
-        "score": 20,
+        "score": 22,
         "priority": "P0",
         "eligible": true
       },
       {
         "jobId": "CP-302",
-        "score": 16,
-        "priority": "P1",
+        "score": 18,
+        "priority": "P0",
         "eligible": true
       }
     ],
@@ -32,5 +32,69 @@
     "outcome": "dispatch",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 20)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)"
+  "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 22)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 1,
+      "maxJobs": 2,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 200000,
+      "windowTokensUsed": 9000,
+      "windowCompletedJobs": [
+        "CP-301"
+      ],
+      "sessionCompletedJobs": [
+        "CP-301"
+      ],
+      "lastDispatchedJobId": "CP-301",
+      "lastUpdatedAt": "2026-03-25T12:58:26.946239+00:00"
+    },
+    "execution_metrics": {
+      "testId": "T03_jobs_window_decrements",
+      "jobId": "CP-301",
+      "runtimeMs": 741,
+      "actualTokensUsed": 9000,
+      "retryCount": 0,
+      "dispatchAttempts": 1,
+      "estimatedTokens": 12000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-301",
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T03_jobs_window_decrements",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T03_jobs_window_decrements",
+      "jobId": "CP-301",
+      "mode": "jobs",
+      "jobsRemainingBefore": 2,
+      "jobsRemainingAfter": 1,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 9000,
+      "actualTokensUsed": 9000
+    },
+    "slot_consumption": {
+      "testId": "T03_jobs_window_decrements",
+      "jobId": "CP-301",
+      "jobsRemainingBefore": 2,
+      "jobsRemainingAfter": 1,
+      "slotConsumed": true,
+      "evidence": "dispatch entered execution"
+    }
+  }
 }

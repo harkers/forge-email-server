@@ -1,0 +1,10 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "jobId": "CP-1201",
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 17160,
+  "actualTokensUsed": 17160
+}

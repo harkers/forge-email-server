@@ -1,0 +1,10 @@
+{
+  "testId": "T13_e2e_failure_chain",
+  "jobId": "CP-1301",
+  "runtimeMs": 0,
+  "actualTokensUsed": 0,
+  "retryCount": 2,
+  "dispatchAttempts": 2,
+  "estimatedTokens": 26000,
+  "auditRuntimeMs": 0
+}

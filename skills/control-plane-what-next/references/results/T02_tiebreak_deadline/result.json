@@ -14,14 +14,14 @@
       },
       {
         "jobId": "CP-203",
-        "score": 23,
+        "score": 25,
         "priority": "P0",
         "eligible": true
       },
       {
         "jobId": "CP-204",
-        "score": 16,
-        "priority": "P1",
+        "score": 18,
+        "priority": "P0",
         "eligible": true
       }
     ],
@@ -38,5 +38,69 @@
     "outcome": "dispatch",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-202\nOutcome: dispatch\nPriority: P0 (score: 25)\nTitle: Review release checklist before handoff\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-202\nOutcome: dispatch\nPriority: P0 (score: 25)\nTitle: Review release checklist before handoff\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 4,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 11250,
+      "windowCompletedJobs": [
+        "CP-202"
+      ],
+      "sessionCompletedJobs": [
+        "CP-202"
+      ],
+      "lastDispatchedJobId": "CP-202",
+      "lastUpdatedAt": "2026-03-25T12:58:26.945630+00:00"
+    },
+    "execution_metrics": {
+      "testId": "T02_tiebreak_deadline",
+      "jobId": "CP-202",
+      "runtimeMs": 908,
+      "actualTokensUsed": 11250,
+      "retryCount": 0,
+      "dispatchAttempts": 1,
+      "estimatedTokens": 15000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-202",
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T02_tiebreak_deadline",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T02_tiebreak_deadline",
+      "jobId": "CP-202",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 11250,
+      "actualTokensUsed": 11250
+    },
+    "slot_consumption": {
+      "testId": "T02_tiebreak_deadline",
+      "jobId": "CP-202",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "slotConsumed": true,
+      "evidence": "dispatch entered execution"
+    }
+  }
 }

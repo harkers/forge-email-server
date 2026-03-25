@@ -1,0 +1,9 @@
+{
+  "testId": "T13_e2e_failure_chain",
+  "rootFailedJobId": "CP-1301",
+  "blockedJobs": [
+    "CP-1302",
+    "CP-1303"
+  ],
+  "count": 2
+}

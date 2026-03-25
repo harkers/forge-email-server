@@ -1,0 +1,10 @@
+{
+  "testId": "T07_token_limit_enforced",
+  "jobId": null,
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 0,
+  "actualTokensUsed": 0
+}

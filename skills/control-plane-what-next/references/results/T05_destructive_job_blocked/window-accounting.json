@@ -1,0 +1,10 @@
+{
+  "testId": "T05_destructive_job_blocked",
+  "jobId": null,
+  "mode": "jobs",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 0,
+  "actualTokensUsed": 0
+}

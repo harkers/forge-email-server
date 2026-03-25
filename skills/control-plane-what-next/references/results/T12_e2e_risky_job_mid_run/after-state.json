@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "mode": "jobs",
+  "jobsRemaining": 4,
+  "maxJobs": 5,
+  "windowStartedAt": "2026-03-25T09:00:00Z",
+  "windowExpiresAt": null,
+  "followNewJobs": false,
+  "allowDestructive": false,
+  "allowProdChanges": false,
+  "maxTokensPerJob": 120000,
+  "maxTokensPerWindow": 400000,
+  "windowTokensUsed": 17160,
+  "windowCompletedJobs": [
+    "CP-1201"
+  ],
+  "sessionCompletedJobs": [
+    "CP-1201"
+  ],
+  "lastDispatchedJobId": "CP-1201",
+  "lastUpdatedAt": "2026-03-25T12:58:26.952121+00:00"
+}

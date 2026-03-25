@@ -1,6 +1,6 @@
 {
   "testId": "T01_priority_p0_beats_all",
-  "timestamp": "2026-03-25T09:55:19.401952+00:00",
+  "timestamp": "2026-03-25T12:58:26.945171+00:00",
   "expected": {
     "selectedJob": "CP-106",
     "outcome": "dispatch"
@@ -19,7 +19,7 @@
     },
     {
       "jobId": "CP-112",
-      "score": 20,
+      "score": 22,
       "priority": "P0",
       "eligible": true
     },

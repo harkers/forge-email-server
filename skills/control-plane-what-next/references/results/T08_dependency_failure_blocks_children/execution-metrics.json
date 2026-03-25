@@ -1,0 +1,10 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "jobId": "CP-801",
+  "runtimeMs": 0,
+  "actualTokensUsed": 0,
+  "retryCount": 1,
+  "dispatchAttempts": 0,
+  "estimatedTokens": 28000,
+  "auditRuntimeMs": 0
+}

@@ -1,0 +1,8 @@
+{
+  "testId": "T05_destructive_job_blocked",
+  "jobId": null,
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "slotConsumed": false,
+  "evidence": "no slot consumed"
+}

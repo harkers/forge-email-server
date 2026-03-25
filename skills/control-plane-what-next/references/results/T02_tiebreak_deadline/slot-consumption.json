@@ -1,0 +1,8 @@
+{
+  "testId": "T02_tiebreak_deadline",
+  "jobId": "CP-202",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 4,
+  "slotConsumed": true,
+  "evidence": "dispatch entered execution"
+}

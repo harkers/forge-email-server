@@ -4,7 +4,7 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-1301",
-    "selectionReason": "",
+    "selectionReason": "Selected CP-1301 (score: 34, priority: P0)",
     "candidates": [
       {
         "jobId": "CP-1301",
@@ -14,13 +14,13 @@
       },
       {
         "jobId": "CP-1303",
-        "score": 25,
+        "score": 27,
         "priority": "P0",
         "eligible": false
       },
       {
         "jobId": "CP-1302",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": false
       }
@@ -38,5 +38,69 @@
     "outcome": "failure_chain_paused",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 5,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 0,
+      "windowCompletedJobs": [],
+      "sessionCompletedJobs": [],
+      "lastDispatchedJobId": null,
+      "lastUpdatedAt": "2026-03-25T09:00:00Z"
+    },
+    "execution_metrics": {
+      "testId": "T13_e2e_failure_chain",
+      "jobId": "CP-1301",
+      "runtimeMs": 0,
+      "actualTokensUsed": 0,
+      "retryCount": 2,
+      "dispatchAttempts": 2,
+      "estimatedTokens": 26000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-1301",
+      "quarantined": true,
+      "reason": "repeated_failure",
+      "failedAttempts": 2,
+      "timestamp": "2026-03-25T12:58:26.952768+00:00"
+    },
+    "blocked_downstream": {
+      "testId": "T13_e2e_failure_chain",
+      "rootFailedJobId": "CP-1301",
+      "blockedJobs": [
+        "CP-1302",
+        "CP-1303"
+      ],
+      "count": 2
+    },
+    "window_accounting": {
+      "testId": "T13_e2e_failure_chain",
+      "jobId": "CP-1301",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 0,
+      "actualTokensUsed": 0
+    },
+    "slot_consumption": {
+      "testId": "T13_e2e_failure_chain",
+      "jobId": "CP-1301",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "slotConsumed": false,
+      "evidence": "no slot consumed"
+    }
+  }
 }

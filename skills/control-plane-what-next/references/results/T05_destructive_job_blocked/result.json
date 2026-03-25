@@ -33,9 +33,67 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "blocked",
-    "riskyHeld": [
-      "CP-501"
-    ]
+    "riskyHeld": []
   },
-  "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked\nRisky held: CP-501"
+  "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 5,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 0,
+      "windowCompletedJobs": [],
+      "sessionCompletedJobs": [],
+      "lastDispatchedJobId": null,
+      "lastUpdatedAt": "2026-03-25T09:00:00Z"
+    },
+    "execution_metrics": {
+      "testId": "T05_destructive_job_blocked",
+      "jobId": null,
+      "runtimeMs": 0,
+      "actualTokensUsed": 0,
+      "retryCount": 0,
+      "dispatchAttempts": 0,
+      "estimatedTokens": null,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": null,
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T05_destructive_job_blocked",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T05_destructive_job_blocked",
+      "jobId": null,
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 0,
+      "actualTokensUsed": 0
+    },
+    "slot_consumption": {
+      "testId": "T05_destructive_job_blocked",
+      "jobId": null,
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 5,
+      "slotConsumed": false,
+      "evidence": "no slot consumed"
+    }
+  }
 }

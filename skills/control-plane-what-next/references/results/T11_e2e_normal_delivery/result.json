@@ -14,13 +14,13 @@
       },
       {
         "jobId": "CP-1102",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": true
       },
       {
         "jobId": "CP-1103",
-        "score": 24,
+        "score": 26,
         "priority": "P0",
         "eligible": true
       },
@@ -44,5 +44,69 @@
     "outcome": "dispatch_series",
     "riskyHeld": []
   },
-  "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)"
+  "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 4,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 24960,
+      "windowCompletedJobs": [
+        "CP-1101"
+      ],
+      "sessionCompletedJobs": [
+        "CP-1101"
+      ],
+      "lastDispatchedJobId": "CP-1101",
+      "lastUpdatedAt": "2026-03-25T12:58:26.951542+00:00"
+    },
+    "execution_metrics": {
+      "testId": "T11_e2e_normal_delivery",
+      "jobId": "CP-1101",
+      "runtimeMs": 1852,
+      "actualTokensUsed": 24960,
+      "retryCount": 0,
+      "dispatchAttempts": 1,
+      "estimatedTokens": 32000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-1101",
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T11_e2e_normal_delivery",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T11_e2e_normal_delivery",
+      "jobId": "CP-1101",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 24960,
+      "actualTokensUsed": 24960
+    },
+    "slot_consumption": {
+      "testId": "T11_e2e_normal_delivery",
+      "jobId": "CP-1101",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "slotConsumed": true,
+      "evidence": "dispatch entered execution"
+    }
+  }
 }

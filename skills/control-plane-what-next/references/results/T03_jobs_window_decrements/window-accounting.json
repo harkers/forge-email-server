@@ -1,0 +1,10 @@
+{
+  "testId": "T03_jobs_window_decrements",
+  "jobId": "CP-301",
+  "mode": "jobs",
+  "jobsRemainingBefore": 2,
+  "jobsRemainingAfter": 1,
+  "windowTokensBefore": 0,
+  "windowTokensAfter": 9000,
+  "actualTokensUsed": 9000
+}

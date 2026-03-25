@@ -1,6 +1,6 @@
 {
   "testId": "T10_session_restart_state_recovery",
-  "timestamp": "2026-03-25T09:55:19.407690+00:00",
+  "timestamp": "2026-03-25T12:58:26.951134+00:00",
   "expected": {
     "selectedJob": "CP-1004",
     "outcome": "dispatch"
@@ -13,7 +13,7 @@
   "candidates": [
     {
       "jobId": "CP-1004",
-      "score": 20,
+      "score": 22,
       "priority": "P0",
       "eligible": true
     },

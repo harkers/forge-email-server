@@ -1,0 +1,8 @@
+{
+  "testId": "T13_e2e_failure_chain",
+  "jobId": "CP-1301",
+  "jobsRemainingBefore": 5,
+  "jobsRemainingAfter": 5,
+  "slotConsumed": false,
+  "evidence": "no slot consumed"
+}

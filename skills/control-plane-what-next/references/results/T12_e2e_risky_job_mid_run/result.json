@@ -40,5 +40,69 @@
       "CP-1203"
     ]
   },
-  "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203"
+  "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203",
+  "evidence": {
+    "after_state": {
+      "version": 1,
+      "mode": "jobs",
+      "jobsRemaining": 4,
+      "maxJobs": 5,
+      "windowStartedAt": "2026-03-25T09:00:00Z",
+      "windowExpiresAt": null,
+      "followNewJobs": false,
+      "allowDestructive": false,
+      "allowProdChanges": false,
+      "maxTokensPerJob": 120000,
+      "maxTokensPerWindow": 400000,
+      "windowTokensUsed": 17160,
+      "windowCompletedJobs": [
+        "CP-1201"
+      ],
+      "sessionCompletedJobs": [
+        "CP-1201"
+      ],
+      "lastDispatchedJobId": "CP-1201",
+      "lastUpdatedAt": "2026-03-25T12:58:26.952121+00:00"
+    },
+    "execution_metrics": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "jobId": "CP-1201",
+      "runtimeMs": 1297,
+      "actualTokensUsed": 17160,
+      "retryCount": 0,
+      "dispatchAttempts": 1,
+      "estimatedTokens": 22000,
+      "auditRuntimeMs": 0
+    },
+    "quarantine": {
+      "jobId": "CP-1201",
+      "quarantined": false,
+      "reason": null,
+      "failedAttempts": 0
+    },
+    "blocked_downstream": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "rootFailedJobId": null,
+      "blockedJobs": [],
+      "count": 0
+    },
+    "window_accounting": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "jobId": "CP-1201",
+      "mode": "jobs",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "windowTokensBefore": 0,
+      "windowTokensAfter": 17160,
+      "actualTokensUsed": 17160
+    },
+    "slot_consumption": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "jobId": "CP-1201",
+      "jobsRemainingBefore": 5,
+      "jobsRemainingAfter": 4,
+      "slotConsumed": true,
+      "evidence": "dispatch entered execution"
+    }
+  }
 }

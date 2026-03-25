@@ -2,4 +2,3 @@ Selected: none
 Outcome: blocked
 Approval: jobs window active (5 remaining)
 Blocked: destructive operation blocked; production-impacting change blocked
-Risky held: CP-501
