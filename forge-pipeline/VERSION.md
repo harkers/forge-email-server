@@ -1,36 +1,32 @@
 # Forge Pipeline Version
 
 ## Current Version
-**v1.3.0** — 2026-03-25
+**v1.4.0** — 2026-03-25
 
 ## Changelog
 
+### v1.4.0 (2026-03-25)
+- FP-DB1: Add SQLAlchemy + psycopg2-binary to requirements
+- FP-DB2: Add PostgreSQL service to docker-compose
+- FP-DB3: Implement dual-mode database layer (SQLite/PostgreSQL)
+- FP-DB4: Configure DATABASE_URL for PostgreSQL in docker-compose
+- FP-DB5: Add connection pooling for PostgreSQL
+- FP-DB6: PostgreSQL operational with health check showing storage: postgresql
+
+**Database Architecture:**
+- SQLite for development (default)
+- PostgreSQL for production (via DATABASE_URL env var)
+- PostgresConnection wrapper provides sqlite3-compatible interface
+- PostgresRow class supports both dict and attribute access
+
 ### v1.3.0 (2026-03-25)
-- FP-051: Build insight strip component
-  - Shows high-priority due this week, active blockers, stale items, at-risk
-  - Visual warning/danger states for alerts
-- FP-052: Implement Focus Now card
-  - Recommends next action based on priority/risk/blockers
-  - Shows critical tasks, blocked items, overdue, due this week
-- FP-053: Add stale-work detection logic
-  - Items >7 days since update flagged as stale
-  - Visual fade on stale items
-- FP-054: Add source-health awareness panel
-  - Shows per-source task counts and project counts
-  - Health indicator (green/yellow/red) based on last update
-- FP-040: Rebalance kanban column widths
-- FP-041: Add relative timestamps to Recently changed
-- FP-021-023: Overdue/due-soon/stale visual states
-- FP-050: Risk state badges on cards
+- FP-051-054: Management Insight Layer
 
 ### v1.2.0 (2026-03-25)
-- FP-040-050: Semantic layout upgrade
+- FP-040-050: Semantic Layout Upgrade
 
 ### v1.1.0 (2026-03-25)
-- FP-001-011: Foundation refinement
-
-### v1.0.0 (2026-03-24)
-- ForgeOrchestra design system integration
+- FP-001-011: Foundation Refinement
 
 ---
 

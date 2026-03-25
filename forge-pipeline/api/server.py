@@ -11,12 +11,27 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+# Database configuration
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+USE_POSTGRES = DATABASE_URL.startswith("postgresql")
+
 try:
     from redis import Redis
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
     Redis = None
+
+# SQLAlchemy imports (for PostgreSQL)
+if USE_POSTGRES:
+    try:
+        from sqlalchemy import create_engine, text
+        SQLALCHEMY_AVAILABLE = True
+    except ImportError:
+        SQLALCHEMY_AVAILABLE = False
+        USE_POSTGRES = False
+else:
+    SQLALCHEMY_AVAILABLE = False
 
 ROOT = Path(__file__).resolve().parent
 STORAGE_DIR = ROOT / "storage"
@@ -28,6 +43,10 @@ API_KEY = os.environ.get("FORGE_PIPELINE_API_KEY", "")
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 LOG_REQUESTS = os.environ.get("FORGE_PIPELINE_LOG_REQUESTS", "false").lower() == "true"
+
+# PostgreSQL engine (lazy)
+_pg_engine = None
+_pg_session = None
 
 # Initialize Redis connection (lazy, optional)
 _redis = None
@@ -43,6 +62,114 @@ def get_redis() -> Redis | None:
         except Exception:
             _redis = None
     return _redis
+
+
+def get_postgres_engine():
+    """Get or create PostgreSQL engine."""
+    global _pg_engine
+    if _pg_engine is None and SQLALCHEMY_AVAILABLE:
+        _pg_engine = create_engine(
+            DATABASE_URL,
+            pool_size=10,
+            max_overflow=20,
+            pool_pre_ping=True,
+            pool_recycle=300
+        )
+    return _pg_engine
+
+
+def db():
+    """Get database connection - SQLite or PostgreSQL."""
+    if USE_POSTGRES and SQLALCHEMY_AVAILABLE:
+        engine = get_postgres_engine()
+        conn = engine.connect()
+        # Wrap to provide dict-like row access
+        return PostgresConnection(conn)
+    else:
+        conn = sqlite3.connect(DB_FILE)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+
+class PostgresConnection:
+    """Wrapper for SQLAlchemy connection to mimic sqlite3 interface."""
+    
+    def __init__(self, conn):
+        self._conn = conn
+        self._last_result = None
+    
+    def execute(self, sql, params=()):
+        # Convert ? placeholders to :param0, :param1, etc. for SQLAlchemy
+        if params:
+            if isinstance(params, (list, tuple)):
+                # Convert positional params to named params
+                param_dict = {f'param{i}': p for i, p in enumerate(params)}
+                new_sql = sql
+                for i in range(len(params)):
+                    new_sql = new_sql.replace('?', f':param{i}', 1)
+                self._last_result = self._conn.execute(text(new_sql), param_dict)
+            else:
+                self._last_result = self._conn.execute(text(sql), params)
+        else:
+            self._last_result = self._conn.execute(text(sql))
+        return PostgresResult(self._last_result)
+    
+    def commit(self):
+        return self._conn.commit()
+    
+    def close(self):
+        return self._conn.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.close()
+
+
+class PostgresResult:
+    """Wrapper for SQLAlchemy Result to mimic sqlite3 cursor."""
+    
+    def __init__(self, result):
+        self._result = result
+        self._rows = None
+    
+    def fetchone(self):
+        row = self._result.fetchone()
+        if row is None:
+            return None
+        # Convert to Row-like object with dict access
+        return PostgresRow(row, self._result.keys())
+    
+    def fetchall(self):
+        rows = self._result.fetchall()
+        keys = self._result.keys()
+        return [PostgresRow(row, keys) for row in rows]
+    
+    def fetchone_direct(self):
+        """Fetch one row from the underlying result."""
+        return self._result.fetchone()
+
+
+class PostgresRow:
+    """Row object that supports both dict-style and attribute access."""
+    
+    def __init__(self, row, keys):
+        self._row = row
+        self._keys = list(keys)
+        self._dict = {k: v for k, v in zip(self._keys, row)}
+    
+    def __getitem__(self, key):
+        return self._dict[key]
+    
+    def __contains__(self, key):
+        return key in self._dict
+    
+    def keys(self):
+        return self._keys
+    
+    def get(self, key, default=None):
+        return self._dict.get(key, default)
 
 ALLOWED_PROJECT_STATUS = {'on-track', 'at-risk', 'off-track', 'not-started', 'in-progress', 'blocked', 'completed', 'overdue', 'cancelled'}
 ALLOWED_TASK_STATUS = {'todo', 'in-progress', 'blocked', 'done'}
@@ -158,15 +285,52 @@ def log_request(method: str, path: str, status: int, duration_ms: float, user_ag
         pass  # Logging best-effort
 
 
-def db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
 def init_db() -> None:
     STORAGE_DIR.mkdir(parents=True, exist_ok=True)
-    conn = db()
+    
+    if USE_POSTGRES and SQLALCHEMY_AVAILABLE:
+        # PostgreSQL: create tables via SQLAlchemy
+        engine = get_postgres_engine()
+        with engine.connect() as conn:
+            conn.execute(text('''
+                CREATE TABLE IF NOT EXISTS projects (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    notes TEXT NOT NULL DEFAULT '',
+                    status TEXT NOT NULL DEFAULT 'not-started',
+                    tags_json TEXT NOT NULL DEFAULT '[]',
+                    updated_at TEXT NOT NULL
+                )
+            '''))
+            conn.execute(text('''
+                CREATE TABLE IF NOT EXISTS tasks (
+                    id TEXT PRIMARY KEY,
+                    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+                    title TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'todo',
+                    priority TEXT NOT NULL DEFAULT 'medium',
+                    risk_state TEXT NOT NULL DEFAULT 'none',
+                    due_date TEXT NOT NULL DEFAULT '',
+                    tags_json TEXT NOT NULL DEFAULT '[]',
+                    notes TEXT NOT NULL DEFAULT '',
+                    updated_at TEXT NOT NULL
+                )
+            '''))
+            conn.execute(text('''
+                CREATE TABLE IF NOT EXISTS events (
+                    id TEXT PRIMARY KEY,
+                    kind TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    payload_json TEXT NOT NULL DEFAULT '{}'
+                )
+            '''))
+            conn.commit()
+        return
+    
+    # SQLite: existing logic
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.executescript(
         '''
@@ -356,15 +520,15 @@ def validate_event_payload(body):
     return {'source': source, 'kind': kind, 'payload': payload}
 
 
-def project_count(conn: sqlite3.Connection) -> int:
+def project_count(conn) -> int:
     return conn.execute('SELECT COUNT(*) FROM projects').fetchone()[0]
 
 
-def event_count(conn: sqlite3.Connection) -> int:
+def event_count(conn) -> int:
     return conn.execute('SELECT COUNT(*) FROM events').fetchone()[0]
 
 
-def _get_summary_cached(conn: sqlite3.Connection) -> dict:
+def _get_summary_cached(conn) -> dict:
     """Get summary with Redis cache (60s TTL)."""
     redis = get_redis()
     if redis:
@@ -730,11 +894,12 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 redis_status = 'not_available'
             
+            storage_type = 'postgresql' if USE_POSTGRES else 'sqlite'
             self.send_json(200, {
                 'status': 'ok',
                 'service': 'forge-pipeline-api',
                 'authEnabled': bool(API_KEY),
-                'storage': 'sqlite',
+                'storage': storage_type,
                 'redis': redis_status,
                 'redisAvailable': REDIS_AVAILABLE,
             })
