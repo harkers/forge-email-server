@@ -1,0 +1,32 @@
+[
+  {
+    "jobId": "CP-1004",
+    "title": "Resume safe backlog processing after restart",
+    "taskType": "coding",
+    "impact": "medium",
+    "deadline": "2026-03-25T14:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 17000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-1005",
+    "title": "Summarise previous run output",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-26T09:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 7000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

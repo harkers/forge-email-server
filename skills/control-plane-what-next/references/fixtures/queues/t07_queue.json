@@ -1,0 +1,32 @@
+[
+  {
+    "jobId": "CP-701",
+    "title": "Large architecture review pack",
+    "taskType": "planning",
+    "impact": "high",
+    "deadline": "2026-03-25T18:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 45000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-702",
+    "title": "Tiny readme correction",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-26T09:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 4000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

@@ -249,9 +249,37 @@ Safety status: failed (production-impacting not allowed)
 Action: holding for explicit approval
 ```
 
+## Test Suite
+
+The skill includes a comprehensive test suite validated against 13 test scenarios:
+
+| Test ID | Purpose | Status |
+|---------|---------|--------|
+| T01 | P0 beats all — highest score selected | ✓ |
+| T02 | Tie-break by deadline | ✓ |
+| T03 | Jobs window decrements | ✓ |
+| T04 | Time window expires | ✓ |
+| T05 | Destructive job blocked | ✓ |
+| T06 | Retry then quarantine | ✓ |
+| T07 | Token limit enforced | ✓ |
+| T08 | Dependency failure blocks children | ✓ |
+| T09 | Pipeline empty stops cleanly | ✓ |
+| T10 | Session restart state recovery | ✓ |
+| T11 | E2E normal delivery series | ✓ |
+| T12 | Risky job held | ✓ |
+| T13 | Failure chain paused | ✓ |
+
+Run tests:
+```bash
+python3 skills/control-plane-what-next/references/run_tests.py
+```
+
 ## References
-- Read `references/priority-scoring-model.md` for detailed scoring
-- Read `references/auto-approve-config.md` for window configuration
-- Read `references/model-assignments.md` for routing table
-- Read `references/operational-guardrails.md` for safety gates
-- Read `references/state-schema.json` for state schema
+- `references/priority-scoring-model.md`: scoring formula
+- `references/auto-approve-config.md`: window configuration
+- `references/model-assignments.md`: routing table
+- `references/operational-guardrails.md`: safety gates
+- `references/state-schema.json`: state schema
+- `references/run_tests.py`: test runner
+- `references/test-matrix.json`: test definitions
+- `references/fixtures/`: test fixtures

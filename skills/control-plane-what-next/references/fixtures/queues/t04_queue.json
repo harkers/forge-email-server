@@ -1,0 +1,17 @@
+[
+  {
+    "jobId": "CP-401",
+    "title": "Generate next deployment plan",
+    "taskType": "planning",
+    "impact": "medium",
+    "deadline": "2026-03-25T11:30:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 22000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

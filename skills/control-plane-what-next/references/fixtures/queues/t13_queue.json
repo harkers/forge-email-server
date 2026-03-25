@@ -1,0 +1,54 @@
+[
+  {
+    "jobId": "CP-1301",
+    "title": "Repair broken queue scheduler",
+    "taskType": "coding",
+    "impact": "high",
+    "deadline": "2026-03-25T11:15:00Z",
+    "blocks": [
+      "CP-1302",
+      "CP-1303"
+    ],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 26000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": "Force repeated failure."
+  },
+  {
+    "jobId": "CP-1302",
+    "title": "Continue scheduler rollout",
+    "taskType": "infrastructure",
+    "impact": "medium",
+    "deadline": "2026-03-25T14:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 19000,
+    "dependencies": [
+      "CP-1301"
+    ],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-1303",
+    "title": "Review rollout integrity",
+    "taskType": "review",
+    "impact": "medium",
+    "deadline": "2026-03-25T15:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 9000,
+    "dependencies": [
+      "CP-1301"
+    ],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

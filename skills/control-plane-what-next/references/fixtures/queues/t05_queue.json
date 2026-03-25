@@ -1,0 +1,32 @@
+[
+  {
+    "jobId": "CP-501",
+    "title": "Delete old production cache volume",
+    "taskType": "infrastructure",
+    "impact": "high",
+    "deadline": "2026-03-25T11:00:00Z",
+    "blocks": [],
+    "destructive": true,
+    "productionImpact": true,
+    "estimatedTokens": 9000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-502",
+    "title": "Refresh docs index",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-26T09:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 5000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]

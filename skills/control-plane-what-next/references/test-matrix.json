@@ -1,0 +1,112 @@
+[
+  {
+    "id": "T01_priority_p0_beats_all",
+    "purpose": "Validate that an obvious P0 blocker outranks all other work.",
+    "queue": "t01_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-106",
+    "expected_outcome": "dispatch",
+    "evidence": [
+      "decision-trace.json",
+      "operator-summary.txt",
+      "completion-result.json",
+      "after-state.json"
+    ]
+  },
+  {
+    "id": "T02_tiebreak_deadline",
+    "purpose": "Validate that tie-break rules prefer earlier deadline when base priority is equal.",
+    "queue": "t02_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-202",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "T03_jobs_window_decrements",
+    "purpose": "Validate that jobsRemaining decrements by one when a job enters execution.",
+    "queue": "t03_queue.json",
+    "state": "state_jobs_2_fresh.json",
+    "expected_selected_job": "CP-301",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "T04_time_window_expires",
+    "purpose": "Validate that an expired time-based window denies dispatch while allowing in-flight job completion semantics.",
+    "queue": "t04_queue.json",
+    "state": "state_time_expired.json",
+    "expected_selected_job": null,
+    "expected_outcome": "approval_required"
+  },
+  {
+    "id": "T05_destructive_job_blocked",
+    "purpose": "Validate that destructive production-impacting work is not auto-dispatched.",
+    "queue": "t05_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": null,
+    "expected_outcome": "blocked"
+  },
+  {
+    "id": "T06_retry_then_quarantine",
+    "purpose": "Validate retry policy and quarantine after repeated failure.",
+    "queue": "t06_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-601",
+    "expected_outcome": "quarantined_after_retry"
+  },
+  {
+    "id": "T07_token_limit_enforced",
+    "purpose": "Validate that per-job token ceiling prevents dispatch.",
+    "queue": "t07_queue.json",
+    "state": "state_jobs_5_low_token_ceiling.json",
+    "expected_selected_job": null,
+    "expected_outcome": "blocked_token_limit"
+  },
+  {
+    "id": "T08_dependency_failure_blocks_children",
+    "purpose": "Validate that failed blocker prevents dependent jobs from auto-dispatch.",
+    "queue": "t08_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-801",
+    "expected_outcome": "dependents_blocked_after_failure"
+  },
+  {
+    "id": "T09_pipeline_empty_stops_cleanly",
+    "purpose": "Validate that empty queue produces clean stop with no state corruption.",
+    "queue": "t09_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": null,
+    "expected_outcome": "no_work"
+  },
+  {
+    "id": "T10_session_restart_state_recovery",
+    "purpose": "Validate that session restart preserves historical state and continues safely.",
+    "queue": "t10_queue.json",
+    "state": "state_restart_recovery.json",
+    "expected_selected_job": "CP-1004",
+    "expected_outcome": "dispatch"
+  },
+  {
+    "id": "T11_e2e_normal_delivery",
+    "purpose": "End-to-end happy path through a safe mixed queue.",
+    "queue": "t11_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-1101",
+    "expected_outcome": "dispatch_series"
+  },
+  {
+    "id": "T12_e2e_risky_job_mid_run",
+    "purpose": "End-to-end scenario where a risky job appears after safe work begins.",
+    "queue": "t12_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-1201",
+    "expected_outcome": "risky_job_held"
+  },
+  {
+    "id": "T13_e2e_failure_chain",
+    "purpose": "End-to-end scenario where blocker fails and downstream work must not continue.",
+    "queue": "t13_queue.json",
+    "state": "state_jobs_5_fresh.json",
+    "expected_selected_job": "CP-1301",
+    "expected_outcome": "failure_chain_paused"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "jobId": "CP-202",
+    "title": "Review release checklist before handoff",
+    "taskType": "review",
+    "impact": "high",
+    "deadline": "2026-03-25T12:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 15000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-203",
+    "title": "Review vendor lock handling",
+    "taskType": "review",
+    "impact": "high",
+    "deadline": "2026-03-25T15:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 15000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  },
+  {
+    "jobId": "CP-204",
+    "title": "Update dev docs navigation",
+    "taskType": "docs",
+    "impact": "low",
+    "deadline": "2026-03-26T10:00:00Z",
+    "blocks": [],
+    "destructive": false,
+    "productionImpact": false,
+    "estimatedTokens": 7000,
+    "dependencies": [],
+    "confidence": 0.9,
+    "ready": true,
+    "notes": ""
+  }
+]
