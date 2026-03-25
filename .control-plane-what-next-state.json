@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "activeWindow": {
+    "mode": "jobs",
+    "startedAt": "2026-03-25T09:00:00Z",
+    "expiresAt": null,
+    "maxJobs": 5,
+    "jobsRemaining": 4,
+    "followNewJobs": false,
+    "approvedSnapshotJobIds": [],
+    "windowCompletedJobs": ["CP-006"],
+    "windowTokenUsage": 263600,
+    "status": "active"
+  },
+  "session": {
+    "startedAt": "2026-03-25T06:49:00Z",
+    "completedJobs": ["CP-001", "CP-002", "CP-003", "CP-004", "CP-005", "CP-006"],
+    "failedJobs": [],
+    "quarantinedJobs": [],
+    "tokenUsage": 1500000,
+    "byModel": {
+      "glm-5:cloud": 1300000,
+      "qwen3:14b": 200000
+    }
+  },
+  "lifetime": {
+    "completedCount": 6,
+    "failedCount": 0,
+    "quarantinedCount": 0,
+    "tokenUsage": 1500000
+  },
+  "current": {
+    "lastEvaluatedAt": "2026-03-25T09:13:00Z",
+    "lastDispatchedJobId": "CP-006",
+    "lastDecision": "dispatched",
+    "inFlightJobId": null
+  },
+  "policy": {
+    "allowDestructive": false,
+    "allowProdChanges": false,
+    "maxTokensPerJob": 500000,
+    "maxTokensPerWindow": 2000000,
+    "autoRetryTransientFailures": true,
+    "maxAutomaticRetries": 1
+  }
+}
