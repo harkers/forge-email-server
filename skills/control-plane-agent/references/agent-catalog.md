@@ -51,7 +51,7 @@ Typical outputs:
 Use for:
 - plans
 - decomposition
-- milestone shaping
+- milestone shaping within a task/workstream
 - scope slicing
 
 Owns:
@@ -126,6 +126,7 @@ Use for:
 - packaging
 - deployment execution
 - post-deploy verification
+- carrying out an already-diagnosed deployment fix
 
 Must not own:
 - product decision-making
@@ -198,6 +199,7 @@ Use for:
 - risk/impact wording
 - containment/recovery summaries
 - notification support
+- evidence-backed incident drafting support
 
 ### vendor-assessor
 Use for:
@@ -205,6 +207,7 @@ Use for:
 - data residency extraction
 - subprocessor/access analysis
 - recommendation drafting
+- evidence-gap identification
 
 ### drafting
 Use for:
@@ -224,6 +227,8 @@ Use for:
 5. security-reviewer or architecture-reviewer if needed
 6. manager acceptance
 
+Use `portfolio-planning-agent` instead of `planner` when the work is cross-project/roadmap-level rather than task-level.
+
 ### Bug / incident fix
 1. manager
 2. investigator
@@ -234,7 +239,7 @@ Use for:
 
 ### Deployment
 1. manager
-2. deployer
+2. deployment-diagnosis-agent when the problem is unknown, otherwise deployer
 3. reviewer or manager verification
 4. manager acceptance
 
@@ -250,6 +255,16 @@ Use for:
 3. documentation-writer
 4. reviewer
 5. manager acceptance
+
+Use `forge-wordpress-suite-agent` when suite/plugin-boundary governance is the dominant concern.
+
+### Portfolio / governance
+1. manager
+2. portfolio-planning-agent
+3. workspace-governor-agent when local rules/process need changing
+4. documentation-writer when structured docs are needed
+5. forge-pipeline-operator-agent or equivalent project-tracking worker
+6. manager acceptance
 
 ## Selection rules
 

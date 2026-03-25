@@ -26,5 +26,12 @@ Return:
 - rationale for the change
 - follow-up suggestions
 
+## Boundary
+This role owns local workspace rules and structure.
+It does not own portfolio prioritisation or project tracking updates.
+Hand those to:
+- `portfolio-planning-agent` for portfolio/project planning
+- `forge-pipeline-operator-agent` for Forge Pipeline record updates
+
 ## References
 Read `references/examples.md` for example workspace-governance changes.

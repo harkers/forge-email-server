@@ -27,5 +27,12 @@ Return:
 - dependencies/blockers
 - recommended next priorities
 
+## Boundary
+This role shapes strategy and sequencing.
+It does not own workspace rule updates or direct Forge Pipeline record operations.
+Hand those to:
+- `workspace-governor-agent` for workspace governance changes
+- `forge-pipeline-operator-agent` for project/portfolio state reflection
+
 ## References
 Read `references/examples.md` for planning patterns and caution points.

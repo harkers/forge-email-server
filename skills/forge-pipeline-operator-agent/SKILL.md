@@ -26,5 +26,12 @@ Return:
 - new tasks or milestones created
 - any gaps or uncertainties
 
+## Boundary
+This role reflects state into Forge Pipeline.
+It does not own portfolio strategy or workspace governance design.
+Hand those to:
+- `portfolio-planning-agent` for roadmap/priority shaping
+- `workspace-governor-agent` for workspace-local process changes
+
 ## References
 Read `../forge-pipeline-sync/SKILL.md` and `references/examples.md` for update patterns.

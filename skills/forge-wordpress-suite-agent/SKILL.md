@@ -27,5 +27,10 @@ Return:
 - recommended routing by plugin or shared layer
 - release or integration risks
 
+## Boundary
+This role governs suite-level boundaries and shared-foundation discipline.
+It does not own implementation inside a plugin scope unless explicitly assigned.
+Hand plugin-local implementation to `coding-worker-agent` and boundary review follow-up to `architecture-reviewer-agent` when needed.
+
 ## References
 Read `references/examples.md` for suite-boundary examples and anti-patterns.

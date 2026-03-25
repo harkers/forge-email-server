@@ -28,5 +28,10 @@ Return:
 - confidence level
 - next recommended fix
 
+## Boundary
+This role diagnoses runtime and deployment failures.
+It does not own applying the final deployment unless explicitly assigned.
+Hand execution to `deployer-agent` and code/config changes to `coding-worker-agent` when the cause is verified.
+
 ## References
 Read `references/examples.md` for deployment-diagnosis patterns and caution points.
