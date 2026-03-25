@@ -1,0 +1,18 @@
+# Exclude data volumes from build context
+data/
+
+# Exclude git
+.git/
+
+# Exclude environment files
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp

@@ -5,30 +5,66 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-106",
-      "selectionReason": "Selected CP-106 (score: 34, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
           "jobId": "CP-106",
-          "score": 34,
-          "priority": "P0",
+          "priorityScore": 42,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 4,
+          "deadlineProximity": 4,
+          "businessImpact": 5,
+          "executionReadiness": 4,
+          "executionEffort": 4,
+          "estimatedTokens": 42000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-112",
-          "score": 22,
-          "priority": "P0",
+          "priorityScore": 27,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 18000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-106",
           "eligible": true
         },
         {
           "jobId": "CP-119",
-          "score": 20,
-          "priority": "P0",
+          "priorityScore": 25,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 16000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-106",
           "eligible": true
         },
         {
           "jobId": "CP-118",
-          "score": 16,
-          "priority": "P1",
+          "priorityScore": 10,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 2,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 8000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-106",
           "eligible": true
         }
       ],
@@ -43,9 +79,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "dispatch",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 42
     },
-    "summary": "Selected: CP-106\nOutcome: dispatch\nPriority: P0 (score: 34)\nTitle: Repair pipeline auth for worker group\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-106\nPriority: P0\nScore: 42\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 42000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -59,7 +98,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 400000,
-        "windowTokensUsed": 31500,
+        "windowTokensUsed": 30660,
         "windowCompletedJobs": [
           "CP-106"
         ],
@@ -67,13 +106,13 @@
           "CP-106"
         ],
         "lastDispatchedJobId": "CP-106",
-        "lastUpdatedAt": "2026-03-25T12:58:26.944872+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.184280+00:00"
       },
       "execution_metrics": {
         "testId": "T01_priority_p0_beats_all",
         "jobId": "CP-106",
         "runtimeMs": 2408,
-        "actualTokensUsed": 31500,
+        "actualTokensUsed": 30660,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 42000,
@@ -98,8 +137,8 @@
         "jobsRemainingBefore": 5,
         "jobsRemainingAfter": 4,
         "windowTokensBefore": 0,
-        "windowTokensAfter": 31500,
-        "actualTokensUsed": 31500
+        "windowTokensAfter": 30660,
+        "actualTokensUsed": 30660
       },
       "slot_consumption": {
         "testId": "T01_priority_p0_beats_all",
@@ -108,6 +147,22 @@
         "jobsRemainingAfter": 4,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T01_priority_p0_beats_all",
+        "jobId": "CP-106",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T01_priority_p0_beats_all",
+        "passed": true,
+        "selectedJob": "CP-106",
+        "selectedPriority": "P0",
+        "selectedScore": 42,
+        "errors": []
       }
     }
   },
@@ -117,24 +172,53 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-202",
-      "selectionReason": "Selected CP-202 (score: 25, priority: P0)",
+      "selectionReason": "Highest priority score after tie-break by earlier deadline",
       "candidates": [
         {
           "jobId": "CP-202",
-          "score": 25,
-          "priority": "P0",
+          "priorityScore": 32,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 15000,
+          "selected": true,
+          "selectedReason": "Highest priority score after tie-break by earlier deadline",
+          "tieBreakReason": "earlier deadline",
           "eligible": true
         },
         {
           "jobId": "CP-203",
-          "score": 25,
-          "priority": "P0",
+          "priorityScore": 32,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 15000,
+          "selected": false,
+          "selectedReason": "Lost tie-break to CP-202 by earlier deadline",
+          "tieBreakReason": "earlier deadline",
           "eligible": true
         },
         {
           "jobId": "CP-204",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 12,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 3,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 7000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-202",
           "eligible": true
         }
       ],
@@ -149,9 +233,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "dispatch",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": "earlier deadline",
+      "selectedPriority": "P0",
+      "selectedScore": 32
     },
-    "summary": "Selected: CP-202\nOutcome: dispatch\nPriority: P0 (score: 25)\nTitle: Review release checklist before handoff\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-202\nPriority: P0\nScore: 32\nReason: Highest priority score after tie-break by earlier deadline\nTie-break: earlier deadline\nEstimated tokens: 15000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -165,7 +252,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 400000,
-        "windowTokensUsed": 11250,
+        "windowTokensUsed": 10950,
         "windowCompletedJobs": [
           "CP-202"
         ],
@@ -173,13 +260,13 @@
           "CP-202"
         ],
         "lastDispatchedJobId": "CP-202",
-        "lastUpdatedAt": "2026-03-25T12:58:26.945630+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.184414+00:00"
       },
       "execution_metrics": {
         "testId": "T02_tiebreak_deadline",
         "jobId": "CP-202",
         "runtimeMs": 908,
-        "actualTokensUsed": 11250,
+        "actualTokensUsed": 10950,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 15000,
@@ -204,8 +291,8 @@
         "jobsRemainingBefore": 5,
         "jobsRemainingAfter": 4,
         "windowTokensBefore": 0,
-        "windowTokensAfter": 11250,
-        "actualTokensUsed": 11250
+        "windowTokensAfter": 10950,
+        "actualTokensUsed": 10950
       },
       "slot_consumption": {
         "testId": "T02_tiebreak_deadline",
@@ -214,6 +301,22 @@
         "jobsRemainingAfter": 4,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T02_tiebreak_deadline",
+        "jobId": "CP-202",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T02_tiebreak_deadline",
+        "passed": true,
+        "selectedJob": "CP-202",
+        "selectedPriority": "P0",
+        "selectedScore": 32,
+        "errors": []
       }
     }
   },
@@ -223,18 +326,36 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-301",
-      "selectionReason": "Selected CP-301 (score: 22, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
           "jobId": "CP-301",
-          "score": 22,
-          "priority": "P0",
+          "priorityScore": 27,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 12000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-302",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 12,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 3,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 6000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-301",
           "eligible": true
         }
       ],
@@ -249,9 +370,12 @@
         "reason": "jobs window active (2 remaining)"
       },
       "outcome": "dispatch",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 27
     },
-    "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 22)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)",
+    "summary": "Next job selected: CP-301\nPriority: P0\nScore: 27\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 12000\nSafety status: eligible\nApproval window: jobs / jobs window active (2 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -265,7 +389,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 200000,
-        "windowTokensUsed": 9000,
+        "windowTokensUsed": 8760,
         "windowCompletedJobs": [
           "CP-301"
         ],
@@ -273,13 +397,13 @@
           "CP-301"
         ],
         "lastDispatchedJobId": "CP-301",
-        "lastUpdatedAt": "2026-03-25T12:58:26.946239+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.184523+00:00"
       },
       "execution_metrics": {
         "testId": "T03_jobs_window_decrements",
         "jobId": "CP-301",
         "runtimeMs": 741,
-        "actualTokensUsed": 9000,
+        "actualTokensUsed": 8760,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 12000,
@@ -304,8 +428,8 @@
         "jobsRemainingBefore": 2,
         "jobsRemainingAfter": 1,
         "windowTokensBefore": 0,
-        "windowTokensAfter": 9000,
-        "actualTokensUsed": 9000
+        "windowTokensAfter": 8760,
+        "actualTokensUsed": 8760
       },
       "slot_consumption": {
         "testId": "T03_jobs_window_decrements",
@@ -314,6 +438,22 @@
         "jobsRemainingAfter": 1,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T03_jobs_window_decrements",
+        "jobId": "CP-301",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (2 remaining)"
+      },
+      "validator_output": {
+        "testId": "T03_jobs_window_decrements",
+        "passed": true,
+        "selectedJob": "CP-301",
+        "selectedPriority": "P0",
+        "selectedScore": 27,
+        "errors": []
       }
     }
   },
@@ -327,8 +467,17 @@
       "candidates": [
         {
           "jobId": "CP-401",
-          "score": 22,
-          "priority": "P0",
+          "priorityScore": 24,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 2,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 22000,
+          "selected": false,
+          "selectedReason": "No selection made",
           "eligible": true
         }
       ],
@@ -343,9 +492,12 @@
         "reason": "time window expired"
       },
       "outcome": "approval_required",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": null,
+      "selectedScore": null
     },
-    "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired",
+    "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: eligible\nApproval window: time / time window expired\nAction: ask for approval",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -410,6 +562,22 @@
         "jobsRemainingAfter": null,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T04_time_window_expires",
+        "jobId": null,
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "time window expired"
+      },
+      "validator_output": {
+        "testId": "T04_time_window_expires",
+        "passed": true,
+        "selectedJob": null,
+        "selectedPriority": null,
+        "selectedScore": null,
+        "errors": []
       }
     }
   },
@@ -423,14 +591,32 @@
       "candidates": [
         {
           "jobId": "CP-501",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 34,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 5,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 9000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-502",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 12,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 3,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 5000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-501",
           "eligible": true
         }
       ],
@@ -448,9 +634,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "blocked",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": null,
+      "selectedScore": null
     },
-    "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked",
+    "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -509,6 +698,25 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T05_destructive_job_blocked",
+        "jobId": null,
+        "eligible": false,
+        "blocked": true,
+        "blockedBy": [
+          "destructive operation blocked",
+          "production-impacting change blocked"
+        ],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T05_destructive_job_blocked",
+        "passed": true,
+        "selectedJob": null,
+        "selectedPriority": null,
+        "selectedScore": null,
+        "errors": []
       }
     }
   },
@@ -518,18 +726,36 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-601",
-      "selectionReason": "Selected CP-601 (score: 34, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
           "jobId": "CP-601",
-          "score": 34,
-          "priority": "P0",
+          "priorityScore": 37,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 2,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 24000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-602",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 25,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 12000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-601",
           "eligible": false
         }
       ],
@@ -544,9 +770,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "quarantined_after_retry",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 37
     },
-    "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-601\nPriority: P0\nScore: 37\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 24000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -581,7 +810,7 @@
         "quarantined": true,
         "reason": "repeated_failure",
         "failedAttempts": 2,
-        "timestamp": "2026-03-25T12:58:26.948559+00:00"
+        "timestamp": "2026-03-25T13:42:04.184831+00:00"
       },
       "blocked_downstream": {
         "testId": "T06_retry_then_quarantine",
@@ -606,6 +835,22 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T06_retry_then_quarantine",
+        "jobId": "CP-601",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T06_retry_then_quarantine",
+        "passed": true,
+        "selectedJob": "CP-601",
+        "selectedPriority": "P0",
+        "selectedScore": 37,
+        "errors": []
       }
     }
   },
@@ -619,14 +864,32 @@
       "candidates": [
         {
           "jobId": "CP-701",
-          "score": 22,
-          "priority": "P0",
+          "priorityScore": 26,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 4,
+          "estimatedTokens": 45000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-702",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 12,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 3,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 4000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-701",
           "eligible": true
         }
       ],
@@ -643,9 +906,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "blocked_token_limit",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": null,
+      "selectedScore": null
     },
-    "summary": "Selected: none\nOutcome: blocked_token_limit\nApproval: jobs window active (5 remaining)\nBlocked: token limit exceeded (45000 > 20000)",
+    "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -704,6 +970,24 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T07_token_limit_enforced",
+        "jobId": null,
+        "eligible": false,
+        "blocked": true,
+        "blockedBy": [
+          "token limit exceeded (45000 > 20000)"
+        ],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T07_token_limit_enforced",
+        "passed": true,
+        "selectedJob": null,
+        "selectedPriority": null,
+        "selectedScore": null,
+        "errors": []
       }
     }
   },
@@ -713,24 +997,51 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-801",
-      "selectionReason": "Parent CP-801 failed; 2 dependents blocked",
+      "selectionReason": "Highest priority root failed; downstream jobs blocked: CP-802, CP-803",
       "candidates": [
         {
           "jobId": "CP-801",
-          "score": 34,
-          "priority": "P0",
+          "priorityScore": 40,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 3,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 28000,
+          "selected": false,
+          "selectedReason": "No selection made",
           "eligible": false
         },
         {
           "jobId": "CP-802",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 29,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 15000,
+          "selected": false,
+          "selectedReason": "No selection made",
           "eligible": false
         },
         {
           "jobId": "CP-803",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 25,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 10000,
+          "selected": false,
+          "selectedReason": "No selection made",
           "eligible": false
         }
       ],
@@ -745,9 +1056,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "dependents_blocked_after_failure",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 40
     },
-    "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-801\nPriority: P0\nScore: 40\nReason: Highest priority root failed; downstream jobs blocked: CP-802, CP-803\nTie-break: none\nEstimated tokens: 28000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -782,7 +1096,7 @@
         "quarantined": true,
         "reason": "dependency_root_failure",
         "failedAttempts": 1,
-        "timestamp": "2026-03-25T12:58:26.949738+00:00"
+        "timestamp": "2026-03-25T13:42:04.185005+00:00"
       },
       "blocked_downstream": {
         "testId": "T08_dependency_failure_blocks_children",
@@ -810,6 +1124,22 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T08_dependency_failure_blocks_children",
+        "jobId": "CP-801",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T08_dependency_failure_blocks_children",
+        "passed": true,
+        "selectedJob": "CP-801",
+        "selectedPriority": "P0",
+        "selectedScore": 40,
+        "errors": []
       }
     }
   },
@@ -832,9 +1162,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "no_work",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": null,
+      "selectedScore": null
     },
-    "summary": "Selected: none\nOutcome: no_work\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -893,6 +1226,22 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T09_pipeline_empty_stops_cleanly",
+        "jobId": null,
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T09_pipeline_empty_stops_cleanly",
+        "passed": true,
+        "selectedJob": null,
+        "selectedPriority": null,
+        "selectedScore": null,
+        "errors": []
       }
     }
   },
@@ -902,18 +1251,36 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-1004",
-      "selectionReason": "Selected CP-1004 (score: 22, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
           "jobId": "CP-1004",
-          "score": 22,
-          "priority": "P0",
+          "priorityScore": 27,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 17000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-1005",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 12,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 3,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 7000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1004",
           "eligible": true
         }
       ],
@@ -928,9 +1295,12 @@
         "reason": "jobs window active (3 remaining)"
       },
       "outcome": "dispatch",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 27
     },
-    "summary": "Selected: CP-1004\nOutcome: dispatch\nPriority: P0 (score: 22)\nTitle: Resume safe backlog processing after restart\nApproval: jobs window active (3 remaining)",
+    "summary": "Next job selected: CP-1004\nPriority: P0\nScore: 27\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 17000\nSafety status: eligible\nApproval window: jobs / jobs window active (3 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -944,7 +1314,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 400000,
-        "windowTokensUsed": 104260,
+        "windowTokensUsed": 103410,
         "windowCompletedJobs": [
           "CP-1001",
           "CP-1002",
@@ -958,13 +1328,13 @@
           "CP-1004"
         ],
         "lastDispatchedJobId": "CP-1004",
-        "lastUpdatedAt": "2026-03-25T12:58:26.950893+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.185210+00:00"
       },
       "execution_metrics": {
         "testId": "T10_session_restart_state_recovery",
         "jobId": "CP-1004",
         "runtimeMs": 1019,
-        "actualTokensUsed": 13260,
+        "actualTokensUsed": 12410,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 17000,
@@ -989,8 +1359,8 @@
         "jobsRemainingBefore": 3,
         "jobsRemainingAfter": 2,
         "windowTokensBefore": 91000,
-        "windowTokensAfter": 104260,
-        "actualTokensUsed": 13260
+        "windowTokensAfter": 103410,
+        "actualTokensUsed": 12410
       },
       "slot_consumption": {
         "testId": "T10_session_restart_state_recovery",
@@ -999,6 +1369,22 @@
         "jobsRemainingAfter": 2,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T10_session_restart_state_recovery",
+        "jobId": "CP-1004",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (3 remaining)"
+      },
+      "validator_output": {
+        "testId": "T10_session_restart_state_recovery",
+        "passed": true,
+        "selectedJob": "CP-1004",
+        "selectedPriority": "P0",
+        "selectedScore": 27,
+        "errors": []
       }
     }
   },
@@ -1008,30 +1394,66 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-1101",
-      "selectionReason": "Selected CP-1101 (score: 33, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
           "jobId": "CP-1101",
-          "score": 33,
-          "priority": "P0",
-          "eligible": true
-        },
-        {
-          "jobId": "CP-1102",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 42,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 3,
+          "deadlineProximity": 5,
+          "businessImpact": 5,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 32000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
           "jobId": "CP-1103",
-          "score": 26,
-          "priority": "P0",
+          "priorityScore": 27,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 12000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1101",
+          "eligible": true
+        },
+        {
+          "jobId": "CP-1102",
+          "priorityScore": 26,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 21000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1101",
           "eligible": true
         },
         {
           "jobId": "CP-1104",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 14,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 6000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1101",
           "eligible": true
         }
       ],
@@ -1046,9 +1468,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "dispatch_series",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 42
     },
-    "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-1101\nPriority: P0\nScore: 42\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 32000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -1062,7 +1487,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 400000,
-        "windowTokensUsed": 24960,
+        "windowTokensUsed": 23360,
         "windowCompletedJobs": [
           "CP-1101"
         ],
@@ -1070,13 +1495,13 @@
           "CP-1101"
         ],
         "lastDispatchedJobId": "CP-1101",
-        "lastUpdatedAt": "2026-03-25T12:58:26.951542+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.185359+00:00"
       },
       "execution_metrics": {
         "testId": "T11_e2e_normal_delivery",
         "jobId": "CP-1101",
         "runtimeMs": 1852,
-        "actualTokensUsed": 24960,
+        "actualTokensUsed": 23360,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 32000,
@@ -1101,8 +1526,8 @@
         "jobsRemainingBefore": 5,
         "jobsRemainingAfter": 4,
         "windowTokensBefore": 0,
-        "windowTokensAfter": 24960,
-        "actualTokensUsed": 24960
+        "windowTokensAfter": 23360,
+        "actualTokensUsed": 23360
       },
       "slot_consumption": {
         "testId": "T11_e2e_normal_delivery",
@@ -1111,6 +1536,22 @@
         "jobsRemainingAfter": 4,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T11_e2e_normal_delivery",
+        "jobId": "CP-1101",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T11_e2e_normal_delivery",
+        "passed": true,
+        "selectedJob": "CP-1101",
+        "selectedPriority": "P0",
+        "selectedScore": 42,
+        "errors": []
       }
     }
   },
@@ -1120,30 +1561,59 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-1201",
-      "selectionReason": "Selected CP-1201 (score: 25, priority: P0)",
+      "selectionReason": "Highest priority score",
       "candidates": [
         {
-          "jobId": "CP-1201",
-          "score": 25,
-          "priority": "P0",
+          "jobId": "CP-1203",
+          "priorityScore": 34,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 5,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 18000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
-          "jobId": "CP-1203",
-          "score": 25,
-          "priority": "P0",
+          "jobId": "CP-1201",
+          "priorityScore": 33,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 5,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 22000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1203",
           "eligible": true
         },
         {
           "jobId": "CP-1202",
-          "score": 18,
-          "priority": "P0",
+          "priorityScore": 14,
+          "assignedPriority": "P2",
+          "severity": 1,
+          "blockingBreadth": 0,
+          "deadlineProximity": 4,
+          "businessImpact": 0,
+          "executionReadiness": 4,
+          "executionEffort": 1,
+          "estimatedTokens": 5000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1203",
           "eligible": true
         }
       ],
       "safetyEvaluation": {
-        "blocked": false,
-        "blockedBy": [],
+        "blocked": true,
+        "blockedBy": [
+          "production-impacting change blocked"
+        ],
         "requiresOperatorApproval": false
       },
       "approvalDecision": {
@@ -1154,9 +1624,12 @@
       "outcome": "risky_job_held",
       "riskyHeld": [
         "CP-1203"
-      ]
+      ],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 33
     },
-    "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203",
+    "summary": "Next job selected: CP-1201\nPriority: P0\nScore: 33\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 22000\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -1170,7 +1643,7 @@
         "allowProdChanges": false,
         "maxTokensPerJob": 120000,
         "maxTokensPerWindow": 400000,
-        "windowTokensUsed": 17160,
+        "windowTokensUsed": 16060,
         "windowCompletedJobs": [
           "CP-1201"
         ],
@@ -1178,13 +1651,13 @@
           "CP-1201"
         ],
         "lastDispatchedJobId": "CP-1201",
-        "lastUpdatedAt": "2026-03-25T12:58:26.952121+00:00"
+        "lastUpdatedAt": "2026-03-25T13:42:04.185497+00:00"
       },
       "execution_metrics": {
         "testId": "T12_e2e_risky_job_mid_run",
         "jobId": "CP-1201",
         "runtimeMs": 1297,
-        "actualTokensUsed": 17160,
+        "actualTokensUsed": 16060,
         "retryCount": 0,
         "dispatchAttempts": 1,
         "estimatedTokens": 22000,
@@ -1209,8 +1682,8 @@
         "jobsRemainingBefore": 5,
         "jobsRemainingAfter": 4,
         "windowTokensBefore": 0,
-        "windowTokensAfter": 17160,
-        "actualTokensUsed": 17160
+        "windowTokensAfter": 16060,
+        "actualTokensUsed": 16060
       },
       "slot_consumption": {
         "testId": "T12_e2e_risky_job_mid_run",
@@ -1219,6 +1692,24 @@
         "jobsRemainingAfter": 4,
         "slotConsumed": true,
         "evidence": "dispatch entered execution"
+      },
+      "safety_report": {
+        "testId": "T12_e2e_risky_job_mid_run",
+        "jobId": "CP-1201",
+        "eligible": false,
+        "blocked": true,
+        "blockedBy": [
+          "production-impacting change blocked"
+        ],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T12_e2e_risky_job_mid_run",
+        "passed": true,
+        "selectedJob": "CP-1201",
+        "selectedPriority": "P0",
+        "selectedScore": 33,
+        "errors": []
       }
     }
   },
@@ -1228,24 +1719,51 @@
     "errors": [],
     "result": {
       "selectedJob": "CP-1301",
-      "selectionReason": "Selected CP-1301 (score: 34, priority: P0)",
+      "selectionReason": "Root failed twice and paused downstream jobs: CP-1302, CP-1303",
       "candidates": [
         {
           "jobId": "CP-1301",
-          "score": 34,
-          "priority": "P0",
+          "priorityScore": 40,
+          "assignedPriority": "P0",
+          "severity": 4,
+          "blockingBreadth": 3,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 3,
+          "estimatedTokens": 26000,
+          "selected": true,
+          "selectedReason": "Highest priority score",
           "eligible": true
         },
         {
-          "jobId": "CP-1303",
-          "score": 27,
-          "priority": "P0",
+          "jobId": "CP-1302",
+          "priorityScore": 29,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 4,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 19000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1301",
           "eligible": false
         },
         {
-          "jobId": "CP-1302",
-          "score": 26,
-          "priority": "P0",
+          "jobId": "CP-1303",
+          "priorityScore": 27,
+          "assignedPriority": "P0",
+          "severity": 3,
+          "blockingBreadth": 0,
+          "deadlineProximity": 5,
+          "businessImpact": 3,
+          "executionReadiness": 4,
+          "executionEffort": 2,
+          "estimatedTokens": 9000,
+          "selected": false,
+          "selectedReason": "Lower priority score than CP-1301",
           "eligible": false
         }
       ],
@@ -1260,9 +1778,12 @@
         "reason": "jobs window active (5 remaining)"
       },
       "outcome": "failure_chain_paused",
-      "riskyHeld": []
+      "riskyHeld": [],
+      "tieBreakReason": null,
+      "selectedPriority": "P0",
+      "selectedScore": 40
     },
-    "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)",
+    "summary": "Next job selected: CP-1301\nPriority: P0\nScore: 40\nReason: Root failed twice and paused downstream jobs: CP-1302, CP-1303\nTie-break: none\nEstimated tokens: 26000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
     "evidence": {
       "after_state": {
         "version": 1,
@@ -1297,7 +1818,7 @@
         "quarantined": true,
         "reason": "repeated_failure",
         "failedAttempts": 2,
-        "timestamp": "2026-03-25T12:58:26.952768+00:00"
+        "timestamp": "2026-03-25T13:42:04.185614+00:00"
       },
       "blocked_downstream": {
         "testId": "T13_e2e_failure_chain",
@@ -1325,6 +1846,22 @@
         "jobsRemainingAfter": 5,
         "slotConsumed": false,
         "evidence": "no slot consumed"
+      },
+      "safety_report": {
+        "testId": "T13_e2e_failure_chain",
+        "jobId": "CP-1301",
+        "eligible": true,
+        "blocked": false,
+        "blockedBy": [],
+        "approvalReason": "jobs window active (5 remaining)"
+      },
+      "validator_output": {
+        "testId": "T13_e2e_failure_chain",
+        "passed": true,
+        "selectedJob": "CP-1301",
+        "selectedPriority": "P0",
+        "selectedScore": 40,
+        "errors": []
       }
     }
   }

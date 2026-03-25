@@ -1,5 +1,9 @@
-Selected: CP-1301
-Outcome: failure_chain_paused
-Priority: P0 (score: 34)
-Title: Repair broken queue scheduler
-Approval: jobs window active (5 remaining)
+Next job selected: CP-1301
+Priority: P0
+Score: 40
+Reason: Root failed twice and paused downstream jobs: CP-1302, CP-1303
+Tie-break: none
+Estimated tokens: 26000
+Safety status: eligible
+Approval window: jobs / jobs window active (5 remaining)
+Action: dispatching now

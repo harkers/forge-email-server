@@ -1,0 +1,8 @@
+{
+  "testId": "T01_priority_p0_beats_all",
+  "passed": true,
+  "selectedJob": "CP-106",
+  "selectedPriority": "P0",
+  "selectedScore": 42,
+  "errors": []
+}

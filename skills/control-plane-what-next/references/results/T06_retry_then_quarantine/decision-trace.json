@@ -1,6 +1,6 @@
 {
   "testId": "T06_retry_then_quarantine",
-  "timestamp": "2026-03-25T12:58:26.948826+00:00",
+  "timestamp": "2026-03-25T13:42:04.189710+00:00",
   "expected": {
     "selectedJob": "CP-601",
     "outcome": "quarantined_after_retry"
@@ -13,14 +13,32 @@
   "candidates": [
     {
       "jobId": "CP-601",
-      "score": 34,
-      "priority": "P0",
+      "priorityScore": 37,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 2,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 24000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
       "jobId": "CP-602",
-      "score": 26,
-      "priority": "P0",
+      "priorityScore": 25,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 4,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 12000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-601",
       "eligible": false
     }
   ],
@@ -33,5 +51,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

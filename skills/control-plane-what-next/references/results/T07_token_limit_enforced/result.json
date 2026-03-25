@@ -8,14 +8,32 @@
     "candidates": [
       {
         "jobId": "CP-701",
-        "score": 22,
-        "priority": "P0",
+        "priorityScore": 26,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 4,
+        "estimatedTokens": 45000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-702",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 12,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 3,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 4000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-701",
         "eligible": true
       }
     ],
@@ -32,9 +50,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "blocked_token_limit",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": null,
+    "selectedScore": null
   },
-  "summary": "Selected: none\nOutcome: blocked_token_limit\nApproval: jobs window active (5 remaining)\nBlocked: token limit exceeded (45000 > 20000)",
+  "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -93,6 +114,24 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T07_token_limit_enforced",
+      "jobId": null,
+      "eligible": false,
+      "blocked": true,
+      "blockedBy": [
+        "token limit exceeded (45000 > 20000)"
+      ],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T07_token_limit_enforced",
+      "passed": true,
+      "selectedJob": null,
+      "selectedPriority": null,
+      "selectedScore": null,
+      "errors": []
     }
   }
 }

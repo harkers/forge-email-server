@@ -8,8 +8,17 @@
     "candidates": [
       {
         "jobId": "CP-401",
-        "score": 22,
-        "priority": "P0",
+        "priorityScore": 24,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 2,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 22000,
+        "selected": false,
+        "selectedReason": "No selection made",
         "eligible": true
       }
     ],
@@ -24,9 +33,12 @@
       "reason": "time window expired"
     },
     "outcome": "approval_required",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": null,
+    "selectedScore": null
   },
-  "summary": "Selected: none\nOutcome: approval_required\nApproval: time window expired",
+  "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: eligible\nApproval window: time / time window expired\nAction: ask for approval",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -91,6 +103,22 @@
       "jobsRemainingAfter": null,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T04_time_window_expires",
+      "jobId": null,
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "time window expired"
+    },
+    "validator_output": {
+      "testId": "T04_time_window_expires",
+      "passed": true,
+      "selectedJob": null,
+      "selectedPriority": null,
+      "selectedScore": null,
+      "errors": []
     }
   }
 }

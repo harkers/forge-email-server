@@ -2,7 +2,7 @@
   "testId": "T11_e2e_normal_delivery",
   "jobId": "CP-1101",
   "runtimeMs": 1852,
-  "actualTokensUsed": 24960,
+  "actualTokensUsed": 23360,
   "retryCount": 0,
   "dispatchAttempts": 1,
   "estimatedTokens": 32000,

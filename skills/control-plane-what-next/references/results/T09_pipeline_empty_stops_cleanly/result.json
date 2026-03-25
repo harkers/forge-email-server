@@ -17,9 +17,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "no_work",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": null,
+    "selectedScore": null
   },
-  "summary": "Selected: none\nOutcome: no_work\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -78,6 +81,22 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T09_pipeline_empty_stops_cleanly",
+      "jobId": null,
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T09_pipeline_empty_stops_cleanly",
+      "passed": true,
+      "selectedJob": null,
+      "selectedPriority": null,
+      "selectedScore": null,
+      "errors": []
     }
   }
 }

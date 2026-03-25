@@ -1,0 +1,8 @@
+{
+  "testId": "T06_retry_then_quarantine",
+  "passed": true,
+  "selectedJob": "CP-601",
+  "selectedPriority": "P0",
+  "selectedScore": 37,
+  "errors": []
+}

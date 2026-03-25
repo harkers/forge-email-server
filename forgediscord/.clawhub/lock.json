@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "mupeng-notification-hub": {
+      "version": "1.0.0",
+      "installedAt": 1774380128292
+    },
+    "discord-chat": {
+      "version": "1.0.0",
+      "installedAt": 1774380128644
+    }
+  }
+}

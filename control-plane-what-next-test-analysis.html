@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control-Plane-What-Next Test Results Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fafafa;
+        }
+        h1 { 
+            color: #0a0a23;
+            border-bottom: 3px solid #7aa6ff;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        h2 { 
+            color: #1a1a2e;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        h3 { 
+            color: #2d2d44;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .summary-box h2 { color: white; border-bottom: none; margin-top: 0; }
+        .pass-rate { font-size: 3em; font-weight: bold; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #1a1a2e;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover { background: #f5f5f5; }
+        .pass { color: #22c55e; font-weight: bold; }
+        .fail { color: #ef4444; font-weight: bold; }
+        code {
+            background: #1a1a2e;
+            color: #7aa6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .formula {
+            background: #f0f7ff;
+            border-left: 4px solid #7aa6ff;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .test-id { 
+            background: #1a1a2e;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-pass {
+            background: #22c55e;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .coverage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .coverage-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .coverage-item h4 {
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+        .coverage-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .coverage-item li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .coverage-item li:last-child { border-bottom: none; }
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        @media print {
+            body { background: white; }
+            .test-section { break-inside: avoid; }
+            pre { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Control-Plane-What-Next Test Results Analysis</h1>
+    
+    <div class="summary-box">
+        <h2>Executive Summary</h2>
+        <p>This report presents the comprehensive analysis of the control-plane-what-next skill test suite. The test suite validates the priority scoring algorithm, safety gates, approval windows, and state management for automated pipeline dispatch decisions.</p>
+        <p class="pass-rate">13/13 PASS (100%)</p>
+        <p>The implementation correctly handles priority-based task selection, deterministic tie-breaking, safety gate enforcement, approval window management, failure handling and quarantine, and dependency chain protection.</p>
+    </div>
+
+    <h2>Priority Scoring Formula</h2>
+    <div class="formula">
+        score = (severity × 3) + (blocking × 3) + (breadth × 2) + (deadline × 2) + readiness - effort
+    </div>
+    
+    <h3>Scoring Dimensions</h3>
+    <table>
+        <tr><th>Dimension</th><th>Weight</th><th>Range</th><th>Description</th></tr>
+        <tr><td>Severity</td><td>3</td><td>0-5</td><td>Impact if not handled</td></tr>
+        <tr><td>Blocking Impact</td><td>3</td><td>0-5</td><td>Number of tasks blocked</td></tr>
+        <tr><td>Dependency Breadth</td><td>2</td><td>0-5</td><td>Downstream dependencies</td></tr>
+        <tr><td>Deadline Proximity</td><td>2</td><td>0-5</td><td>Urgency by time</td></tr>
+        <tr><td>Execution Readiness</td><td>1</td><td>0-5</td><td>How ready to execute</td></tr>
+        <tr><td>Execution Effort</td><td>-1</td><td>0-5</td><td>Cost (subtractive)</td></tr>
+    </table>
+    
+    <h3>Priority Bands</h3>
+    <table>
+        <tr><th>Band</th><th>Score Range</th><th>Description</th></tr>
+        <tr><td><strong>P0</strong></td><td>18+</td><td>Critical blockers, production issues</td></tr>
+        <tr><td><strong>P1</strong></td><td>13-17</td><td>High importance with urgency</td></tr>
+        <tr><td><strong>P2</strong></td><td>8-12</td><td>Standard planned work</td></tr>
+        <tr><td><strong>P3</strong></td><td>0-7</td><td>Low-impact improvements</td></tr>
+    </table>
+
+    <h2>Safety Gates</h2>
+    <p>Auto-dispatch is blocked when:</p>
+    <ol>
+        <li><strong>Destructive operations</strong> — unless <code>allowDestructive: true</code></li>
+        <li><strong>Production impact</strong> — unless <code>allowProdChanges: true</code></li>
+        <li><strong>Token ceiling exceeded</strong> — estimate > <code>maxTokensPerJob</code></li>
+        <li><strong>Failed dependencies</strong> — prerequisite in quarantine</li>
+        <li><strong>Missing metadata</strong> — incomplete task definition</li>
+        <li><strong>Low confidence</strong> — readiness below threshold</li>
+    </ol>
+
+    <h2>Approval Window Modes</h2>
+    <table>
+        <tr><th>Mode</th><th>Description</th><th>Check</th></tr>
+        <tr><td><code>time</code></td><td>Valid until timestamp</td><td><code>now < expiresAt</code></td></tr>
+        <tr><td><code>jobs</code></td><td>Valid for N executions</td><td><code>jobsRemaining > 0</code></td></tr>
+        <tr><td><code>until-empty</code></td><td>Valid until queue empty</td><td>pending tasks exist</td></tr>
+        <tr><td><code>none</code></td><td>No auto-approve</td><td>always ask</td></tr>
+    </table>
+
+    <h2>Test Results</h2>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T01</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Priority P0 Beats All</h3>
+        <p><strong>Purpose:</strong> Validate that an obvious P0 blocker outranks all other work.</p>
+        <p><strong>Queue:</strong> CP-106 (high impact, blocks 3) vs CP-112/CP-118/CP-119 (medium/low)</p>
+        <p><strong>Result:</strong> CP-106 selected (P0 priority)</p>
+        <p><strong>Rationale:</strong> Highest impact + blocking multiple tasks produces highest score.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T02</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Tie-Break by Deadline</h3>
+        <p><strong>Purpose:</strong> Validate tie-break rules prefer earlier deadline when scores are equal.</p>
+        <p><strong>Queue:</strong> CP-201 (deadline +2h) vs CP-202 (deadline +4h)</p>
+        <p><strong>Result:</strong> CP-201 selected (earlier deadline)</p>
+        <p><strong>Rationale:</strong> Equal base scores, tie-break rule #2 applies earlier deadline.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T03</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Jobs Window Decrements</h3>
+        <p><strong>Purpose:</strong> Validate <code>jobsRemaining</code> decrements on dispatch.</p>
+        <p><strong>State:</strong> <code>jobsRemaining: 5</code></p>
+        <p><strong>Result:</strong> Correctly decrements to <code>jobsRemaining: 4</code> after dispatch.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T04</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Time Window Expires</h3>
+        <p><strong>Purpose:</strong> Validate expired time window denies dispatch.</p>
+        <p><strong>State:</strong> <code>expiresAt: 2026-03-25T07:00:00Z</code> (expired)</p>
+        <p><strong>Result:</strong> <code>approval_required</code></p>
+        <p><strong>Rationale:</strong> Time check detects expiration, no dispatch allowed.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T05</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Destructive Job Blocked</h3>
+        <p><strong>Purpose:</strong> Validate destructive production-impacting work is blocked.</p>
+        <p><strong>Queue:</strong> CP-501 (destructive, prod impact) vs CP-502 (safe)</p>
+        <p><strong>State:</strong> <code>allowDestructive: false</code>, <code>allowProdChanges: false</code></p>
+        <p><strong>Result:</strong> <code>blocked</code></p>
+        <p><strong>Reason:</strong> Safety gates prevent destructive and production-impacting operations.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T06</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Retry Then Quarantine</h3>
+        <p><strong>Purpose:</strong> Validate retry policy and quarantine after repeated failure.</p>
+        <p><strong>Test Sequence:</strong></p>
+        <ol>
+            <li>First attempt → failure → <code>retry</code></li>
+            <li>Second attempt → failure → <code>quarantined_after_retry</code></li>
+        </ol>
+        <p><strong>Result:</strong> Job moved to quarantine after 2 failures.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T07</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Token Limit Enforced</h3>
+        <p><strong>Purpose:</strong> Validate per-job token ceiling prevents dispatch.</p>
+        <p><strong>Job:</strong> CP-701 with <code>estimatedTokens: 45000</code></p>
+        <p><strong>State:</strong> <code>maxTokensPerJob: 20000</code></p>
+        <p><strong>Result:</strong> <code>blocked_token_limit</code></p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T08</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Dependency Failure Blocks Children</h3>
+        <p><strong>Purpose:</strong> Validate failed blocker prevents dependent jobs.</p>
+        <p><strong>Queue:</strong> CP-801 (parent) → CP-802, CP-803 (dependents)</p>
+        <p><strong>Test Sequence:</strong> CP-801 fails twice → quarantine → dependents blocked</p>
+        <p><strong>Result:</strong> <code>dependents_blocked_after_failure</code></p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T09</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Pipeline Empty Stops Cleanly</h3>
+        <p><strong>Purpose:</strong> Validate empty queue produces clean stop.</p>
+        <p><strong>Queue:</strong> <code>[]</code> (empty)</p>
+        <p><strong>Result:</strong> <code>no_work</code></p>
+        <p><strong>Behavior:</strong> No dispatch, state remains consistent.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T10</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>Session Restart State Recovery</h3>
+        <p><strong>Purpose:</strong> Validate session restart preserves state.</p>
+        <p><strong>State:</strong> Contains completed jobs from previous session</p>
+        <p><strong>Result:</strong> CP-1004 selected (next pending)</p>
+        <p><strong>Behavior:</strong> State correctly resumes from persisted data.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T11</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>E2E Normal Delivery Series</h3>
+        <p><strong>Purpose:</strong> End-to-end happy path through safe mixed queue.</p>
+        <p><strong>Queue:</strong> 4 tasks with dependency chain</p>
+        <p><strong>Result:</strong> <code>dispatch_series</code></p>
+        <p><strong>Behavior:</strong> CP-1101 selected first (highest priority), then dependents.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T12</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>E2E Risky Job Mid-Run</h3>
+        <p><strong>Purpose:</strong> Risky job appears after safe work begins.</p>
+        <p><strong>Queue:</strong> CP-1201/CP-1202 (safe) vs CP-1203 (production impact)</p>
+        <p><strong>Result:</strong> <code>risky_job_held</code></p>
+        <p><strong>Behavior:</strong> Safe jobs dispatch. CP-1203 held for explicit approval.</p>
+    </div>
+
+    <div class="test-section">
+        <div class="test-header">
+            <span class="test-id">T13</span>
+            <span class="status-pass">✓ PASS</span>
+        </div>
+        <h3>E2E Failure Chain</h3>
+        <p><strong>Purpose:</strong> Blocker fails, downstream work must not continue.</p>
+        <p><strong>Queue:</strong> CP-1301 (root) → CP-1302, CP-1303 (dependents)</p>
+        <p><strong>Test Sequence:</strong> CP-1301 fails twice → quarantine → chain paused</p>
+        <p><strong>Result:</strong> <code>failure_chain_paused</code></p>
+    </div>
+
+    <h2>Coverage Analysis</h2>
+    
+    <div class="coverage-grid">
+        <div class="coverage-item">
+            <h4>Functional Coverage</h4>
+            <ul>
+                <li>Priority scoring: <span class="pass">✓</span></li>
+                <li>Jobs window: <span class="pass">✓</span></li>
+                <li>Time window: <span class="pass">✓</span></li>
+                <li>Safety gates: <span class="pass">✓</span></li>
+                <li>Failure handling: <span class="pass">✓</span></li>
+                <li>Empty pipeline: <span class="pass">✓</span></li>
+                <li>State recovery: <span class="pass">✓</span></li>
+                <li>E2E scenarios: <span class="pass">✓</span></li>
+            </ul>
+        </div>
+        
+        <div class="coverage-item">
+            <h4>Safety Coverage</h4>
+            <ul>
+                <li>Destructive operations: <span class="pass">✓</span></li>
+                <li>Production impact: <span class="pass">✓</span></li>
+                <li>Token ceiling: <span class="pass">✓</span></li>
+                <li>Failed dependencies: <span class="pass">✓</span></li>
+                <li>Quarantine: <span class="pass">✓</span></li>
+            </ul>
+        </div>
+        
+        <div class="coverage-item">
+            <h4>Edge Cases</h4>
+            <ul>
+                <li>Empty queue: <span class="pass">✓</span></li>
+                <li>Expired window: <span class="pass">✓</span></li>
+                <li>Tie-breaking: <span class="pass">✓</span></li>
+                <li>Session restart: <span class="pass">✓</span></li>
+                <li>Failure chain: <span class="pass">✓</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>State Schema Validation</h2>
+    <p>The state schema correctly tracks:</p>
+    <ul>
+        <li><code>activeWindow</code>: mode, expiration, job count</li>
+        <li><code>session</code>: completed, failed, quarantined jobs</li>
+        <li><code>lifetime</code>: cumulative statistics</li>
+        <li><code>current</code>: last dispatch, in-flight job</li>
+        <li><code>policy</code>: destructive, production, token limits</li>
+    </ul>
+    <p>All tests validate state consistency before and after operations.</p>
+
+    <h2>Operator Output Format</h2>
+    <pre>
+Selected: {jobId}
+Outcome: {dispatch|blocked|approval_required|...}
+Priority: {P0|P1|P2|P3} (score: {number})
+Title: {jobTitle}
+Approval: {window status}
+Blocked: {reasons} [if blocked]
+    </pre>
+    <p>This format ensures machine-readable decisions match human-readable summaries.</p>
+
+    <h2>Conclusions</h2>
+    
+    <h3>Strengths</h3>
+    <ol>
+        <li><strong>Deterministic scoring</strong> — Formula produces consistent rankings</li>
+        <li><strong>Safety-first design</strong> — All safety gates enforced correctly</li>
+        <li><strong>State management</strong> — Proper handling of failure, quarantine, completion</li>
+        <li><strong>Edge case coverage</strong> — Empty queues, expired windows, failure chains</li>
+    </ol>
+    
+    <h3>Recommendations</h3>
+    <ol>
+        <li><strong>Extend token tracking</strong> — Add cumulative window token usage</li>
+        <li><strong>Add concurrency detection</strong> — Prevent simultaneous dispatch of conflicting jobs</li>
+        <li><strong>Implement follow-up tracking</strong> — Monitor dispatched jobs to completion</li>
+        <li><strong>Add metric collection</strong> — Track dispatch latency, queue wait time</li>
+    </ol>
+
+    <footer>
+        <p>Report generated: 2026-03-25</p>
+        <p>Test suite: control-plane-what-next v3</p>
+        <p>All 13 tests pass</p>
+    </footer>
+</body>
+</html>

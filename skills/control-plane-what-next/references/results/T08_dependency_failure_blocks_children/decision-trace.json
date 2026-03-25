@@ -1,6 +1,6 @@
 {
   "testId": "T08_dependency_failure_blocks_children",
-  "timestamp": "2026-03-25T12:58:26.950043+00:00",
+  "timestamp": "2026-03-25T13:42:04.190676+00:00",
   "expected": {
     "selectedJob": "CP-801",
     "outcome": "dependents_blocked_after_failure"
@@ -13,20 +13,47 @@
   "candidates": [
     {
       "jobId": "CP-801",
-      "score": 34,
-      "priority": "P0",
+      "priorityScore": 40,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 3,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 28000,
+      "selected": false,
+      "selectedReason": "No selection made",
       "eligible": false
     },
     {
       "jobId": "CP-802",
-      "score": 26,
-      "priority": "P0",
+      "priorityScore": 29,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 15000,
+      "selected": false,
+      "selectedReason": "No selection made",
       "eligible": false
     },
     {
       "jobId": "CP-803",
-      "score": 26,
-      "priority": "P0",
+      "priorityScore": 25,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 4,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 10000,
+      "selected": false,
+      "selectedReason": "No selection made",
       "eligible": false
     }
   ],
@@ -39,5 +66,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

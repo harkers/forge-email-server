@@ -1,0 +1,8 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "passed": true,
+  "selectedJob": "CP-801",
+  "selectedPriority": "P0",
+  "selectedScore": 40,
+  "errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "testId": "T04_time_window_expires",
+  "jobId": null,
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "time window expired"
+}

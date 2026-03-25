@@ -2,7 +2,7 @@
   "testId": "T01_priority_p0_beats_all",
   "jobId": "CP-106",
   "runtimeMs": 2408,
-  "actualTokensUsed": 31500,
+  "actualTokensUsed": 30660,
   "retryCount": 0,
   "dispatchAttempts": 1,
   "estimatedTokens": 42000,

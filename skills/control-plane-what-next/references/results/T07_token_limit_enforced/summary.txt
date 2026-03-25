@@ -1,4 +1,9 @@
-Selected: none
-Outcome: blocked_token_limit
-Approval: jobs window active (5 remaining)
-Blocked: token limit exceeded (45000 > 20000)
+Next job selected: none
+Priority: n/a
+Score: n/a
+Reason: none
+Tie-break: none
+Estimated tokens: 0
+Safety status: blocked
+Approval window: jobs / jobs window active (5 remaining)
+Action: hold

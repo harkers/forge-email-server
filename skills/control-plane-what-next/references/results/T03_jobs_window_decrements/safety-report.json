@@ -1,0 +1,8 @@
+{
+  "testId": "T03_jobs_window_decrements",
+  "jobId": "CP-301",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (2 remaining)"
+}

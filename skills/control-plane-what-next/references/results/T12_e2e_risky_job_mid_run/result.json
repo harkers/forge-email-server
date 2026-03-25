@@ -4,30 +4,59 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-1201",
-    "selectionReason": "Selected CP-1201 (score: 25, priority: P0)",
+    "selectionReason": "Highest priority score",
     "candidates": [
       {
-        "jobId": "CP-1201",
-        "score": 25,
-        "priority": "P0",
+        "jobId": "CP-1203",
+        "priorityScore": 34,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 5,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 18000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
-        "jobId": "CP-1203",
-        "score": 25,
-        "priority": "P0",
+        "jobId": "CP-1201",
+        "priorityScore": 33,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 5,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 22000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1203",
         "eligible": true
       },
       {
         "jobId": "CP-1202",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 14,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 5000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1203",
         "eligible": true
       }
     ],
     "safetyEvaluation": {
-      "blocked": false,
-      "blockedBy": [],
+      "blocked": true,
+      "blockedBy": [
+        "production-impacting change blocked"
+      ],
       "requiresOperatorApproval": false
     },
     "approvalDecision": {
@@ -38,9 +67,12 @@
     "outcome": "risky_job_held",
     "riskyHeld": [
       "CP-1203"
-    ]
+    ],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 33
   },
-  "summary": "Selected: CP-1201\nOutcome: risky_job_held\nPriority: P0 (score: 25)\nTitle: Apply safe log routing fix\nApproval: jobs window active (5 remaining)\nRisky held: CP-1203",
+  "summary": "Next job selected: CP-1201\nPriority: P0\nScore: 33\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 22000\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -54,7 +86,7 @@
       "allowProdChanges": false,
       "maxTokensPerJob": 120000,
       "maxTokensPerWindow": 400000,
-      "windowTokensUsed": 17160,
+      "windowTokensUsed": 16060,
       "windowCompletedJobs": [
         "CP-1201"
       ],
@@ -62,13 +94,13 @@
         "CP-1201"
       ],
       "lastDispatchedJobId": "CP-1201",
-      "lastUpdatedAt": "2026-03-25T12:58:26.952121+00:00"
+      "lastUpdatedAt": "2026-03-25T13:42:04.185497+00:00"
     },
     "execution_metrics": {
       "testId": "T12_e2e_risky_job_mid_run",
       "jobId": "CP-1201",
       "runtimeMs": 1297,
-      "actualTokensUsed": 17160,
+      "actualTokensUsed": 16060,
       "retryCount": 0,
       "dispatchAttempts": 1,
       "estimatedTokens": 22000,
@@ -93,8 +125,8 @@
       "jobsRemainingBefore": 5,
       "jobsRemainingAfter": 4,
       "windowTokensBefore": 0,
-      "windowTokensAfter": 17160,
-      "actualTokensUsed": 17160
+      "windowTokensAfter": 16060,
+      "actualTokensUsed": 16060
     },
     "slot_consumption": {
       "testId": "T12_e2e_risky_job_mid_run",
@@ -103,6 +135,24 @@
       "jobsRemainingAfter": 4,
       "slotConsumed": true,
       "evidence": "dispatch entered execution"
+    },
+    "safety_report": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "jobId": "CP-1201",
+      "eligible": false,
+      "blocked": true,
+      "blockedBy": [
+        "production-impacting change blocked"
+      ],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T12_e2e_risky_job_mid_run",
+      "passed": true,
+      "selectedJob": "CP-1201",
+      "selectedPriority": "P0",
+      "selectedScore": 33,
+      "errors": []
     }
   }
 }

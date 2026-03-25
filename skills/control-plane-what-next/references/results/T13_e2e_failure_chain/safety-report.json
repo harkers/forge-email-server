@@ -1,0 +1,8 @@
+{
+  "testId": "T13_e2e_failure_chain",
+  "jobId": "CP-1301",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

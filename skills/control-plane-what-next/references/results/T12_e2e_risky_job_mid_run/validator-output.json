@@ -1,0 +1,8 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "passed": true,
+  "selectedJob": "CP-1201",
+  "selectedPriority": "P0",
+  "selectedScore": 33,
+  "errors": []
+}

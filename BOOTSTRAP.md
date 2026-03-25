@@ -28,6 +28,13 @@ Update these files with what you learned:
 - `IDENTITY.md` — your name, creature, vibe, emoji
 - `USER.md` — their name, how to address them, timezone, notes
 
+For Forge workspaces, also add the local defaults from `AGENTS.md` covering:
+- Forge Pipeline sync
+- self-improvement
+- self-reflection
+
+If the workspace will produce reports, specs, design docs, reviews, or structured long-form output, default to Quarto (`.qmd`) as an available format unless there is a better project-specific reason not to.
+
 Then open `SOUL.md` together and talk about:
 
 - What matters to them

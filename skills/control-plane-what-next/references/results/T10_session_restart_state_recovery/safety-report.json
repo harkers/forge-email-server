@@ -1,0 +1,8 @@
+{
+  "testId": "T10_session_restart_state_recovery",
+  "jobId": "CP-1004",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (3 remaining)"
+}

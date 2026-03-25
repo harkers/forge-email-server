@@ -8,14 +8,32 @@
     "candidates": [
       {
         "jobId": "CP-501",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 34,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 5,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 9000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-502",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 12,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 3,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 5000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-501",
         "eligible": true
       }
     ],
@@ -33,9 +51,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "blocked",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": null,
+    "selectedScore": null
   },
-  "summary": "Selected: none\nOutcome: blocked\nApproval: jobs window active (5 remaining)\nBlocked: destructive operation blocked; production-impacting change blocked",
+  "summary": "Next job selected: none\nPriority: n/a\nScore: n/a\nReason: none\nTie-break: none\nEstimated tokens: 0\nSafety status: blocked\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -94,6 +115,25 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T05_destructive_job_blocked",
+      "jobId": null,
+      "eligible": false,
+      "blocked": true,
+      "blockedBy": [
+        "destructive operation blocked",
+        "production-impacting change blocked"
+      ],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T05_destructive_job_blocked",
+      "passed": true,
+      "selectedJob": null,
+      "selectedPriority": null,
+      "selectedScore": null,
+      "errors": []
     }
   }
 }

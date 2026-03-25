@@ -1,0 +1,42 @@
+routes:
+  - guild: forge-dev
+    channel: intake-incidents
+    command: incident.new
+    request_type: privacy_incident
+    workspace: privacy-incidents
+    workflow: incident-triage-v1
+    primary_agent: privacy-incident-reporter
+    reviewer_role: reviewer
+    approval_required: conditional
+    allowed_tools_policy: policy.incident_triage
+    allowed_memory_scope: workspace:privacy-incidents
+    output_template: incident-triage-summary
+    audit_level: high
+
+  - guild: forge-dev
+    channel: intake-assessments
+    command: vendor.assess
+    request_type: vendor_assessment
+    workspace: vendor-assessments
+    workflow: vendor-review-v1
+    primary_agent: privacy-vendor-assessor
+    reviewer_role: reviewer
+    approval_required: optional
+    allowed_tools_policy: policy.vendor_assessment
+    allowed_memory_scope: workspace:vendor-assessments
+    output_template: vendor-assessment-summary
+    audit_level: high
+
+  - guild: forge-dev
+    channel: intake-projects
+    command: job.create
+    request_type: general_project
+    workspace: internal-projects
+    workflow: general-intake-v1
+    primary_agent: orchestrator
+    reviewer_role: operator
+    approval_required: false
+    allowed_tools_policy: policy.general_project_intake
+    allowed_memory_scope: workspace:internal-projects
+    output_template: general-job-summary
+    audit_level: medium

@@ -10,7 +10,7 @@
   "allowProdChanges": false,
   "maxTokensPerJob": 120000,
   "maxTokensPerWindow": 400000,
-  "windowTokensUsed": 17160,
+  "windowTokensUsed": 16060,
   "windowCompletedJobs": [
     "CP-1201"
   ],
@@ -18,5 +18,5 @@
     "CP-1201"
   ],
   "lastDispatchedJobId": "CP-1201",
-  "lastUpdatedAt": "2026-03-25T12:58:26.952121+00:00"
+  "lastUpdatedAt": "2026-03-25T13:42:04.185497+00:00"
 }

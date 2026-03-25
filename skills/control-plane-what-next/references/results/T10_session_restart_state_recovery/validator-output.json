@@ -1,0 +1,8 @@
+{
+  "testId": "T10_session_restart_state_recovery",
+  "passed": true,
+  "selectedJob": "CP-1004",
+  "selectedPriority": "P0",
+  "selectedScore": 27,
+  "errors": []
+}

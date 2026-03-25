@@ -1,6 +1,6 @@
 {
   "testId": "T12_e2e_risky_job_mid_run",
-  "timestamp": "2026-03-25T12:58:26.952352+00:00",
+  "timestamp": "2026-03-25T13:42:04.193067+00:00",
   "expected": {
     "selectedJob": "CP-1201",
     "outcome": "risky_job_held"
@@ -12,32 +12,62 @@
   "passed": true,
   "candidates": [
     {
-      "jobId": "CP-1201",
-      "score": 25,
-      "priority": "P0",
+      "jobId": "CP-1203",
+      "priorityScore": 34,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 5,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 18000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
-      "jobId": "CP-1203",
-      "score": 25,
-      "priority": "P0",
+      "jobId": "CP-1201",
+      "priorityScore": 33,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 5,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 22000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1203",
       "eligible": true
     },
     {
       "jobId": "CP-1202",
-      "score": 18,
-      "priority": "P0",
+      "priorityScore": 14,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 4,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 5000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1203",
       "eligible": true
     }
   ],
   "safetyEvaluation": {
-    "blocked": false,
-    "blockedBy": [],
+    "blocked": true,
+    "blockedBy": [
+      "production-impacting change blocked"
+    ],
     "requiresOperatorApproval": false
   },
   "approvalDecision": {
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

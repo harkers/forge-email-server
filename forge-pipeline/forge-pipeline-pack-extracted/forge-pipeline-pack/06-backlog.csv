@@ -1,0 +1,23 @@
+ID,Epic,Title,Priority,Description
+FP-001,Header,Unified live status line,P1,"Replace duplicated update labels with one status line showing live state, timestamp, and source health."
+FP-002,Header,Standardise page header structure,P1,"Workspace label, title, version badge, description, status line."
+FP-010,KPI,Rename KPI labels,P1,"Use Projects, Active tasks, At risk, Completed."
+FP-020,Cards,Reduce metadata chip overload,P1,Move due date and source into secondary meta row.
+FP-030,Empty states,Implement deliberate empty-state components,P1,"Custom empty states for Blocked, Activity, and Next up."
+FP-031,Layout,Adaptive sparse-column height,P1,Shrink columns with little or no content.
+FP-021,Cards,Create card variants by column,P2,"TaskCard, BlockedCard, ActivityCard."
+FP-022,Cards,Add overdue and due-soon states,P2,Visual semantics for due-soon and overdue.
+FP-040,Layout,Rebalance board column widths,P2,Use 1.15 / 0.85 / 1.0 layout ratio on desktop.
+FP-041,Activity,Add timestamps to activity,P2,Make recently changed read like a feed.
+FP-050,Insights,Build insight strip,P3,Generated operational insights.
+FP-051,Insights,Implement focus-now card,P3,Top recommended next action.
+FP-052,Insights,Implement stale-work detection,P3,Mark tasks stale after threshold.
+FP-053,Sources,Add source health panel,P3,Per-source health and sync recency.
+FP-060,Interaction,Build filter bar,P4,"Search, status, priority, risk, source, due window, sort."
+FP-061,Interaction,Add task detail drawer,P4,"Overview, notes, history, dependencies, source metadata."
+FP-062,Interaction,Add quick actions,P4,"Mark in progress, blocked, done, edit priority, due date, add note."
+FP-070,Design system,Define design tokens,P5,"Spacing, typography, surfaces, borders, chips, states."
+FP-071,Design system,Document reusable components,P5,ForgeOrchestra shared UI components.
+FP-080,Data,Implement derived state rules engine,P5,"Due soon, overdue, stale, at risk."
+FP-081,API,Create dashboard summary endpoint,P5,"KPIs, insights, source health, focus item."
+FP-082,API,Create board data endpoint,P5,"next_up, blocked, recent_activity."

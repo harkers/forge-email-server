@@ -1,0 +1,8 @@
+{
+  "testId": "T03_jobs_window_decrements",
+  "passed": true,
+  "selectedJob": "CP-301",
+  "selectedPriority": "P0",
+  "selectedScore": 27,
+  "errors": []
+}

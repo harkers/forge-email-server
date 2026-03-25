@@ -1,6 +1,6 @@
 {
   "testId": "T10_session_restart_state_recovery",
-  "timestamp": "2026-03-25T12:58:26.951134+00:00",
+  "timestamp": "2026-03-25T13:42:04.191962+00:00",
   "expected": {
     "selectedJob": "CP-1004",
     "outcome": "dispatch"
@@ -13,14 +13,32 @@
   "candidates": [
     {
       "jobId": "CP-1004",
-      "score": 22,
-      "priority": "P0",
+      "priorityScore": 27,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 17000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
       "jobId": "CP-1005",
-      "score": 18,
-      "priority": "P0",
+      "priorityScore": 12,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 3,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 7000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1004",
       "eligible": true
     }
   ],
@@ -33,5 +51,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (3 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

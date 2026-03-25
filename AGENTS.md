@@ -117,6 +117,15 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
+
+### Quarto / QMD Default
+Quarto (`.qmd`) is available by default on this machine. Use Quarto for reports, specs, architecture docs, design docs, review packs, and other structured written outputs when publishing/export or richer document structure would help.
+
+Important local note:
+- Quarto CLI: `~/.local/bin/quarto`
+- Use Quarto's bundled Deno, not the system Deno, when Quarto execution depends on it.
+
+
 **🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
 
 **📝 Platform Formatting:**
@@ -206,6 +215,19 @@ Periodically (every few days), use a heartbeat to:
 Think of it like a human reviewing their journal and updating their mental model. Daily files are raw notes; MEMORY.md is curated wisdom.
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
+
+## Forge Workspace Defaults
+
+When creating a new Forge workspace, add these local rules to its `AGENTS.md` unless the user says otherwise:
+
+### Forge Pipeline Sync
+Forge Pipeline is the central portfolio/project layer. When significant changes happen in this workspace — new docs, architecture changes, roadmap updates, deployment changes, important decisions, or new implementation milestones — update the relevant Forge Pipeline project entry so portfolio visibility stays current.
+
+### Self-Improvement
+Use the `self-improvement` skill when commands fail unexpectedly, external tools break, the user corrects something important, a capability is missing, or a better recurring approach is discovered. Log the learning/error/request so it can improve future work instead of disappearing between sessions.
+
+### Self-Reflection
+Use the `self-reflection` skill after meaningful multi-step work, after rework, after user feedback, after fixing mistakes, or when the outcome was clearly weaker than intent. Keep reflections brief, evidence-based, and route reusable lessons into self-improvement rather than treating every task like a diary entry.
 
 ## Make It Yours
 

@@ -1,0 +1,8 @@
+{
+  "testId": "T11_e2e_normal_delivery",
+  "jobId": "CP-1101",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

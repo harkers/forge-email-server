@@ -1,5 +1,9 @@
-Selected: CP-601
-Outcome: quarantined_after_retry
-Priority: P0 (score: 34)
-Title: Patch malformed pipeline metadata parser
-Approval: jobs window active (5 remaining)
+Next job selected: CP-601
+Priority: P0
+Score: 37
+Reason: Highest priority score
+Tie-break: none
+Estimated tokens: 24000
+Safety status: eligible
+Approval window: jobs / jobs window active (5 remaining)
+Action: dispatching now

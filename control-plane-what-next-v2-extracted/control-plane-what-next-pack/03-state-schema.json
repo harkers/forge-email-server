@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "control-plane-what-next state",
+  "type": "object",
+  "required": [
+    "version",
+    "activeWindow",
+    "session",
+    "lifetime",
+    "current",
+    "policy"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "activeWindow": {
+      "type": "object",
+      "required": [
+        "mode",
+        "startedAt",
+        "followNewJobs",
+        "windowCompletedJobs",
+        "windowTokenUsage",
+        "status"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["time", "jobs", "until-empty", "none"]
+        },
+        "startedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "maxJobs": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "jobsRemaining": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "followNewJobs": {
+          "type": "boolean"
+        },
+        "approvedSnapshotJobIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "windowCompletedJobs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "windowTokenUsage": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "expired", "exhausted", "revoked", "idle"]
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "required": [
+        "startedAt",
+        "completedJobs",
+        "failedJobs",
+        "quarantinedJobs",
+        "tokenUsage"
+      ],
+      "properties": {
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedJobs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "failedJobs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "quarantinedJobs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tokenUsage": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "byModel": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "lifetime": {
+      "type": "object",
+      "required": [
+        "completedCount",
+        "failedCount",
+        "quarantinedCount",
+        "tokenUsage"
+      ],
+      "properties": {
+        "completedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quarantinedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tokenUsage": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "current": {
+      "type": "object",
+      "required": [
+        "lastEvaluatedAt",
+        "lastDispatchedJobId",
+        "lastDecision",
+        "inFlightJobId"
+      ],
+      "properties": {
+        "lastEvaluatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "lastDispatchedJobId": {
+          "type": ["string", "null"]
+        },
+        "lastDecision": {
+          "type": ["string", "null"],
+          "enum": [
+            "dispatched",
+            "held-awaiting-approval",
+            "held-by-safety-gate",
+            "held-by-metadata-gap",
+            "held-by-token-limit",
+            "no-eligible-work",
+            null
+          ]
+        },
+        "inFlightJobId": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "allowDestructive",
+        "allowProdChanges",
+        "maxTokensPerJob",
+        "maxTokensPerWindow"
+      ],
+      "properties": {
+        "allowDestructive": {
+          "type": "boolean"
+        },
+        "allowProdChanges": {
+          "type": "boolean"
+        },
+        "maxTokensPerJob": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxTokensPerWindow": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "autoRetryTransientFailures": {
+          "type": "boolean"
+        },
+        "maxAutomaticRetries": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

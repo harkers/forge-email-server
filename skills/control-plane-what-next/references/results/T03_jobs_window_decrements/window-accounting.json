@@ -5,6 +5,6 @@
   "jobsRemainingBefore": 2,
   "jobsRemainingAfter": 1,
   "windowTokensBefore": 0,
-  "windowTokensAfter": 9000,
-  "actualTokensUsed": 9000
+  "windowTokensAfter": 8760,
+  "actualTokensUsed": 8760
 }

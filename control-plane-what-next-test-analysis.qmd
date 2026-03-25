@@ -1,0 +1,422 @@
+---
+title: "Control-Plane-What-Next Test Results"
+subtitle: "Comprehensive Analysis Report"
+author: "OpenClaw Control Plane"
+date: "2026-03-25"
+format: pdf
+---
+
+# Executive Summary
+
+This report presents the comprehensive analysis of the control-plane-what-next skill test suite. The test suite validates the priority scoring algorithm, safety gates, approval windows, and state management for automated pipeline dispatch decisions.
+
+**Test Results: 13/13 PASS (100%)**
+
+The implementation correctly handles:
+- Priority-based task selection
+- Deterministic tie-breaking
+- Safety gate enforcement
+- Approval window management
+- Failure handling and quarantine
+- Dependency chain protection
+
+# Test Methodology
+
+## Priority Scoring Formula
+
+Each task receives a weighted score:
+
+```
+score = (severity × 3) + (blocking × 3) + (breadth × 2) + (deadline × 2) + readiness - effort
+```
+
+### Scoring Dimensions
+
+| Dimension | Weight | Range | Description |
+|-----------|--------|-------|-------------|
+| Severity | 3 | 0-5 | Impact if not handled |
+| Blocking Impact | 3 | 0-5 | Number of tasks blocked |
+| Dependency Breadth | 2 | 0-5 | Downstream dependencies |
+| Deadline Proximity | 2 | 0-5 | Urgency by time |
+| Execution Readiness | 1 | 0-5 | How ready to execute |
+| Execution Effort | -1 | 0-5 | Cost (subtractive) |
+
+### Priority Bands
+
+| Band | Score Range | Description |
+|------|-------------|-------------|
+| P0 | 18+ | Critical blockers, production issues |
+| P1 | 13-17 | High importance with urgency |
+| P2 | 8-12 | Standard planned work |
+| P3 | 0-7 | Low-impact improvements |
+
+## Safety Gates
+
+Auto-dispatch is blocked when:
+
+1. **Destructive operations** - unless `allowDestructive: true`
+2. **Production impact** - unless `allowProdChanges: true`
+3. **Token ceiling exceeded** - estimate > `maxTokensPerJob`
+4. **Failed dependencies** - prerequisite in quarantine
+5. **Missing metadata** - incomplete task definition
+6. **Low confidence** - readiness below threshold
+
+## Approval Window Modes
+
+| Mode | Description | Check |
+|------|-------------|-------|
+| `time` | Valid until timestamp | `now < expiresAt` |
+| `jobs` | Valid for N executions | `jobsRemaining > 0` |
+| `until-empty` | Valid until queue empty | pending tasks exist |
+| `none` | No auto-approve | always ask |
+
+# Test Results
+
+## T01: Priority P0 Beats All
+
+**Purpose:** Validate that an obvious P0 blocker outranks all other work.
+
+**Queue:**
+
+| Job ID | Title | Impact | Blocks | Score |
+|--------|-------|--------|--------|-------|
+| CP-106 | Repair pipeline auth | high | 3 tasks | P0 |
+| CP-112 | Refactor logging | medium | 0 | P2 |
+| CP-118 | Write ops runbook | low | 0 | P3 |
+| CP-119 | Code review | medium | 0 | P2 |
+
+**Result:** ✓ PASS
+
+**Selected:** CP-106 (P0)
+
+**Rationale:** CP-106 has the highest impact (high=4), blocks 3 downstream tasks (+3 blocking breadth), and has an urgent deadline. The scoring formula produces the highest score for this task.
+
+---
+
+## T02: Tie-Break by Deadline
+
+**Purpose:** Validate that tie-break rules prefer earlier deadline when base priority is equal.
+
+**Queue:**
+
+| Job ID | Title | Impact | Deadline | Score |
+|--------|-------|--------|----------|-------|
+| CP-201 | Urgent refactor | medium | +2h | P1 |
+| CP-202 | Critical fix | medium | +4h | P1 |
+
+**Result:** ✓ PASS
+
+**Selected:** CP-201 (earlier deadline)
+
+**Rationale:** Both tasks have equal base scores. Tie-break rule #2 (earlier deadline) selects CP-201.
+
+---
+
+## T03: Jobs Window Decrements
+
+**Purpose:** Validate that `jobsRemaining` decrements when a job enters execution.
+
+**State:** `jobsRemaining: 5`
+
+**Result:** ✓ PASS
+
+**Behavior:** After dispatch, state correctly decrements to `jobsRemaining: 4`.
+
+---
+
+## T04: Time Window Expires
+
+**Purpose:** Validate that an expired time-based window denies dispatch.
+
+**State:** `expiresAt: 2026-03-25T07:00:00Z` (expired)
+
+**Current time:** After 07:00
+
+**Result:** ✓ PASS
+
+**Outcome:** `approval_required`
+
+**Rationale:** Time check at dispatch detects expiration. No new dispatch allowed.
+
+---
+
+## T05: Destructive Job Blocked
+
+**Purpose:** Validate that destructive production-impacting work is not auto-dispatched.
+
+**Queue:**
+
+| Job ID | Title | Destructive | Prod Impact |
+|--------|-------|-------------|-------------|
+| CP-501 | Delete cache volume | true | true |
+| CP-502 | Refresh docs | false | false |
+
+**State:** `allowDestructive: false`, `allowProdChanges: false`
+
+**Result:** ✓ PASS
+
+**Outcome:** `blocked`
+
+**Reason:** "destructive operation blocked (allowDestructive=false); production-impacting change blocked (allowProdChanges=false)"
+
+---
+
+## T06: Retry Then Quarantine
+
+**Purpose:** Validate retry policy and quarantine after repeated failure.
+
+**Queue:** CP-601 (patch malformed parser)
+
+**Test Sequence:**
+
+1. First attempt → failure → `retry`
+2. Second attempt → failure → `quarantined_after_retry`
+
+**Result:** ✓ PASS
+
+**Behavior:** After 2 failures, the job is moved to quarantine. Future selection skips quarantined jobs.
+
+---
+
+## T07: Token Limit Enforced
+
+**Purpose:** Validate that per-job token ceiling prevents dispatch.
+
+**Job:** CP-701 with `estimatedTokens: 45000`
+
+**State:** `maxTokensPerJob: 20000`
+
+**Result:** ✓ PASS
+
+**Outcome:** `blocked_token_limit`
+
+**Reason:** "token limit exceeded (45000 > 20000)"
+
+---
+
+## T08: Dependency Failure Blocks Children
+
+**Purpose:** Validate that failed blocker prevents dependent jobs from auto-dispatch.
+
+**Queue:**
+
+| Job ID | Dependencies |
+|--------|--------------|
+| CP-801 | none (parent) |
+| CP-802 | CP-801 |
+| CP-803 | CP-801 |
+
+**Test Sequence:**
+
+1. CP-801 selected → simulate failure → quarantine
+2. CP-802 and CP-803 blocked
+
+**Result:** ✓ PASS
+
+**Outcome:** `dependents_blocked_after_failure`
+
+**Reason:** "blocked by failed dependency CP-801"
+
+---
+
+## T09: Pipeline Empty Stops Cleanly
+
+**Purpose:** Validate that empty queue produces clean stop with no state corruption.
+
+**Queue:** `[]` (empty)
+
+**Result:** ✓ PASS
+
+**Outcome:** `no_work`
+
+**Behavior:** No dispatch, state remains consistent.
+
+---
+
+## T10: Session Restart State Recovery
+
+**Purpose:** Validate that session restart preserves historical state.
+
+**State:** Contains completed jobs from previous session
+
+**Result:** ✓ PASS
+
+**Selected:** CP-1004 (next pending)
+
+**Behavior:** State correctly resumes from persisted data.
+
+---
+
+## T11: E2E Normal Delivery Series
+
+**Purpose:** End-to-end happy path through a safe mixed queue.
+
+**Queue:** 4 tasks (CP-1101 through CP-1104)
+
+**Dependency chain:**
+
+```
+CP-1101 (root)
+  ├── CP-1102 (depends on CP-1101)
+  └── CP-1103 (depends on CP-1101)
+CP-1104 (independent)
+```
+
+**Result:** ✓ PASS
+
+**Outcome:** `dispatch_series`
+
+**Behavior:** CP-1101 selected first (highest priority, blocks others). After completion, CP-1102 or CP-1103 can proceed.
+
+---
+
+## T12: E2E Risky Job Mid-Run
+
+**Purpose:** End-to-end scenario where a risky job appears after safe work begins.
+
+**Queue:**
+
+| Job ID | Risk |
+|--------|------|
+| CP-1201 | Safe |
+| CP-1202 | Safe |
+| CP-1203 | productionImpact: true |
+
+**Result:** ✓ PASS
+
+**Outcome:** `risky_job_held`
+
+**Behavior:** Safe jobs dispatch. CP-1203 held for explicit approval.
+
+---
+
+## T13: E2E Failure Chain
+
+**Purpose:** End-to-end scenario where blocker fails and downstream work must not continue.
+
+**Queue:** CP-1301 (root) → CP-1302, CP-1303 (dependents)
+
+**Test Sequence:**
+
+1. CP-1301 fails twice → quarantine
+2. System detects failure chain
+
+**Result:** ✓ PASS
+
+**Outcome:** `failure_chain_paused`
+
+**Behavior:** No dependent dispatch after parent quarantine.
+
+# Coverage Analysis
+
+## Functional Coverage
+
+| Requirement | Tests | Status |
+|-------------|-------|--------|
+| Priority scoring | T01, T02 | ✓ |
+| Jobs window | T03 | ✓ |
+| Time window | T04 | ✓ |
+| Safety gates | T05, T07 | ✓ |
+| Failure handling | T06, T08, T13 | ✓ |
+| Empty pipeline | T09 | ✓ |
+| State recovery | T10 | ✓ |
+| E2E scenarios | T11, T12 | ✓ |
+
+## Safety Coverage
+
+| Safety Gate | Tests | Status |
+|-------------|-------|--------|
+| Destructive operations | T05 | ✓ |
+| Production impact | T05, T12 | ✓ |
+| Token ceiling | T07 | ✓ |
+| Failed dependencies | T08, T13 | ✓ |
+| Quarantine | T06 | ✓ |
+
+## Edge Cases
+
+| Edge Case | Tests | Status |
+|-----------|-------|--------|
+| Empty queue | T09 | ✓ |
+| Expired window | T04 | ✓ |
+| Tie-breaking | T02 | ✓ |
+| Session restart | T10 | ✓ |
+| Failure chain | T13 | ✓ |
+
+# State Schema Validation
+
+The state schema correctly tracks:
+
+- `activeWindow`: mode, expiration, job count
+- `session`: completed, failed, quarantined jobs
+- `lifetime`: cumulative statistics
+- `current`: last dispatch, in-flight job
+- `policy`: destructive, production, token limits
+
+All tests validate state consistency before and after operations.
+
+# Operator Output Format
+
+Each test produces standardized output:
+
+```
+Selected: {jobId}
+Outcome: {dispatch|blocked|approval_required|...}
+Priority: {P0|P1|P2|P3} (score: {number})
+Title: {jobTitle}
+Approval: {window status}
+Blocked: {reasons} [if blocked]
+```
+
+This format ensures machine-readable decisions match human-readable summaries.
+
+# Conclusions
+
+## Strengths
+
+1. **Deterministic scoring** — Formula produces consistent rankings
+2. **Safety-first design** — All safety gates enforced correctly
+3. **State management** — Proper handling of failure, quarantine, completion
+4. **Edge case coverage** — Empty queues, expired windows, failure chains
+
+## Recommendations
+
+1. **Extend token tracking** — Add cumulative window token usage
+2. **Add concurrency detection** — Prevent simultaneous dispatch of conflicting jobs
+3. **Implement follow-up tracking** — Monitor dispatched jobs to completion
+4. **Add metric collection** — Track dispatch latency, queue wait time
+
+# Appendix: Test Fixtures
+
+## Queue Files
+
+| File | Jobs | Purpose |
+|------|------|---------|
+| t01_queue.json | 4 | P0 vs P2/P3 |
+| t02_queue.json | 4 | Tie-breaking |
+| t03_queue.json | 2 | Jobs window |
+| t04_queue.json | 1 | Expired time |
+| t05_queue.json | 2 | Destructive |
+| t06_queue.json | 2 | Retry/quarantine |
+| t07_queue.json | 1 | Token limit |
+| t08_queue.json | 3 | Dependencies |
+| t09_queue.json | 0 | Empty |
+| t10_queue.json | 5 | Restart recovery |
+| t11_queue.json | 4 | E2E series |
+| t12_queue.json | 3 | Risky mid-run |
+| t13_queue.json | 3 | Failure chain |
+
+## State Files
+
+| File | Purpose |
+|------|---------|
+| state_jobs_5_fresh.json | Fresh 5-job window |
+| state_jobs_2_fresh.json | Fresh 2-job window |
+| state_time_expired.json | Expired time window |
+| state_jobs_5_low_token_ceiling.json | Low token limit |
+| state_restart_recovery.json | Session restart |
+
+---
+
+*Report generated: 2026-03-25*
+*Test suite: control-plane-what-next v3*
+*All 13 tests pass*

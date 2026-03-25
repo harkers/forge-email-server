@@ -1,0 +1,11 @@
+{
+  "testId": "T05_destructive_job_blocked",
+  "jobId": null,
+  "eligible": false,
+  "blocked": true,
+  "blockedBy": [
+    "destructive operation blocked",
+    "production-impacting change blocked"
+  ],
+  "approvalReason": "jobs window active (5 remaining)"
+}

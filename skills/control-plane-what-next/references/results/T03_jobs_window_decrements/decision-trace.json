@@ -1,6 +1,6 @@
 {
   "testId": "T03_jobs_window_decrements",
-  "timestamp": "2026-03-25T12:58:26.946659+00:00",
+  "timestamp": "2026-03-25T13:42:04.188258+00:00",
   "expected": {
     "selectedJob": "CP-301",
     "outcome": "dispatch"
@@ -13,14 +13,32 @@
   "candidates": [
     {
       "jobId": "CP-301",
-      "score": 22,
-      "priority": "P0",
+      "priorityScore": 27,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 4,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 12000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
       "jobId": "CP-302",
-      "score": 18,
-      "priority": "P0",
+      "priorityScore": 12,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 3,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 6000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-301",
       "eligible": true
     }
   ],
@@ -33,5 +51,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (2 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

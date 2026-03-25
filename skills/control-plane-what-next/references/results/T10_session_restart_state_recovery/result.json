@@ -4,18 +4,36 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-1004",
-    "selectionReason": "Selected CP-1004 (score: 22, priority: P0)",
+    "selectionReason": "Highest priority score",
     "candidates": [
       {
         "jobId": "CP-1004",
-        "score": 22,
-        "priority": "P0",
+        "priorityScore": 27,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 17000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-1005",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 12,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 3,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 7000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1004",
         "eligible": true
       }
     ],
@@ -30,9 +48,12 @@
       "reason": "jobs window active (3 remaining)"
     },
     "outcome": "dispatch",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 27
   },
-  "summary": "Selected: CP-1004\nOutcome: dispatch\nPriority: P0 (score: 22)\nTitle: Resume safe backlog processing after restart\nApproval: jobs window active (3 remaining)",
+  "summary": "Next job selected: CP-1004\nPriority: P0\nScore: 27\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 17000\nSafety status: eligible\nApproval window: jobs / jobs window active (3 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -46,7 +67,7 @@
       "allowProdChanges": false,
       "maxTokensPerJob": 120000,
       "maxTokensPerWindow": 400000,
-      "windowTokensUsed": 104260,
+      "windowTokensUsed": 103410,
       "windowCompletedJobs": [
         "CP-1001",
         "CP-1002",
@@ -60,13 +81,13 @@
         "CP-1004"
       ],
       "lastDispatchedJobId": "CP-1004",
-      "lastUpdatedAt": "2026-03-25T12:58:26.950893+00:00"
+      "lastUpdatedAt": "2026-03-25T13:42:04.185210+00:00"
     },
     "execution_metrics": {
       "testId": "T10_session_restart_state_recovery",
       "jobId": "CP-1004",
       "runtimeMs": 1019,
-      "actualTokensUsed": 13260,
+      "actualTokensUsed": 12410,
       "retryCount": 0,
       "dispatchAttempts": 1,
       "estimatedTokens": 17000,
@@ -91,8 +112,8 @@
       "jobsRemainingBefore": 3,
       "jobsRemainingAfter": 2,
       "windowTokensBefore": 91000,
-      "windowTokensAfter": 104260,
-      "actualTokensUsed": 13260
+      "windowTokensAfter": 103410,
+      "actualTokensUsed": 12410
     },
     "slot_consumption": {
       "testId": "T10_session_restart_state_recovery",
@@ -101,6 +122,22 @@
       "jobsRemainingAfter": 2,
       "slotConsumed": true,
       "evidence": "dispatch entered execution"
+    },
+    "safety_report": {
+      "testId": "T10_session_restart_state_recovery",
+      "jobId": "CP-1004",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (3 remaining)"
+    },
+    "validator_output": {
+      "testId": "T10_session_restart_state_recovery",
+      "passed": true,
+      "selectedJob": "CP-1004",
+      "selectedPriority": "P0",
+      "selectedScore": 27,
+      "errors": []
     }
   }
 }

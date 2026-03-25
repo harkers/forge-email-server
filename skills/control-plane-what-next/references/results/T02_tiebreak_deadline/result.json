@@ -4,24 +4,53 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-202",
-    "selectionReason": "Selected CP-202 (score: 25, priority: P0)",
+    "selectionReason": "Highest priority score after tie-break by earlier deadline",
     "candidates": [
       {
         "jobId": "CP-202",
-        "score": 25,
-        "priority": "P0",
+        "priorityScore": 32,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 15000,
+        "selected": true,
+        "selectedReason": "Highest priority score after tie-break by earlier deadline",
+        "tieBreakReason": "earlier deadline",
         "eligible": true
       },
       {
         "jobId": "CP-203",
-        "score": 25,
-        "priority": "P0",
+        "priorityScore": 32,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 15000,
+        "selected": false,
+        "selectedReason": "Lost tie-break to CP-202 by earlier deadline",
+        "tieBreakReason": "earlier deadline",
         "eligible": true
       },
       {
         "jobId": "CP-204",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 12,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 3,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 7000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-202",
         "eligible": true
       }
     ],
@@ -36,9 +65,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "dispatch",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": "earlier deadline",
+    "selectedPriority": "P0",
+    "selectedScore": 32
   },
-  "summary": "Selected: CP-202\nOutcome: dispatch\nPriority: P0 (score: 25)\nTitle: Review release checklist before handoff\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: CP-202\nPriority: P0\nScore: 32\nReason: Highest priority score after tie-break by earlier deadline\nTie-break: earlier deadline\nEstimated tokens: 15000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -52,7 +84,7 @@
       "allowProdChanges": false,
       "maxTokensPerJob": 120000,
       "maxTokensPerWindow": 400000,
-      "windowTokensUsed": 11250,
+      "windowTokensUsed": 10950,
       "windowCompletedJobs": [
         "CP-202"
       ],
@@ -60,13 +92,13 @@
         "CP-202"
       ],
       "lastDispatchedJobId": "CP-202",
-      "lastUpdatedAt": "2026-03-25T12:58:26.945630+00:00"
+      "lastUpdatedAt": "2026-03-25T13:42:04.184414+00:00"
     },
     "execution_metrics": {
       "testId": "T02_tiebreak_deadline",
       "jobId": "CP-202",
       "runtimeMs": 908,
-      "actualTokensUsed": 11250,
+      "actualTokensUsed": 10950,
       "retryCount": 0,
       "dispatchAttempts": 1,
       "estimatedTokens": 15000,
@@ -91,8 +123,8 @@
       "jobsRemainingBefore": 5,
       "jobsRemainingAfter": 4,
       "windowTokensBefore": 0,
-      "windowTokensAfter": 11250,
-      "actualTokensUsed": 11250
+      "windowTokensAfter": 10950,
+      "actualTokensUsed": 10950
     },
     "slot_consumption": {
       "testId": "T02_tiebreak_deadline",
@@ -101,6 +133,22 @@
       "jobsRemainingAfter": 4,
       "slotConsumed": true,
       "evidence": "dispatch entered execution"
+    },
+    "safety_report": {
+      "testId": "T02_tiebreak_deadline",
+      "jobId": "CP-202",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T02_tiebreak_deadline",
+      "passed": true,
+      "selectedJob": "CP-202",
+      "selectedPriority": "P0",
+      "selectedScore": 32,
+      "errors": []
     }
   }
 }

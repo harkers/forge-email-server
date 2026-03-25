@@ -1,0 +1,8 @@
+{
+  "testId": "T11_e2e_normal_delivery",
+  "passed": true,
+  "selectedJob": "CP-1101",
+  "selectedPriority": "P0",
+  "selectedScore": 42,
+  "errors": []
+}

@@ -4,7 +4,7 @@
       "id": "privacy-intake",
       "name": "Privacy Intake",
       "description": "Self-hosted privacy intake system for titan. Postgres-first, audit-focused FastAPI application with Cloudflare Tunnel access, worker-based task processing, and append-only event trail.",
-      "notes": "Workspace at /home/stu/.openclaw/workspace/privacy-intake-pack/. Privacy intake blueprint tailored for titan architecture: Debian 12, internal Docker network, no new public ports, Cloudflare Access authentication, PostgreSQL as system of record. Pack includes Docker Compose stack, FastAPI app skeleton, PostgreSQL schema with indexes, Cloudflare Tunnel config template, installation guide, security hardening notes, backup script, and systemd unit example.\n\nDesign separates intake from WordPress stack, publishes only through Cloudflare Tunnel + Access, uses PostgreSQL as source of record with append-only event trail for auditability. Intended hostname: privacy-intake.example.com.",
+      "notes": "Workspace at /home/stu/.openclaw/workspace/privacy-intake-pack/. Privacy intake blueprint tailored for titan architecture: Debian 12, internal Docker network, no new public ports, Cloudflare Access authentication, PostgreSQL as system of record. Pack includes Docker Compose stack, FastAPI app skeleton, PostgreSQL schema with indexes, Cloudflare Tunnel config template, installation guide, security hardening notes, backup script, and systemd unit example.\n\nDesign separates intake from WordPress stack, publishes only through Cloudflare Tunnel + Access, uses PostgreSQL as source of record with append-only event trail for auditability. Intended hostname: privacy-intake.example.com.\n\n**Phase 1 complete (2026-03-25):** Docker Compose stack deployed locally. PostgreSQL container healthy with schema initialized (6 tables). FastAPI app healthy on 127.0.0.1:18080. Worker and Cloudflare containers intentionally skipped (Phase 2+). No external ports exposed.",
       "status": "planning",
       "tags": [
         "privacy",
@@ -14,12 +14,12 @@
         "cloudflare-tunnel",
         "titan"
       ],
-      "updatedAt": "2026-03-25T13:57:25+00:00",
+      "updatedAt": "2026-03-25T14:04:43+00:00",
       "tasks": [
         {
           "id": "task-privacy-intake-1",
           "title": "Deploy postgres and app locally",
-          "status": "todo",
+          "status": "done",
           "priority": "high",
           "dueDate": "",
           "tags": [
@@ -27,13 +27,13 @@
             "postgresql",
             "docker"
           ],
-          "notes": "First build step: get core containers running without external exposure.",
-          "updatedAt": "2026-03-25T13:57:25+00:00"
+          "notes": "First build step: get core containers running without external exposure.\n\nCompleted 2026-03-25. Both containers healthy. App responds to /healthz. Schema initialized with 6 tables.",
+          "updatedAt": "2026-03-25T14:04:43+00:00"
         },
         {
           "id": "task-privacy-intake-2",
           "title": "Validate schema and event creation",
-          "status": "todo",
+          "status": "in-progress",
           "priority": "high",
           "dueDate": "",
           "tags": [
@@ -41,7 +41,7 @@
             "validation"
           ],
           "notes": "Confirm PostgreSQL schema, indexes, and event creation work correctly.",
-          "updatedAt": "2026-03-25T13:57:25+00:00"
+          "updatedAt": "2026-03-25T14:04:43+00:00"
         },
         {
           "id": "task-privacy-intake-3",

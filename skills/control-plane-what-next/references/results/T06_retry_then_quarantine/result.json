@@ -4,18 +4,36 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-601",
-    "selectionReason": "Selected CP-601 (score: 34, priority: P0)",
+    "selectionReason": "Highest priority score",
     "candidates": [
       {
         "jobId": "CP-601",
-        "score": 34,
-        "priority": "P0",
+        "priorityScore": 37,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 2,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 24000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-602",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 25,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 12000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-601",
         "eligible": false
       }
     ],
@@ -30,9 +48,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "quarantined_after_retry",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 37
   },
-  "summary": "Selected: CP-601\nOutcome: quarantined_after_retry\nPriority: P0 (score: 34)\nTitle: Patch malformed pipeline metadata parser\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: CP-601\nPriority: P0\nScore: 37\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 24000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -67,7 +88,7 @@
       "quarantined": true,
       "reason": "repeated_failure",
       "failedAttempts": 2,
-      "timestamp": "2026-03-25T12:58:26.948559+00:00"
+      "timestamp": "2026-03-25T13:42:04.184831+00:00"
     },
     "blocked_downstream": {
       "testId": "T06_retry_then_quarantine",
@@ -92,6 +113,22 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T06_retry_then_quarantine",
+      "jobId": "CP-601",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T06_retry_then_quarantine",
+      "passed": true,
+      "selectedJob": "CP-601",
+      "selectedPriority": "P0",
+      "selectedScore": 37,
+      "errors": []
     }
   }
 }

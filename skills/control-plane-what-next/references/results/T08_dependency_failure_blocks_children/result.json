@@ -4,24 +4,51 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-801",
-    "selectionReason": "Parent CP-801 failed; 2 dependents blocked",
+    "selectionReason": "Highest priority root failed; downstream jobs blocked: CP-802, CP-803",
     "candidates": [
       {
         "jobId": "CP-801",
-        "score": 34,
-        "priority": "P0",
+        "priorityScore": 40,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 3,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 28000,
+        "selected": false,
+        "selectedReason": "No selection made",
         "eligible": false
       },
       {
         "jobId": "CP-802",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 29,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 15000,
+        "selected": false,
+        "selectedReason": "No selection made",
         "eligible": false
       },
       {
         "jobId": "CP-803",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 25,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 10000,
+        "selected": false,
+        "selectedReason": "No selection made",
         "eligible": false
       }
     ],
@@ -36,9 +63,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "dependents_blocked_after_failure",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 40
   },
-  "summary": "Selected: CP-801\nOutcome: dependents_blocked_after_failure\nPriority: P0 (score: 34)\nTitle: Repair shared dependency resolver\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: CP-801\nPriority: P0\nScore: 40\nReason: Highest priority root failed; downstream jobs blocked: CP-802, CP-803\nTie-break: none\nEstimated tokens: 28000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: hold",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -73,7 +103,7 @@
       "quarantined": true,
       "reason": "dependency_root_failure",
       "failedAttempts": 1,
-      "timestamp": "2026-03-25T12:58:26.949738+00:00"
+      "timestamp": "2026-03-25T13:42:04.185005+00:00"
     },
     "blocked_downstream": {
       "testId": "T08_dependency_failure_blocks_children",
@@ -101,6 +131,22 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "jobId": "CP-801",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T08_dependency_failure_blocks_children",
+      "passed": true,
+      "selectedJob": "CP-801",
+      "selectedPriority": "P0",
+      "selectedScore": 40,
+      "errors": []
     }
   }
 }

@@ -2,7 +2,7 @@
   "testId": "T10_session_restart_state_recovery",
   "jobId": "CP-1004",
   "runtimeMs": 1019,
-  "actualTokensUsed": 13260,
+  "actualTokensUsed": 12410,
   "retryCount": 0,
   "dispatchAttempts": 1,
   "estimatedTokens": 17000,

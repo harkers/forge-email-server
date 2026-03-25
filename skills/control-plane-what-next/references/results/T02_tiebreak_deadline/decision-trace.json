@@ -1,6 +1,6 @@
 {
   "testId": "T02_tiebreak_deadline",
-  "timestamp": "2026-03-25T12:58:26.945863+00:00",
+  "timestamp": "2026-03-25T13:42:04.187733+00:00",
   "expected": {
     "selectedJob": "CP-202",
     "outcome": "dispatch"
@@ -13,20 +13,49 @@
   "candidates": [
     {
       "jobId": "CP-202",
-      "score": 25,
-      "priority": "P0",
+      "priorityScore": 32,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 15000,
+      "selected": true,
+      "selectedReason": "Highest priority score after tie-break by earlier deadline",
+      "tieBreakReason": "earlier deadline",
       "eligible": true
     },
     {
       "jobId": "CP-203",
-      "score": 25,
-      "priority": "P0",
+      "priorityScore": 32,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 15000,
+      "selected": false,
+      "selectedReason": "Lost tie-break to CP-202 by earlier deadline",
+      "tieBreakReason": "earlier deadline",
       "eligible": true
     },
     {
       "jobId": "CP-204",
-      "score": 18,
-      "priority": "P0",
+      "priorityScore": 12,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 3,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 7000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-202",
       "eligible": true
     }
   ],
@@ -39,5 +68,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": "earlier deadline"
 }

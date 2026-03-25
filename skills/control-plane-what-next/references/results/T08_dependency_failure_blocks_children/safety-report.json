@@ -1,0 +1,8 @@
+{
+  "testId": "T08_dependency_failure_blocks_children",
+  "jobId": "CP-801",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

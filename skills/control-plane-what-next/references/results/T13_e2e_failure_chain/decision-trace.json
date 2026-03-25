@@ -1,6 +1,6 @@
 {
   "testId": "T13_e2e_failure_chain",
-  "timestamp": "2026-03-25T12:58:26.952995+00:00",
+  "timestamp": "2026-03-25T13:42:04.193546+00:00",
   "expected": {
     "selectedJob": "CP-1301",
     "outcome": "failure_chain_paused"
@@ -13,20 +13,47 @@
   "candidates": [
     {
       "jobId": "CP-1301",
-      "score": 34,
-      "priority": "P0",
+      "priorityScore": 40,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 3,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 26000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
-      "jobId": "CP-1303",
-      "score": 27,
-      "priority": "P0",
+      "jobId": "CP-1302",
+      "priorityScore": 29,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 4,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 19000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1301",
       "eligible": false
     },
     {
-      "jobId": "CP-1302",
-      "score": 26,
-      "priority": "P0",
+      "jobId": "CP-1303",
+      "priorityScore": 27,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 9000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1301",
       "eligible": false
     }
   ],
@@ -39,5 +66,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

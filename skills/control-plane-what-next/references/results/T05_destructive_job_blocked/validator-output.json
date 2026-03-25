@@ -1,0 +1,8 @@
+{
+  "testId": "T05_destructive_job_blocked",
+  "passed": true,
+  "selectedJob": null,
+  "selectedPriority": null,
+  "selectedScore": null,
+  "errors": []
+}

@@ -4,30 +4,66 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-1101",
-    "selectionReason": "Selected CP-1101 (score: 33, priority: P0)",
+    "selectionReason": "Highest priority score",
     "candidates": [
       {
         "jobId": "CP-1101",
-        "score": 33,
-        "priority": "P0",
-        "eligible": true
-      },
-      {
-        "jobId": "CP-1102",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 42,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 3,
+        "deadlineProximity": 5,
+        "businessImpact": 5,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 32000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-1103",
-        "score": 26,
-        "priority": "P0",
+        "priorityScore": 27,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 12000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1101",
+        "eligible": true
+      },
+      {
+        "jobId": "CP-1102",
+        "priorityScore": 26,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 21000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1101",
         "eligible": true
       },
       {
         "jobId": "CP-1104",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 14,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 6000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1101",
         "eligible": true
       }
     ],
@@ -42,9 +78,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "dispatch_series",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 42
   },
-  "summary": "Selected: CP-1101\nOutcome: dispatch_series\nPriority: P0 (score: 33)\nTitle: Restore worker auth trust chain\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: CP-1101\nPriority: P0\nScore: 42\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 32000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -58,7 +97,7 @@
       "allowProdChanges": false,
       "maxTokensPerJob": 120000,
       "maxTokensPerWindow": 400000,
-      "windowTokensUsed": 24960,
+      "windowTokensUsed": 23360,
       "windowCompletedJobs": [
         "CP-1101"
       ],
@@ -66,13 +105,13 @@
         "CP-1101"
       ],
       "lastDispatchedJobId": "CP-1101",
-      "lastUpdatedAt": "2026-03-25T12:58:26.951542+00:00"
+      "lastUpdatedAt": "2026-03-25T13:42:04.185359+00:00"
     },
     "execution_metrics": {
       "testId": "T11_e2e_normal_delivery",
       "jobId": "CP-1101",
       "runtimeMs": 1852,
-      "actualTokensUsed": 24960,
+      "actualTokensUsed": 23360,
       "retryCount": 0,
       "dispatchAttempts": 1,
       "estimatedTokens": 32000,
@@ -97,8 +136,8 @@
       "jobsRemainingBefore": 5,
       "jobsRemainingAfter": 4,
       "windowTokensBefore": 0,
-      "windowTokensAfter": 24960,
-      "actualTokensUsed": 24960
+      "windowTokensAfter": 23360,
+      "actualTokensUsed": 23360
     },
     "slot_consumption": {
       "testId": "T11_e2e_normal_delivery",
@@ -107,6 +146,22 @@
       "jobsRemainingAfter": 4,
       "slotConsumed": true,
       "evidence": "dispatch entered execution"
+    },
+    "safety_report": {
+      "testId": "T11_e2e_normal_delivery",
+      "jobId": "CP-1101",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T11_e2e_normal_delivery",
+      "passed": true,
+      "selectedJob": "CP-1101",
+      "selectedPriority": "P0",
+      "selectedScore": 42,
+      "errors": []
     }
   }
 }

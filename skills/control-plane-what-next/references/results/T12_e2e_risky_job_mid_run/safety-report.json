@@ -1,0 +1,10 @@
+{
+  "testId": "T12_e2e_risky_job_mid_run",
+  "jobId": "CP-1201",
+  "eligible": false,
+  "blocked": true,
+  "blockedBy": [
+    "production-impacting change blocked"
+  ],
+  "approvalReason": "jobs window active (5 remaining)"
+}

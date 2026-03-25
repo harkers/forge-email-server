@@ -4,24 +4,51 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-1301",
-    "selectionReason": "Selected CP-1301 (score: 34, priority: P0)",
+    "selectionReason": "Root failed twice and paused downstream jobs: CP-1302, CP-1303",
     "candidates": [
       {
         "jobId": "CP-1301",
-        "score": 34,
-        "priority": "P0",
+        "priorityScore": 40,
+        "assignedPriority": "P0",
+        "severity": 4,
+        "blockingBreadth": 3,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 3,
+        "estimatedTokens": 26000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
-        "jobId": "CP-1303",
-        "score": 27,
-        "priority": "P0",
+        "jobId": "CP-1302",
+        "priorityScore": 29,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 19000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1301",
         "eligible": false
       },
       {
-        "jobId": "CP-1302",
-        "score": 26,
-        "priority": "P0",
+        "jobId": "CP-1303",
+        "priorityScore": 27,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 5,
+        "businessImpact": 3,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 9000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-1301",
         "eligible": false
       }
     ],
@@ -36,9 +63,12 @@
       "reason": "jobs window active (5 remaining)"
     },
     "outcome": "failure_chain_paused",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 40
   },
-  "summary": "Selected: CP-1301\nOutcome: failure_chain_paused\nPriority: P0 (score: 34)\nTitle: Repair broken queue scheduler\nApproval: jobs window active (5 remaining)",
+  "summary": "Next job selected: CP-1301\nPriority: P0\nScore: 40\nReason: Root failed twice and paused downstream jobs: CP-1302, CP-1303\nTie-break: none\nEstimated tokens: 26000\nSafety status: eligible\nApproval window: jobs / jobs window active (5 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -73,7 +103,7 @@
       "quarantined": true,
       "reason": "repeated_failure",
       "failedAttempts": 2,
-      "timestamp": "2026-03-25T12:58:26.952768+00:00"
+      "timestamp": "2026-03-25T13:42:04.185614+00:00"
     },
     "blocked_downstream": {
       "testId": "T13_e2e_failure_chain",
@@ -101,6 +131,22 @@
       "jobsRemainingAfter": 5,
       "slotConsumed": false,
       "evidence": "no slot consumed"
+    },
+    "safety_report": {
+      "testId": "T13_e2e_failure_chain",
+      "jobId": "CP-1301",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (5 remaining)"
+    },
+    "validator_output": {
+      "testId": "T13_e2e_failure_chain",
+      "passed": true,
+      "selectedJob": "CP-1301",
+      "selectedPriority": "P0",
+      "selectedScore": 40,
+      "errors": []
     }
   }
 }

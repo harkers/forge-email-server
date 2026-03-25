@@ -1,0 +1,8 @@
+{
+  "testId": "T01_priority_p0_beats_all",
+  "jobId": "CP-106",
+  "eligible": true,
+  "blocked": false,
+  "blockedBy": [],
+  "approvalReason": "jobs window active (5 remaining)"
+}

@@ -1,5 +1,9 @@
-Selected: CP-202
-Outcome: dispatch
-Priority: P0 (score: 25)
-Title: Review release checklist before handoff
-Approval: jobs window active (5 remaining)
+Next job selected: CP-202
+Priority: P0
+Score: 32
+Reason: Highest priority score after tie-break by earlier deadline
+Tie-break: earlier deadline
+Estimated tokens: 15000
+Safety status: eligible
+Approval window: jobs / jobs window active (5 remaining)
+Action: dispatching now

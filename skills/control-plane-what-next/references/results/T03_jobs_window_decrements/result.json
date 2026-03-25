@@ -4,18 +4,36 @@
   "errors": [],
   "result": {
     "selectedJob": "CP-301",
-    "selectionReason": "Selected CP-301 (score: 22, priority: P0)",
+    "selectionReason": "Highest priority score",
     "candidates": [
       {
         "jobId": "CP-301",
-        "score": 22,
-        "priority": "P0",
+        "priorityScore": 27,
+        "assignedPriority": "P0",
+        "severity": 3,
+        "blockingBreadth": 0,
+        "deadlineProximity": 4,
+        "businessImpact": 4,
+        "executionReadiness": 4,
+        "executionEffort": 2,
+        "estimatedTokens": 12000,
+        "selected": true,
+        "selectedReason": "Highest priority score",
         "eligible": true
       },
       {
         "jobId": "CP-302",
-        "score": 18,
-        "priority": "P0",
+        "priorityScore": 12,
+        "assignedPriority": "P2",
+        "severity": 1,
+        "blockingBreadth": 0,
+        "deadlineProximity": 3,
+        "businessImpact": 0,
+        "executionReadiness": 4,
+        "executionEffort": 1,
+        "estimatedTokens": 6000,
+        "selected": false,
+        "selectedReason": "Lower priority score than CP-301",
         "eligible": true
       }
     ],
@@ -30,9 +48,12 @@
       "reason": "jobs window active (2 remaining)"
     },
     "outcome": "dispatch",
-    "riskyHeld": []
+    "riskyHeld": [],
+    "tieBreakReason": null,
+    "selectedPriority": "P0",
+    "selectedScore": 27
   },
-  "summary": "Selected: CP-301\nOutcome: dispatch\nPriority: P0 (score: 22)\nTitle: Apply safe config cleanup\nApproval: jobs window active (2 remaining)",
+  "summary": "Next job selected: CP-301\nPriority: P0\nScore: 27\nReason: Highest priority score\nTie-break: none\nEstimated tokens: 12000\nSafety status: eligible\nApproval window: jobs / jobs window active (2 remaining)\nAction: dispatching now",
   "evidence": {
     "after_state": {
       "version": 1,
@@ -46,7 +67,7 @@
       "allowProdChanges": false,
       "maxTokensPerJob": 120000,
       "maxTokensPerWindow": 200000,
-      "windowTokensUsed": 9000,
+      "windowTokensUsed": 8760,
       "windowCompletedJobs": [
         "CP-301"
       ],
@@ -54,13 +75,13 @@
         "CP-301"
       ],
       "lastDispatchedJobId": "CP-301",
-      "lastUpdatedAt": "2026-03-25T12:58:26.946239+00:00"
+      "lastUpdatedAt": "2026-03-25T13:42:04.184523+00:00"
     },
     "execution_metrics": {
       "testId": "T03_jobs_window_decrements",
       "jobId": "CP-301",
       "runtimeMs": 741,
-      "actualTokensUsed": 9000,
+      "actualTokensUsed": 8760,
       "retryCount": 0,
       "dispatchAttempts": 1,
       "estimatedTokens": 12000,
@@ -85,8 +106,8 @@
       "jobsRemainingBefore": 2,
       "jobsRemainingAfter": 1,
       "windowTokensBefore": 0,
-      "windowTokensAfter": 9000,
-      "actualTokensUsed": 9000
+      "windowTokensAfter": 8760,
+      "actualTokensUsed": 8760
     },
     "slot_consumption": {
       "testId": "T03_jobs_window_decrements",
@@ -95,6 +116,22 @@
       "jobsRemainingAfter": 1,
       "slotConsumed": true,
       "evidence": "dispatch entered execution"
+    },
+    "safety_report": {
+      "testId": "T03_jobs_window_decrements",
+      "jobId": "CP-301",
+      "eligible": true,
+      "blocked": false,
+      "blockedBy": [],
+      "approvalReason": "jobs window active (2 remaining)"
+    },
+    "validator_output": {
+      "testId": "T03_jobs_window_decrements",
+      "passed": true,
+      "selectedJob": "CP-301",
+      "selectedPriority": "P0",
+      "selectedScore": 27,
+      "errors": []
     }
   }
 }

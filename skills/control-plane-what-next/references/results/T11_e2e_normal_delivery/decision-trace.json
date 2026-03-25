@@ -1,6 +1,6 @@
 {
   "testId": "T11_e2e_normal_delivery",
-  "timestamp": "2026-03-25T12:58:26.951775+00:00",
+  "timestamp": "2026-03-25T13:42:04.192526+00:00",
   "expected": {
     "selectedJob": "CP-1101",
     "outcome": "dispatch_series"
@@ -13,26 +13,62 @@
   "candidates": [
     {
       "jobId": "CP-1101",
-      "score": 33,
-      "priority": "P0",
-      "eligible": true
-    },
-    {
-      "jobId": "CP-1102",
-      "score": 26,
-      "priority": "P0",
+      "priorityScore": 42,
+      "assignedPriority": "P0",
+      "severity": 4,
+      "blockingBreadth": 3,
+      "deadlineProximity": 5,
+      "businessImpact": 5,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 32000,
+      "selected": true,
+      "selectedReason": "Highest priority score",
       "eligible": true
     },
     {
       "jobId": "CP-1103",
-      "score": 26,
-      "priority": "P0",
+      "priorityScore": 27,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 2,
+      "estimatedTokens": 12000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1101",
+      "eligible": true
+    },
+    {
+      "jobId": "CP-1102",
+      "priorityScore": 26,
+      "assignedPriority": "P0",
+      "severity": 3,
+      "blockingBreadth": 0,
+      "deadlineProximity": 5,
+      "businessImpact": 3,
+      "executionReadiness": 4,
+      "executionEffort": 3,
+      "estimatedTokens": 21000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1101",
       "eligible": true
     },
     {
       "jobId": "CP-1104",
-      "score": 18,
-      "priority": "P0",
+      "priorityScore": 14,
+      "assignedPriority": "P2",
+      "severity": 1,
+      "blockingBreadth": 0,
+      "deadlineProximity": 4,
+      "businessImpact": 0,
+      "executionReadiness": 4,
+      "executionEffort": 1,
+      "estimatedTokens": 6000,
+      "selected": false,
+      "selectedReason": "Lower priority score than CP-1101",
       "eligible": true
     }
   ],
@@ -45,5 +81,6 @@
     "approved": true,
     "mode": "jobs",
     "reason": "jobs window active (5 remaining)"
-  }
+  },
+  "tieBreakReason": null
 }

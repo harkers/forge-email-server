@@ -1,3 +1,9 @@
-Selected: none
-Outcome: approval_required
-Approval: time window expired
+Next job selected: none
+Priority: n/a
+Score: n/a
+Reason: none
+Tie-break: none
+Estimated tokens: 0
+Safety status: eligible
+Approval window: time / time window expired
+Action: ask for approval
