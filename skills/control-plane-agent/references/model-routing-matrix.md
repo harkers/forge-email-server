@@ -47,13 +47,17 @@ Map agents to models based on task characteristics, complexity, and escalation n
 ## Core orchestration
 
 ### control-plane-agent
-**Default:** `openai-codex/gpt-5.4`
+**Default:** `ollama/gpt-oss:20b`
 
-**Why:** Orchestration requires strong reasoning, verification judgment, and routing decisions. Handoff synthesis and escalation decisions need high reliability.
+**Why:** Orchestration requires strong reasoning, verification judgment, and routing decisions. Handoff synthesis and escalation decisions need high reliability. Using a strong local/cloud model keeps cost manageable while maintaining capability.
 
-**Escalation:** Already at premium tier. No further escalation.
+**Escalation:** When orchestration faces strategic tradeoffs, production sign-offs, or high-stakes decisions → escalate to `openai-codex/gpt-5.4`
 
-**Codex handoff:** Always on Codex. This is the governor.
+**Codex handoff:**
+- Strategic tradeoff decisions
+- Production deployment sign-off
+- Multi-agent orchestration with complex dependencies
+- High-stakes escalation decisions
 
 ---
 
@@ -379,7 +383,7 @@ Map agents to models based on task characteristics, complexity, and escalation n
 
 | Role | Default | Escalate to | Codex when |
 |------|---------|-------------|------------|
-| control-plane-agent | `openai-codex/gpt-5.4` | — | Always |
+| control-plane-agent | `gpt-oss:20b` | Codex | Strategic decisions, production sign-off |
 | manager-agent | `qwen3.5:397b-cloud` | Codex | Multi-agent orchestration, strategic decisions |
 | planner-agent | `qwen3.5:397b-cloud` | Codex | Portfolio-level, architecture packs |
 | coding-worker-agent | `qwen3-coder-next:cloud` | Codex | Security-critical, architectural refactors |
