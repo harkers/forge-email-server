@@ -71,6 +71,40 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 
 ## What Goes Here
 
+### Forge-Syslog-Collector
+- Project code: OC-LOG-001
+- Status: deployed (phase 2 collector live; phase 3 pilot pending)
+- Purpose: Internal Docker-based syslog collector for phased container log forwarding on titan
+- Host / environment: titan / Debian 12
+- Workspace / owner: `/home/stu/.openclaw/workspace/forge-syslog-collector`
+- Type: Docker Compose service
+- Runtime location: `docker-compose.yml` in project workspace
+- Access method: internal-only listener for Docker syslog log driver
+- Ports / sockets / bindings: `127.0.0.1:5514/tcp`
+- Authentication: none in phase 1/2; localhost-only binding
+- Storage / state paths: `/data/appdata/forge-syslog-collector/logs`
+- Dependencies: Docker, Docker Compose, `rsyslog/rsyslog:latest`
+- Start command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose up -d`
+- Stop command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose down`
+- Restart command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose restart`
+- Validation:
+  - `docker compose ps`
+  - `ss -tlnp | grep 5514`
+  - verify collector binds only to `127.0.0.1:5514`
+  - verify log files are written under `/data/appdata/forge-syslog-collector/logs` during pilot phase
+- Rollback:
+  - `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose down`
+  - verify port 5514 is no longer listening
+  - revert any future pilot containers to prior logging config
+  - retain collected logs unless explicit purge is requested
+- Security notes:
+  - no LAN exposure
+  - no reverse proxy involvement
+  - no daemon-wide Docker log-driver change in phase 2
+- Change impact / related services:
+  - no impact observed to nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or existing published ports
+  - phase 3 will affect selected pilot containers only
+
 ### OpenClaw Usage Dashboard
 - Project code: OC-DASH-001
 - Status: deployed (phase 1 local project)
