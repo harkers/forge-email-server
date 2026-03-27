@@ -103,7 +103,7 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
   - no daemon-wide Docker log-driver change in phase 2
 - Change impact / related services:
   - no impact observed to nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or existing published ports
-  - current pilot containers: `openclaw-github-mcp`, `openclaw-glances-mcp`, `openclaw-powerpoint-mcp`, `openclaw-vault-mcp`, `openclaw-nextcloud-mcp`, `openclaw-wordpress-mcp`
+  - current stable logged services: `openclaw-github-mcp`, `openclaw-powerpoint-mcp`, `openclaw-vault-mcp`, `openclaw-nextcloud-mcp`, `openclaw-wordpress-mcp`
 
 ### OpenClaw Usage Dashboard
 - Project code: OC-DASH-001
