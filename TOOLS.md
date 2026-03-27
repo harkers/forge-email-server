@@ -71,6 +71,41 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 
 ## What Goes Here
 
+### OpenClaw Usage Dashboard
+- Project code: OC-DASH-001
+- Status: deployed (phase 1 local project)
+- Purpose: Internal-only OpenClaw usage dashboard aggregating sessions, tokens, and cost by day/week/month while marking incomplete usage as unknown
+- Host / environment: titan / Debian 12
+- Workspace / owner: `/home/stu/.openclaw/workspace/projects/openclaw-usage-dashboard`
+- Type: local Python HTTP service
+- Runtime location: `/home/stu/.openclaw/workspace/projects/openclaw-usage-dashboard/openclaw_usage_dashboard.py`
+- Access method: local browser to `http://127.0.0.1:8899`
+- Ports / sockets / bindings: `127.0.0.1:8899/tcp` by default
+- Authentication: none in phase 1; localhost-only binding
+- Storage / state paths: reads `/home/stu/.openclaw/agents/main/sessions/sessions.json` and transcript `*.jsonl`; no separate database
+- Dependencies: Python 3, OpenClaw session files on disk
+- Start command: `cd /home/stu/.openclaw/workspace/projects/openclaw-usage-dashboard && python3 openclaw_usage_dashboard.py`
+- Stop command: stop the foreground Python process or terminate its service wrapper if one is added later
+- Restart command: rerun the start command
+- Validation:
+  - `curl -s http://127.0.0.1:8899/api/health | jq`
+  - `curl -s http://127.0.0.1:8899/api/dashboard | jq '.stats, .summary.day[0], .recentSessions[0]'`
+  - verify rows with missing provider usage display `unknown`
+- Rollback:
+  - stop the dashboard process
+  - remove any future launcher/proxy/service wrapper
+  - optionally remove `projects/openclaw-usage-dashboard`
+  - verify no listener remains on port 8899
+- Security notes:
+  - internal-only bind in phase 1
+  - no gateway config changes
+  - no reverse proxy exposure by default
+  - treats incomplete local/OpenAI-compatible usage persistence as unknown rather than fake precision
+- Change impact / related services:
+  - reads existing OpenClaw session telemetry only
+  - does not modify nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or published ports
+
+
 Things like:
 
 - Camera names and locations
