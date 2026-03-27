@@ -73,7 +73,7 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 
 ### Forge-Syslog-Collector
 - Project code: OC-LOG-001
-- Status: deployed (phase 2 collector live; phase 3 pilot pending)
+- Status: deployed (collector live; pilot set expanded to six services)
 - Purpose: Internal Docker-based syslog collector for phased container log forwarding on titan
 - Host / environment: titan / Debian 12
 - Workspace / owner: `/home/stu/.openclaw/workspace/forge-syslog-collector`
@@ -103,7 +103,7 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
   - no daemon-wide Docker log-driver change in phase 2
 - Change impact / related services:
   - no impact observed to nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or existing published ports
-  - phase 3 will affect selected pilot containers only
+  - current pilot containers: `openclaw-github-mcp`, `openclaw-glances-mcp`, `openclaw-powerpoint-mcp`, `openclaw-vault-mcp`, `openclaw-nextcloud-mcp`, `openclaw-wordpress-mcp`
 
 ### OpenClaw Usage Dashboard
 - Project code: OC-DASH-001
