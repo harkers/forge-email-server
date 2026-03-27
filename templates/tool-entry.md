@@ -1,0 +1,20 @@
+### <Name>
+- Project code:
+- Status:
+- Purpose:
+- Host / environment:
+- Workspace / owner:
+- Type:
+- Runtime location:
+- Access method:
+- Ports / sockets / bindings:
+- Authentication:
+- Storage / state paths:
+- Dependencies:
+- Start command:
+- Stop command:
+- Restart command:
+- Validation:
+- Rollback:
+- Security notes:
+- Change impact / related services:

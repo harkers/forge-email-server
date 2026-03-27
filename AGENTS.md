@@ -51,6 +51,7 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - Don't run destructive commands without asking.
 - `trash` > `rm` (recoverable beats gone forever)
 - When in doubt, ask.
+- **BACKUP BEFORE MIGRATION** — Never run database migrations or destructive operations without creating a backup first. If a database has data, preserve it before any schema/data changes.
 
 ## External vs Internal
 
@@ -228,6 +229,50 @@ Use the `self-improvement` skill when commands fail unexpectedly, external tools
 
 ### Self-Reflection
 Use the `self-reflection` skill after meaningful multi-step work, after rework, after user feedback, after fixing mistakes, or when the outcome was clearly weaker than intent. Keep reflections brief, evidence-based, and route reusable lessons into self-improvement rather than treating every task like a diary entry.
+
+## Build completion and documentation policy
+
+Every OpenClaw-delivered build, deployment, integration, automation, service, workflow, agent, or tool change must update workspace documentation before the task is considered complete.
+
+### Mandatory completion rule
+A task is not complete until:
+- the change is implemented
+- validation has passed
+- rollback steps are documented
+- TOOLS.md has been updated if the task creates or changes a service, tool, runtime, endpoint, port, binding, storage path, authentication method, dependency, operator command, validation method, or rollback method
+
+### Documentation-first operating rule
+If a task introduces a new standard practice, project-wide rule, or repeatable delivery pattern, update AGENTS.md as well so the rule is enforced in future sessions.
+
+### Titan operating constraints
+When working on titan:
+- prefer minimal, surgical changes
+- preserve the existing nginx -> lighttpd -> php-fpm -> WordPress architecture
+- do not expose MariaDB or lighttpd externally
+- prefer localhost-only or isolated Docker bindings unless explicit external exposure is required
+- do not introduce undocumented ports, bind mounts, sockets, or background services
+- record all new runtime locations, ports, storage paths, commands, validation steps, and rollback steps in TOOLS.md
+
+### Delivery standard
+For every build:
+1. design
+2. implement
+3. validate
+4. document in TOOLS.md
+5. record rollback
+6. mark complete
+
+## Titan deployment rules
+
+When building on titan:
+- treat the existing nginx -> lighttpd -> php-fpm -> WordPress chain as intentional
+- do not collapse layers unless explicitly instructed
+- do not expose MariaDB or lighttpd externally
+- prefer localhost-only binds or isolated Docker networks for new services
+- check for port collisions before recommending ports, containers, reverse proxies, or listeners
+- prefer smallest viable change before escalation
+- keep the system operational; avoid downtime-first changes
+- register every new service or runtime change in TOOLS.md
 
 ## Make It Yours
 
