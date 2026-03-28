@@ -153,6 +153,7 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
   - `curl -s http://127.0.0.1:8899/api/health | jq`
   - `curl -s http://127.0.0.1:8899/api/dashboard | jq '.stats, .summary.day[0], .recentSessions[0]'`
   - verify rows with missing provider usage display `unknown`
+  - verify rows with real tokens but unreliable zero-cost persistence display `usageState: "reported"` and `costState: "unknown"`
 - Rollback:
   - stop the dashboard process
   - remove any future launcher/proxy/service wrapper

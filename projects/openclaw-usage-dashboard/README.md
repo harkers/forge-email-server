@@ -35,5 +35,6 @@ DASHBOARD_PORT=8899
 ## Notes
 
 - Source of truth for phase 1 is `sessions.json` plus transcript `*.jsonl`
-- Some local / OpenAI-compatible providers may record zero or missing usage; these rows are marked `unknown`
+- Token reporting and cost reporting are tracked separately
+- Some local / OpenAI-compatible providers may record tokens while persisting `cost.total = 0` or omitting cost entirely; those rows now show **reported tokens** with **unknown cost** rather than fake zero spend
 - Phase 2 should add diagnostics / OTel-backed metrics if authoritative provider metrics are needed

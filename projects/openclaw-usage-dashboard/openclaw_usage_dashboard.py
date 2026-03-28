@@ -90,6 +90,7 @@ class UsageRow:
     runtime_ms: int | None
     status: str
     usage_state: str
+    cost_state: str
     source: str
 
     def bucket_day(self) -> str:
@@ -182,6 +183,34 @@ def classify_usage_state(provider: str, usage: dict[str, Any] | None, transcript
     return "unknown"
 
 
+def classify_cost_state(provider: str, usage_state: str, cost_total: float | None, transcript_usage_obj: dict[str, Any] | None) -> str:
+    if usage_state != "reported":
+        return "unknown"
+
+    if cost_total is None:
+        return "unknown"
+
+    if cost_total > 0:
+        return "reported"
+
+    if cost_total == 0:
+        if provider in {"ollama", "openai-compatible", "unknown"}:
+            return "unknown"
+        if transcript_usage_obj and isinstance(transcript_usage_obj.get("cost"), dict):
+            cost_obj = transcript_usage_obj.get("cost") or {}
+            non_total_fields = [
+                safe_float(cost_obj.get("input")),
+                safe_float(cost_obj.get("output")),
+                safe_float(cost_obj.get("cacheRead")),
+                safe_float(cost_obj.get("cacheWrite")),
+            ]
+            if any((value or 0) > 0 for value in non_total_fields):
+                return "reported"
+        return "reported"
+
+    return "unknown"
+
+
 def build_row(session_key: str, meta: dict[str, Any]) -> UsageRow:
     session_id = meta.get("sessionId") or ""
     session_file = Path(meta.get("sessionFile") or (SESSIONS_DIR / f"{session_id}.jsonl"))
@@ -219,11 +248,15 @@ def build_row(session_key: str, meta: dict[str, Any]) -> UsageRow:
         "output": output_tokens,
         "totalTokens": total_tokens,
     }, transcript)
+    cost_state = classify_cost_state(provider, usage_state, cost_total, transcript_usage_obj)
 
     if usage_state == "unknown":
         input_tokens = None
         output_tokens = None
         total_tokens = None
+        cost_total = None
+
+    if cost_state == "unknown":
         cost_total = None
 
     started_at = ms_to_dt(meta.get("startedAt"))
@@ -249,6 +282,7 @@ def build_row(session_key: str, meta: dict[str, Any]) -> UsageRow:
         runtime_ms=runtime_ms,
         status=str(meta.get("status") or "unknown"),
         usage_state=usage_state,
+        cost_state=cost_state,
         source="sessions.json + transcript jsonl",
     )
 
@@ -263,6 +297,7 @@ def collect_usage_records() -> tuple[list[UsageRow], dict[str, Any]]:
         "sessionsJsonExists": SESSIONS_JSON.exists(),
         "sessionCount": len(rows),
         "usageStates": dict(Counter(r.usage_state for r in rows)),
+        "costStates": dict(Counter(r.cost_state for r in rows)),
         "providers": dict(Counter(r.provider for r in rows)),
     }
     return rows, stats
@@ -277,16 +312,19 @@ def summarize(rows: list[UsageRow], bucket_name: str) -> list[dict[str, Any]]:
     output = []
     for key in sorted(grouped.keys(), reverse=True):
         items = grouped[key]
+        cost_known = [r.cost_total for r in items if r.cost_total is not None]
         output.append({
             "period": key,
             "sessions": len(items),
             "reportedSessions": sum(1 for r in items if r.usage_state == "reported"),
             "unknownSessions": sum(1 for r in items if r.usage_state == "unknown"),
             "estimatedSessions": sum(1 for r in items if r.usage_state == "estimated"),
+            "reportedCostSessions": sum(1 for r in items if r.cost_state == "reported"),
+            "unknownCostSessions": sum(1 for r in items if r.cost_state == "unknown"),
             "inputTokens": sum(r.input_tokens or 0 for r in items),
             "outputTokens": sum(r.output_tokens or 0 for r in items),
             "totalTokens": sum(r.total_tokens or 0 for r in items),
-            "costTotal": round(sum(r.cost_total or 0.0 for r in items), 6),
+            "costTotal": round(sum(cost_known), 6) if cost_known else None,
         })
     return output
 
@@ -297,14 +335,17 @@ def breakdown(rows: list[UsageRow], attr: str) -> list[dict[str, Any]]:
         grouped[getattr(row, attr)].append(row)
     items = []
     for key, entries in grouped.items():
+        cost_known = [r.cost_total for r in entries if r.cost_total is not None]
         items.append({
             "name": key,
             "sessions": len(entries),
             "reportedSessions": sum(1 for r in entries if r.usage_state == "reported"),
             "unknownSessions": sum(1 for r in entries if r.usage_state == "unknown"),
             "estimatedSessions": sum(1 for r in entries if r.usage_state == "estimated"),
+            "reportedCostSessions": sum(1 for r in entries if r.cost_state == "reported"),
+            "unknownCostSessions": sum(1 for r in entries if r.cost_state == "unknown"),
             "totalTokens": sum(r.total_tokens or 0 for r in entries),
-            "costTotal": round(sum(r.cost_total or 0.0 for r in entries), 6),
+            "costTotal": round(sum(cost_known), 6) if cost_known else None,
         })
     items.sort(key=lambda x: (x["totalTokens"], x["sessions"]), reverse=True)
     return items
@@ -330,6 +371,7 @@ def row_to_dict(row: UsageRow) -> dict[str, Any]:
         "runtimeMs": row.runtime_ms,
         "status": row.status,
         "usageState": row.usage_state,
+        "costState": row.cost_state,
         "source": row.source,
     }
 
@@ -419,23 +461,24 @@ function renderTop() {
   const stats = payload.stats;
   document.getElementById('summaryLine').innerHTML = `Source: <code>${stats.sessionsDir}</code> · Sessions: ${num(stats.sessionCount)} · Generated: ${payload.generatedAt}`;
   const cards = [
-    ['Reported', num(stats.usageStates.reported || 0)],
-    ['Unknown', num(stats.usageStates.unknown || 0)],
-    ['Estimated', num(stats.usageStates.estimated || 0)],
+    ['Reported tokens', num(stats.usageStates.reported || 0)],
+    ['Unknown tokens', num(stats.usageStates.unknown || 0)],
+    ['Reported cost', num(stats.costStates.reported || 0)],
+    ['Unknown cost', num(stats.costStates.unknown || 0)],
     ['Providers', num(Object.keys(stats.providers || {}).length)],
   ];
   document.getElementById('topCards').innerHTML = cards.map(([k,v]) => `<div class=\"card\"><div class=\"muted\">${k}</div><div style=\"font-size:28px;font-weight:700\">${v}</div></div>`).join('');
 }
 function renderSummary() {
-  const rows = (payload.summary[period] || []).slice(0, 20).map(r => [r.period, num(r.sessions), num(r.reportedSessions), num(r.unknownSessions), num(r.estimatedSessions), num(r.totalTokens), money(r.costTotal)]);
-  document.getElementById('summaryTable').innerHTML = table(['Period','Sessions','Reported','Unknown','Estimated','Total tokens','Cost'], rows);
+  const rows = (payload.summary[period] || []).slice(0, 20).map(r => [r.period, num(r.sessions), num(r.reportedSessions), num(r.unknownSessions), num(r.reportedCostSessions), num(r.unknownCostSessions), num(r.totalTokens), money(r.costTotal)]);
+  document.getElementById('summaryTable').innerHTML = table(['Period','Sessions','Reported tokens','Unknown tokens','Reported cost','Unknown cost','Total tokens','Cost'], rows);
 }
 function renderBreakdown(id, rows) {
-  document.getElementById(id).innerHTML = table(['Name','Sessions','Reported','Unknown','Estimated','Tokens','Cost'], rows.slice(0,20).map(r => [r.name, num(r.sessions), num(r.reportedSessions), num(r.unknownSessions), num(r.estimatedSessions), num(r.totalTokens), money(r.costTotal)]));
+  document.getElementById(id).innerHTML = table(['Name','Sessions','Reported tokens','Unknown tokens','Reported cost','Unknown cost','Tokens','Cost'], rows.slice(0,20).map(r => [r.name, num(r.sessions), num(r.reportedSessions), num(r.unknownSessions), num(r.reportedCostSessions), num(r.unknownCostSessions), num(r.totalTokens), money(r.costTotal)]));
 }
 function renderSessions() {
-  const rows = (payload.recentSessions || []).slice(0, 50).map(r => [r.startedAt || r.updatedAt || '', `${r.provider}<br><span class=\"mini\">${r.model}</span>`, r.channel, pill(r.usageState), r.totalTokens == null ? 'unknown' : num(r.totalTokens), money(r.costTotal), r.status]);
-  document.getElementById('sessionsTable').innerHTML = table(['Started','Provider / model','Channel','Usage','Tokens','Cost','Status'], rows);
+  const rows = (payload.recentSessions || []).slice(0, 50).map(r => [r.startedAt || r.updatedAt || '', `${r.provider}<br><span class=\"mini\">${r.model}</span>`, r.channel, `${pill(r.usageState)} ${pill(r.costState)}`, r.totalTokens == null ? 'unknown' : num(r.totalTokens), money(r.costTotal), r.status]);
+  document.getElementById('sessionsTable').innerHTML = table(['Started','Provider / model','Channel','Usage / cost','Tokens','Cost','Status'], rows);
 }
 function applyPeriod() { renderTop(); renderSummary(); renderBreakdown('modelsTable', payload.breakdown.models || []); renderBreakdown('providersTable', payload.breakdown.providers || []); renderBreakdown('channelsTable', payload.breakdown.channels || []); renderSessions(); }
 async function load() { const res = await fetch('/api/dashboard'); payload = await res.json(); applyPeriod(); }
