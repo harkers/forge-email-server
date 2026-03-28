@@ -22,4 +22,4 @@ Current status:
 - no repository bootstrap yet
 
 Immediate objective:
-move from planning completeness to approval readiness, assign named owners, and pass the gate needed to begin Sprint 0.
+move from planning completeness to approval readiness, confirm the human governance layer over the AI operating model, and pass the gate needed to begin Sprint 0.

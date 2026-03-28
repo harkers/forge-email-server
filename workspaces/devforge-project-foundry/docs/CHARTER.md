@@ -58,4 +58,4 @@ Provide a reusable delivery foundation that helps new projects begin with strong
 
 ## Approval Intent
 
-This charter exists to align stakeholders before implementation begins.
+This charter exists to align the human governance layer before implementation begins, while making the AI operating model explicit enough to be governed safely.

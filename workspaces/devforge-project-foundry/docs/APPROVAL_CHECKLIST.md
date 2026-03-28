@@ -16,11 +16,11 @@ Date: 2026-03-28
 - [ ] control model reviewed
 - [ ] lifecycle model reviewed
 - [ ] workspace structure reviewed
-- [ ] named executive sponsor assigned
-- [ ] named product owner assigned
-- [ ] named governance lead assigned
-- [ ] named privacy lead assigned
-- [ ] named architecture lead assigned
+- [ ] executive sponsor / human authority defined
+- [ ] product decision owner defined
+- [ ] governance approval owner defined
+- [ ] privacy approval path defined
+- [ ] architecture oversight path defined
 - [ ] budget rough order of magnitude prepared
 - [ ] approval gates accepted
 - [ ] decision log reviewed for any open disputes

@@ -35,16 +35,16 @@ Expected evidence:
 - sponsor agreement
 - delivery expectation confirmed
 
-### G-3 — Staffing
-Purpose: confirm that named humans are assigned to the critical roles.
+### G-3 — Governance Readiness
+Purpose: confirm that the minimum human governance layer is defined and that the AI operating model has a clear approval structure.
 
 Expected evidence:
-- executive sponsor named
-- product owner named
-- governance lead named
-- privacy lead named
-- architecture lead named
-- other key roles assigned or planned
+- executive sponsor / human authority defined
+- product decision owner defined
+- governance approval owner defined
+- privacy approval path defined
+- architecture oversight path defined
+- AI operating role model documented clearly enough to proceed
 
 ### G-4 — Repo Initiation
 Purpose: confirm the planning pack is good enough to begin repository bootstrap.

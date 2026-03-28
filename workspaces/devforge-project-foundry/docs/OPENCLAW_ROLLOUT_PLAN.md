@@ -10,9 +10,9 @@ Outputs:
 - problem statement
 - success metrics
 - project charter
-- RACI
+- governance RACI
 - seeded risk register
-- stakeholder alignment
+- human governance alignment over the AI operating model
 
 Gates:
 - G-0 Concept
