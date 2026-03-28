@@ -38,9 +38,11 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 
 | Workspace | Status | Purpose |
 |-----------|--------|---------|
-| `forge-orchestra` | **dormant** | ForgeOrchestra design docs (appears superseded by forgeorchestrate) |
-| `forgeorchestra` | **dormant** | Duplicate/variant — unclear relation to forge-orchestra |
-| `forgeorchestrate` | **planning** | ForgeOrchestrate — master environment layer (appears current) |
+| `forge-orchestra` | **dormant** | ForgeOrchestra design system/brand docs (no AGENTS.md, just design tokens) |
+| `forgeorchestra` | **dormant** | ForgeOrchestra workspace skeleton (has AGENTS.md but minimal content) |
+| `forgeorchestrate` | **planning** | ForgeOrchestrate — master environment layer (active planning workspace) |
+
+**Resolution:** `forgeorchestrate` is the canonical active workspace. `forge-orchestra` and `forgeorchestra` appear to be earlier iterations or design docs. Consider consolidating or archiving.
 
 ## Privacy & Security
 
@@ -56,7 +58,7 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 
 | Workspace | Status | Purpose |
 |-----------|--------|---------|
-| `trilium` | **active** | Trilium note-taking instance configuration |
+| `trilium` | **dormant** | Trilium note-taking placeholder (empty, config in sso-home-lab) |
 | `display-forge` | **dormant** | Digital signage platform scaffold for Proxmox |
 
 ## Personal & Household
@@ -71,7 +73,15 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 |-----------|--------|---------|
 | `memory-stack` | **dormant** | Portable memory stack giveaway kit for new OpenClaw workspaces |
 | `skills/` | **live** | Agent skills collection (architecture-reviewer, coding-worker, control-plane, etc.) |
-| `projects/` | **active** | Sub-projects (knowledge-layer, openclaw-usage-dashboard, devforge-project-foundry) |
+| `projects/` | **active** | Sub-projects container (devforge-project-foundry, knowledge-layer, openclaw-usage-dashboard) |
+
+### Projects Subdirectory
+
+| Project | Status | Purpose |
+|---------|--------|---------|
+| `projects/devforge-project-foundry` | **planning** | Master template for governed project delivery |
+| `projects/knowledge-layer` | **active** | Knowledge layer development |
+| `projects/openclaw-usage-dashboard` | **live** | Internal usage dashboard for session/token visibility |
 
 ---
 
@@ -86,18 +96,20 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 
 ## Ambiguity Flags
 
-1. **ForgeOrchestra naming collision**: Three directories (`forge-orchestra`, `forgeorchestra`, `forgeorchestrate`) with overlapping purpose. Clarify which is canonical.
+1. **ForgeOrchestra naming collision**: Three directories (`forge-orchestra`, `forgeorchestra`, `forgeorchestrate`) with overlapping purpose. **Resolution:** `forgeorchestrate` is canonical active workspace; others appear to be earlier iterations or design docs. Consider consolidating or archiving.
 
-2. **`trilium` directory**: Appears nearly empty. Confirm status vs. `sso-home-lab/trilium/`.
+2. **`trilium` directory**: Empty placeholder. Active Trilium config lives in `sso-home-lab/trilium/`. **Resolution:** Can be removed or repurposed.
 
-3. **`projects/` substructure**: Contains sub-projects that may warrant explicit top-level entries or separate treatment.
+3. **`projects/` substructure**: Contains three active sub-projects now documented separately in registry.
 
-4. **`control-plane-what-next-v2-extracted`**: Appears to be an extracted archive — cleanup candidate.
+4. **`control-plane-what-next-v2-extracted`**: Extracted archive with `control-plane-what-next-pack` subfolder. **Resolution:** Cleanup candidate — archive or remove if no longer needed.
 
 ---
 
 ## Metadata
 
 - Generated: 2026-03-28T01:36Z
+- Updated: 2026-03-28T01:52Z
 - Workspace root: `/home/stu/.openclaw/workspace`
-- Status distribution: 3 live, 8 active, 5 planning, 9 dormant, remaining unclassified
+- Status distribution: 3 live, 8 active, 5 planning, 9 dormant
+- Ambiguity flags: 4 (2 resolved, 2 documented)
