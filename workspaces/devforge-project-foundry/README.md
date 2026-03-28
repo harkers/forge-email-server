@@ -1,31 +1,41 @@
 # DevForge: Project Foundry
 
-DevForge: Project Foundry is the master OpenClaw workspace and future GitHub template repository for creating governed project environments.
+DevForge: Project Foundry is the master OpenClaw planning workspace and future GitHub template repository for creating governed project environments.
 
-It is not just a code scaffold. It is a delivery foundation that standardises strategy, architecture, governance, documentation, orchestration, communications, training, risk, review, release, and closure.
+It is a governed AI operating model with a small human governance layer and a specialist AI operating stack covering strategy, architecture, governance, risk, documentation, orchestration, communications, training, review, release, and closure.
 
-## Current status
+## Current state
 
-Planning phase only.
+Planning only.
 
-No implementation or repository bootstrap should begin until planning gates are approved.
+Repository bootstrap and implementation have not started.
 
-## Workspace purpose
+## Start here
+
+For the fastest route into the planning pack:
+
+1. `docs/APPROVAL_REQUEST.md`
+2. `docs/REVIEW_PACK.md`
+3. `docs/EXEC_SUMMARY.md`
+4. `docs/INDEX.md`
+
+## Planning pack purpose
 
 This workspace exists to:
 - define the Project Foundry vision and scope
-- document the phased delivery plan
-- establish team roles and controls
-- define the lifecycle and forge-* workspace model
-- capture the MVP roadmap
-- seed the risk model and governance gates
+- document the phased delivery and approval path
+- define the AI operating model and human governance layer
+- establish controls, lifecycle, and forge-* domain structure
+- prepare the future template repository shape
+- hold review-ready planning materials before Sprint 0
 
-## Planned root
+## Workspace root
 
 - Workspace root: `/home/stu/.openclaw/workspace/workspaces/devforge-project-foundry`
 - Future repo name: `devforge-project-foundry`
-- Future internal workspace pattern: `workspaces/forge-*`
 
-## Planning documents
+## Important rule
 
-See `docs/` for the active planning pack.
+Do not treat placeholder domains or planning drafts as implemented runtime systems.
+
+This workspace is the planning foundation for eventual repository bootstrap once the required gates are approved.
