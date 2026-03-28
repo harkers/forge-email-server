@@ -127,9 +127,11 @@ ForgeRisk runs continuously throughout the lifecycle and is re-invoked on major 
 - OWN-01 Operational ownership
 - AI-01 AI and automation governance
 
-## 10. Team Model
+## 10. Operating Model
 
-Each major domain will have a named human lead and an AI-assisted specialist. Privacy is a dedicated role, not folded invisibly into security.
+Project Foundry is based on a governed AI operating model.
+
+It uses specialist AI roles for planning, drafting, orchestration, review, communications, training, privacy analysis, and risk analysis, while retaining a smaller human governance layer for approval, accountability, and exception handling. Privacy remains a dedicated specialist function, not folded invisibly into security.
 
 ## 11. Current Status
 

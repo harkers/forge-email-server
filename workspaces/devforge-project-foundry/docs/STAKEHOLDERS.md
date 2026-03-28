@@ -1,31 +1,24 @@
 # DevForge: Project Foundry
-## Stakeholders
+## Human Governance Stakeholders
 
 Status: Planning  
 Date: 2026-03-28
 
-## Current Stakeholder Model
+## Purpose
 
-| Role | Status | Notes |
+This file tracks the human governance side of Project Foundry, not the AI operating role stack.
+
+## Current Governance Model
+
+| Human Governance Role | Status | Notes |
 |---|---|---|
-| Executive Sponsor | TBD | Needed for concept and funding approval |
-| Product Owner | TBD | Needed for day-to-day direction and scope decisions |
-| Architecture Lead | TBD | Needed for structural and repo design review |
-| Governance Lead | TBD | Needed for gates, controls, and policy alignment |
-| Security Lead | TBD | Needed for baseline security expectations |
-| Privacy Lead | TBD | Dedicated role, needed for privacy ownership and review |
-| Risk Lead | TBD | Needed for ForgeRisk ownership |
-| Communications Lead | TBD | Needed for ForgeComms ownership |
-| Enablement Lead | TBD | Needed for ForgeTraining ownership |
-| Delivery / Ops Lead | TBD | Needed for orchestration, release, and operational path |
+| Executive Sponsor / Human Authority | TBD | Needed for concept, funding, and strategic approval |
+| Product Decision Owner | TBD | Needed for human direction on scope, priorities, and trade-offs |
+| Governance Approval Owner | TBD | Needed for gate and control approval where required |
+| Privacy Approval Owner | TBD | Needed where privacy-sensitive approval or escalation is required |
+| Security Approval Owner | TBD | Needed where risk-sensitive approval is required |
+| Release Approval Owner | TBD | Needed before implementation is treated as ready for release |
 
-## Priority Assignments
+## Note
 
-The first roles that should be named are:
-- Executive Sponsor
-- Product Owner
-- Governance Lead
-- Privacy Lead
-- Architecture Lead
-
-Those roles will shape the rest of the planning and approval flow.
+This file is intentionally about human governance stakeholders only. The AI specialist operating roles are documented separately in `TEAM_ROLES.md` and `AGENT_DIRECTORY.md`.

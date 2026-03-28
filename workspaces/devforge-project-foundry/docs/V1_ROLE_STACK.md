@@ -1,18 +1,18 @@
 # DevForge: Project Foundry
-## V1 Role Stack
+## V1 AI Role Stack
 
 Status: Planning  
 Date: 2026-03-28
 
 ## Purpose
 
-Define which existing OpenClaw skills should be adopted first for Project Foundry MVP, and which new specialist domains should exist as placeholders until purpose-built skills are developed.
+Define which existing OpenClaw skills should be adopted first for the Project Foundry AI operating model, and which new specialist domains should exist as placeholders until purpose-built skills are developed.
 
 ## V1 Reuse-First Stack
 
 ### Adopt existing skills directly for MVP
 
-| Project Foundry Need | Recommended Existing Skill |
+| AI Operating Need | Recommended Existing Skill |
 |---|---|
 | orchestration authority | `control-plane-agent` |
 | manager / routing authority | `manager-agent` |
@@ -39,36 +39,6 @@ These should exist now as named placeholders, but their dedicated skills can be 
 | ForgeTraining specialist | input engine, impact analysis, persona tailoring, and readiness pack generation need purpose-built logic |
 | ForgeRisk specialist | live risk cycle, evaluation, mitigation history, and re-entry triggers need dedicated operational patterns |
 
-## Suggested MVP Operating Shape
+## Operating Principle
 
-### Base layer
-Use existing skills for:
-- planning
-- orchestration
-- governance support
-- architecture review
-- documentation
-- drafting
-- review
-- security review
-- research
-- investigation
-
-### Placeholder layer
-Create planning placeholders for:
-- ForgePrivacy
-- ForgeComms
-- ForgeTraining
-- ForgeRisk
-
-### Later custom build layer
-Build dedicated skills for those placeholder domains once the planning model and MVP workflow are stable enough to justify specialization.
-
-## Recommendation
-
-Start Project Foundry MVP with a reuse-first operating stack and named placeholders for the high-value missing domains.
-
-That gives you a practical path:
-- enough capability to move forward now
-- enough structure to avoid hand-wavy gaps
-- no need to prematurely invent every specialist skill before the workflow is proven
+Project Foundry should start by reusing strong existing OpenClaw skills for the AI operating layer, then add new specialist domains only where the current skill base is clearly incomplete.

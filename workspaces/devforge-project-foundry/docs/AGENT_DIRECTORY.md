@@ -1,34 +1,35 @@
 # DevForge: Project Foundry
-## Agent Directory
+## AI Operating Role Directory
 
 Status: Planning  
 Date: 2026-03-28
 
-This is the first planning draft of the specialist AI-assisted role model.
+This file describes the AI specialist operating roles inside the Project Foundry model.
 
-## Core Agent Map
+## Core AI Operating Role Map
 
-| Workspace Domain | Human Lead | AI-Assisted Specialist |
-|---|---|---|
-| forge-flash-design | Product Ownership & Strategy Lead | Strategy Analyst |
-| forge-architecture | Architecture Lead | Architecture Analyst |
-| forge-governance | Governance Lead | Governance / Documentation Curator |
-| forge-risk | Risk Lead | Risk Analyst |
-| forge-document-engine | Governance & Documentation Lead | Documentation Curator |
-| forge-orchestrate | DevOps / Orchestration Lead | Orchestration Specialist |
-| forge-pipeline | Pipeline & Planning Lead | Pipeline Controller |
-| forge-whats-next | Pipeline & Planning Lead | Pipeline Controller |
-| forge-control-plane | Delivery / Ops Lead | Execution Specialist |
-| forge-review | Quality / Security / Privacy Leads | Review Assistant |
-| forge-release | Release & Operations Lead | Release Automation Agent |
-| forge-comms | Communications Lead | Comms Distiller |
-| forge-training | Enablement Lead | Training Analyst |
-| privacy oversight across stages | Privacy Lead | Privacy Analyst Agent |
-| security oversight across stages | Security Lead | Security Analyst |
+| Workspace Domain | AI Operating Role |
+|---|---|
+| forge-flash-design | Strategy Analyst |
+| forge-architecture | Architecture Analyst |
+| forge-governance | Governance / Documentation Curator |
+| forge-risk | Risk Analyst |
+| forge-document-engine | Documentation Curator |
+| forge-orchestrate | Orchestration Specialist |
+| forge-pipeline | Pipeline Controller |
+| forge-whats-next | Pipeline Controller |
+| forge-control-plane | Execution Specialist |
+| forge-review | Review Assistant |
+| forge-release | Release Automation Agent |
+| forge-comms | Comms Distiller |
+| forge-training | Training Analyst |
+| cross-stage privacy oversight | Privacy Analyst Agent |
+| cross-stage security oversight | Security Analyst |
 
-## Planning Notes
+## Notes
 
-- Privacy remains a dedicated role with its own AI-assisted specialist support.
+- These are AI operating roles, not named human staff positions.
+- Human governance roles are documented separately in `TEAM_ROLES.md`, `STAKEHOLDERS.md`, and `RACI.md`.
+- Privacy remains a dedicated specialist role.
 - Risk remains a dedicated execution domain, not just a checklist.
-- Comms and Training are separate domains because communication and enablement are not the same thing.
-- This directory should expand later into detailed profiles, inputs, outputs, and trigger rules per agent.
+- Comms and Training remain separate because communication and enablement are not the same function.
