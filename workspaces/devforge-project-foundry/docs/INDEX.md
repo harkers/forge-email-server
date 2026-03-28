@@ -5,6 +5,7 @@ Status: Planning
 Date: 2026-03-28
 
 ## Core overview
+- `REVIEW_PACK.md`
 - `EXEC_SUMMARY.md`
 - `PROJECT_BRIEF.md`
 - `CHARTER.md`
