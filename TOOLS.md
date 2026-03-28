@@ -73,37 +73,65 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 
 ### Forge-Syslog-Collector
 - Project code: OC-LOG-001
-- Status: deployed (collector live; pilot set expanded to six services)
-- Purpose: Internal Docker-based syslog collector for phased container log forwarding on titan
+- Status: deployed (collector live; receiving Docker containers + pfSense via UDP and TLS)
+- Purpose: Centralized syslog collector for Docker containers and network devices (pfSense)
 - Host / environment: titan / Debian 12
 - Workspace / owner: `/home/stu/.openclaw/workspace/forge-syslog-collector`
-- Type: Docker Compose service
+- Type: Docker Compose service (rsyslog + stunnel for TLS)
 - Runtime location: `docker-compose.yml` in project workspace
-- Access method: internal-only listener for Docker syslog log driver
-- Ports / sockets / bindings: `127.0.0.1:5514/tcp`
-- Authentication: none in phase 1/2; localhost-only binding
+- Access method: UDP/TCP syslog on port 5514, TLS on port 6514
+- Ports / sockets / bindings:
+  - `127.0.0.1:5514/tcp` - Docker containers (local)
+  - `192.168.10.80:5514/tcp` - Plain TCP senders
+  - `192.168.10.80:5514/udp` - pfSense native syslog (UDP)
+  - `192.168.10.80:6514/tcp` - TLS syslog (syslog-ng from pfSense)
+- Authentication: none for UDP/TCP; TLS uses self-signed CA
 - Storage / state paths: `/data/appdata/forge-syslog-collector/logs`
-- Dependencies: Docker, Docker Compose, `rsyslog/rsyslog:latest`
+  - `/data/appdata/forge-syslog-collector/logs/pfSense.harker.systems/` - pfSense logs by program
+  - `/data/appdata/forge-syslog-collector/logs/<container-ip>/` - Docker container logs
+- Dependencies: Docker, Docker Compose, `rsyslog/rsyslog:latest`, `dweomer/stunnel:latest`, logrotate (host)
+- TLS certificates:
+  - CA: `./tls/ca.crt` (distribute to pfSense)
+  - Server cert: `./tls/server.crt`
+  - Server key: `./tls/server.key`
+  - Combined PEM: `./tls/stunnel.pem`
 - Start command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose up -d`
 - Stop command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose down`
 - Restart command: `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose restart`
 - Validation:
   - `docker compose ps`
-  - `ss -tlnp | grep 5514`
-  - verify collector binds only to `127.0.0.1:5514`
-  - verify log files are written under `/data/appdata/forge-syslog-collector/logs` during pilot phase
+  - `ss -tlnup | grep -E "(5514|6514)"` (should show UDP 5514, TCP 5514, TCP 6514)
+  - `ls -la /data/appdata/forge-syslog-collector/logs/pfSense.harker.systems/`
+  - `openssl s_client -connect 192.168.10.80:6514` (verify TLS cert)
+- Log rotation:
+  - Config: `/etc/logrotate.d/forge-syslog-collector`
+  - Install: `sudo cp config/logrotate.conf /etc/logrotate.d/forge-syslog-collector`
+  - Test: `sudo logrotate -d /etc/logrotate.d/forge-syslog-collector`
+  - Force: `sudo logrotate -f /etc/logrotate.d/forge-syslog-collector`
+  - Rotation: daily, 14-day retention, compressed
 - Rollback:
   - `cd /home/stu/.openclaw/workspace/forge-syslog-collector && docker compose down`
-  - verify port 5514 is no longer listening
-  - revert any future pilot containers to prior logging config
+  - `sudo rm /etc/logrotate.d/forge-syslog-collector`
+  - revert docker-compose.yml to UDP-only
   - retain collected logs unless explicit purge is requested
 - Security notes:
-  - no LAN exposure
+  - LAN binding (192.168.10.80) accepts syslog from trusted network only
+  - pfSense IP (192.168.10.1) expected as source
+  - TLS uses self-signed CA (distribute ca.crt to clients)
   - no reverse proxy involvement
-  - no daemon-wide Docker log-driver change in phase 2
+  - no daemon-wide Docker log-driver change
 - Change impact / related services:
-  - no impact observed to nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or existing published ports
-  - current stable logged services: `openclaw-github-mcp`, `openclaw-powerpoint-mcp`, `openclaw-vault-mcp`, `openclaw-nextcloud-mcp`, `openclaw-wordpress-mcp`
+  - no impact to nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or published ports
+  - current logged sources: Docker containers (syslog driver), pfSense (UDP), pfSense (TLS)
+- pfSense configuration (UDP):
+  - Status → System Logs → Settings → Remote Logging
+  - Enable: checked
+  - Remote Log Servers: `192.168.10.80:5514`
+  - Protocol: UDP (default)
+- pfSense configuration (TLS/syslog-ng):
+  - Install syslog-ng package (System → Package Manager → Available Packages)
+  - Configure TLS source with ca.crt from this collector
+  - Destination: `192.168.10.80:6514` with TLS
 
 ### OpenClaw Usage Dashboard
 - Project code: OC-DASH-001
@@ -224,10 +252,16 @@ Calendar → 2026 → 03 - March → 24 - Tuesday → Daily Summary
 ### Quarto CLI
 
 **Location**: `~/.local/bin/quarto`
+**Real binary**: `~/.local/quarto/bin/quarto`
 **Version**: 1.4.557
 **Bundled Deno**: `~/.local/quarto/bin/tools/x86_64/deno` (v2.3.1)
 
 **Important**: Must use bundled Deno, not system Deno. System Deno (v2.7.7) incompatible with quarto.js.
+
+**Launcher note (2026-03-28)**:
+- `~/.local/bin/quarto` had been a copied wrapper script and failed on `--version` because it resolved the wrong root and looked for `~/.local/share/version`
+- fixed by replacing it with a symlink to `~/.local/quarto/bin/quarto`
+- `~/.local/bin/quarto --version` now works correctly again
 
 ### Vite API URL
 
