@@ -46,6 +46,15 @@ When creating new Forge-style workspaces or derived project workspaces, include 
 - OpenClaw Usage Dashboard is local on `http://127.0.0.1:8899`
 - Local specialist model lanes exist for fast summary/drafting and code-focused review work
 
+### MCP Control Plane
+- Location: `/data/appdata/mcp-control-plane` (symlinked as `~/mcp-control-plane`)
+- **RAG Stack:** Available via `--profile rag` Docker Compose profile
+  - `openclaw-embedding-worker` — document ingestion and embedding
+  - Qdrant — vector database for semantic search
+  - MCP tools: `ingest_document`, `search_documents`
+  - Start: `cd /data/appdata/mcp-control-plane && DOCKER_API_VERSION=1.41 docker compose -f infra/docker-compose.yml --profile rag up -d`
+- This was missed during initial memory indexing and should be the first reference when RAG/document search is needed.
+
 ## Memory search configuration lesson
 
 - `all-minilm:latest` was too small-context for larger workspace memory files.

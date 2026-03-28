@@ -203,6 +203,38 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
   - No impact to existing services
 
 
+### MCP Control Plane RAG Stack
+- Project code: MCP-RAG-001
+- Status: available (profile not started)
+- Purpose: Document ingestion and semantic search for OpenClaw
+- Host / environment: titan / Debian 12
+- Workspace / owner: `/data/appdata/mcp-control-plane`
+- Type: Docker Compose profile (`--profile rag`)
+- Runtime location: `infra/docker-compose.yml` in MCP Control Plane
+- Access method: MCP gateway tools `ingest_document`, `search_documents`
+- Ports / sockets / bindings:
+  - `embedding-worker` internal port 8080
+  - Qdrant internal (profile-dependent)
+- Authentication: MCP gateway authentication
+- Storage / state paths: `/data/appdata/mcp-control-plane/data/`
+- Dependencies: Docker, Docker Compose, OpenClaw MCP gateway
+- Start command: `cd /data/appdata/mcp-control-plane && DOCKER_API_VERSION=1.41 docker compose -f infra/docker-compose.yml --profile rag up -d`
+- Stop command: `cd /data/appdata/mcp-control-plane && DOCKER_API_VERSION=1.41 docker compose -f infra/docker-compose.yml --profile rag down`
+- Validation:
+  - `docker compose -f infra/docker-compose.yml --profile rag ps`
+  - MCP gateway `ingest_document` and `search_documents` tools should be available
+- Rollback:
+  - `docker compose -f infra/docker-compose.yml --profile rag down`
+  - No data loss if Qdrant storage preserved
+- Security notes:
+  - Internal-only embedding worker
+  - Qdrant not exposed externally
+  - Access only via MCP gateway
+- Change impact / related services:
+  - No impact to existing services
+  - Provides RAG capability to OpenClaw through MCP tools
+
+
 Things like:
 
 - Camera names and locations

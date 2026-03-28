@@ -21,6 +21,7 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 | `forge-pipeline` | **live** | Central portfolio/project visibility layer (symlink to /data/appdata/forge-pipeline) |
 | `forge-syslog-collector` | **live** | Docker syslog collector for containers and network devices |
 | `benchmark` | **live** | Local LLM benchmark suite for titan model lanes |
+| `mcp-control-plane` | **live** | OpenClaw MCP gateway hub with 40+ service integrations (symlink to /data/appdata/mcp-control-plane) |
 
 ## Forge Ecosystem
 
