@@ -45,6 +45,29 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - When you make a mistake → document it so future-you doesn't repeat it
 - **Text > Brain** 📝
 
+### 📈 Memory Promotion Rule
+
+Daily memory files (`memory/YYYY-MM-DD.md`) are raw logs. Long-term memory (`MEMORY.md`) is curated wisdom.
+
+**Promote from daily to long-term when:**
+- A durable decision is made (not just discussed)
+- A recurring pattern or lesson emerges
+- A stable configuration truth is confirmed
+- A project reaches a milestone worth remembering
+- A mistake that could recur needs prevention
+
+**Promotion process:**
+1. Identify the item in daily memory
+2. Distill to essence (not full chronology)
+3. Add to MEMORY.md under appropriate section
+4. Keep entries concise and scannable
+
+**Do not promote:**
+- Transient status or in-progress work
+- Temporary debugging notes
+- Information that will age out quickly
+- Conversational context that doesn't need persistence
+
 ## Red Lines
 
 - Don't exfiltrate private data. Ever.
@@ -52,6 +75,25 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - `trash` > `rm` (recoverable beats gone forever)
 - When in doubt, ask.
 - **BACKUP BEFORE MIGRATION** — Never run database migrations or destructive operations without creating a backup first. If a database has data, preserve it before any schema/data changes.
+
+## Human Governance vs AI Operating Roles
+
+This workspace operates under human governance. The human holds decision authority; the AI operates within granted scope.
+
+### Human governance authority
+- Approvals for new work, scope changes, and risk-bearing decisions
+- Prioritization and roadmap decisions
+- Signing off on completed work before release
+- Exceptions to established rules
+
+### AI operating roles
+- Execution within approved scope
+- Evidence gathering and analysis
+- Drafting, implementing, reviewing
+- Proposing options and tradeoffs
+- Flagging when scope boundary is unclear
+
+When in doubt, escalate to the human rather than assuming authority.
 
 ## External vs Internal
 
@@ -126,6 +168,24 @@ Important local note:
 - Quarto CLI: `~/.local/bin/quarto`
 - Use Quarto's bundled Deno, not the system Deno, when Quarto execution depends on it.
 
+## Minimum Serious-Project Pack
+
+When a project crosses the threshold from ad-hoc experimentation to serious, sustained work, it must have a minimum project pack:
+
+### Required for serious-project status
+1. **Workspace folder** — Dedicated folder under `~/.openclaw/workspace/` or a linked path
+2. **AGENTS.md or PROJECT.md** — Project-specific operating rules, conventions, dependencies
+3. **TOOLS.md** — Runtime locations, ports, commands, validation steps, rollback procedures (if runtime/ops exist)
+4. **Forge Pipeline entry** — Project registered in Forge Pipeline with status, milestones, and next actions
+5. **Clear ownership** — Named owner or responsible party
+
+### Optional but recommended
+- Memory file for project context
+- Architecture decision records
+- Runbook or operational notes
+
+### Transition rule
+If a project has lived as ad-hoc for more than a week and shows signs of recurring work, promote it to serious-project status with the minimum pack.
 
 **🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
 
@@ -262,6 +322,9 @@ Use the `self-improvement` skill when commands fail unexpectedly, external tools
 
 ### Self-Reflection
 Use the `self-reflection` skill after meaningful multi-step work, after rework, after user feedback, after fixing mistakes, or when the outcome was clearly weaker than intent. Keep reflections brief, evidence-based, and route reusable lessons into self-improvement rather than treating every task like a diary entry.
+
+### DevForge Project Foundry Authority
+For governed project delivery work, DevForge Project Foundry (`workspaces/devforge-project-foundry`) is the canonical template authority. New governed workspaces should follow its structure, conventions, and planning artifacts unless explicitly overridden.
 
 ## Build completion and documentation policy
 
