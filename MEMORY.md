@@ -31,28 +31,20 @@ When creating new Forge-style workspaces or derived project workspaces, include 
 ### Host and storage
 - Hostname: `titan`
 - Main ZFS pool: `data` (3× 4TB HDD RAIDZ1, ~7.14TB usable)
-- Key datasets:
-  - `/data/workspaces`
-  - `/data/home`
-  - `/data/appdata`
-  - `/data/clients`
-  - `/data/backups`
-  - `/data/docker-volumes`
+- Core datasets include workspaces, home, appdata, clients, backups, and docker-volumes under `/data/*`
 - Important note: Docker engine and Ollama data are **not** on ZFS.
 
-### Key symlink-backed paths
+### Key path truths
 - `~/mcp-control-plane` → `/data/appdata/mcp-control-plane`
 - `~/.openclaw/workspace/forge-pipeline` → `/data/appdata/forge-pipeline`
 - `~/.openclaw/workspace/privacy-intake-pack` → `/data/appdata/privacy-intake`
 - `~/docker/trilium` → `/data/appdata/trilium`
 - `~/go` → `/data/home/go`
 
-### Local service lanes and tooling
+### Local service truths
 - Forge Pipeline API is local on `http://127.0.0.1:4181/api`
 - OpenClaw Usage Dashboard is local on `http://127.0.0.1:8899`
-- Local specialist model lanes:
-  - Phi-4-mini on `127.0.0.1:8091`
-  - Qwen2.5-Coder-7B on `127.0.0.1:8092`
+- Local specialist model lanes exist for fast summary/drafting and code-focused review work
 
 ## Memory search configuration lesson
 
@@ -78,20 +70,12 @@ When creating new Forge-style workspaces or derived project workspaces, include 
 - ForgeComms, ForgeTraining, and ForgeRisk are first-class domains in the model.
 - Privacy is a dedicated specialist function.
 - The project is currently **planning only**; repository bootstrap should not start until approval gates are satisfied.
-
-### Forge Pipeline project record
-- The Forge Pipeline record for **DevForge: Project Foundry** was cleaned and is now the canonical project entry for this effort.
-- It reflects the planning workspace rather than the older `dev-forge-foundry-configuration` framing.
+- Its Forge Pipeline record was cleaned and is now the canonical entry for this effort.
 
 ### Forge Syslog Collector
 - Forge-Syslog-Collector is deployed and live on titan.
 - It receives Docker container logs and pfSense syslog (UDP and TLS).
-- Stable MCP log sources currently include:
-  - `openclaw-github-mcp`
-  - `openclaw-powerpoint-mcp`
-  - `openclaw-vault-mcp`
-  - `openclaw-nextcloud-mcp`
-  - `openclaw-wordpress-mcp`
+- Stable MCP log sources include GitHub, PowerPoint, Vault, Nextcloud, and WordPress MCP services.
 - `openclaw-glances-mcp` was removed from the stable set because it generated mostly health-check noise.
 
 ### OpenClaw Usage Dashboard
@@ -110,5 +94,5 @@ When creating new Forge-style workspaces or derived project workspaces, include 
 
 Keep this file curated.
 
-If something is merely recent, it belongs in a daily log.
-If it is durable, repeatedly useful, or likely to matter across future sessions, it belongs here.
+Use daily logs for raw chronology, experiments, and transient status.
+Use this file for durable facts, recurring rules, stable project truths, and decisions likely to matter across future sessions.
