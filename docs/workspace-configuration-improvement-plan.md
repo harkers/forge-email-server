@@ -1,7 +1,41 @@
 # Workspace Configuration Improvement Plan
 
-Status: Draft  
+Status: In Progress
 Date: 2026-03-28
+Last updated: 2026-03-28
+
+## Completed
+
+### Phase 1 — Canonical Control Layer ✅
+- ✅ Workspace registry created (`REGISTRY.md`)
+- ✅ Memory-promotion rule added to root `AGENTS.md`
+- ✅ Clear boundary between `MEMORY.md`, `TOOLS.md`, and project docs established
+
+### Phase 2 — Governance Model Clarification ✅
+- ✅ Human governance vs AI operating roles rule added to root `AGENTS.md`
+- ✅ Planning vs delivery separation rule added to root `AGENTS.md`
+- ⏳ Future project doc alignment (ongoing, not a one-time deliverable)
+
+### Phase 3 — Project Lifecycle Standardisation ✅
+- ✅ Minimum serious-project pack defined in root `AGENTS.md`
+- ✅ DevForge Project Foundry established as default template authority
+
+### Phase 4 — Workspace Classification ✅
+- ✅ Workspaces classified (planning, active, live, dormant) in `REGISTRY.md`
+- ✅ State reflected in central registry
+- ✅ Ambiguity flags noted for cleanup
+
+## Pending
+
+### Phase 5 — Environment Health and Drift Control
+- ⏳ Define lightweight environment audit/heartbeat checklist
+- ⏳ Periodic validation of:
+  - Quarto
+  - Forge Pipeline API
+  - OpenClaw Usage Dashboard
+  - Local model lanes
+  - Stale paired devices
+  - Memory search configuration
 
 ## Purpose
 
