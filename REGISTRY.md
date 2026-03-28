@@ -73,7 +73,7 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 |-----------|--------|---------|
 | `memory-stack` | **dormant** | Portable memory stack giveaway kit for new OpenClaw workspaces |
 | `skills/` | **live** | Agent skills collection (architecture-reviewer, coding-worker, control-plane, etc.) |
-| `projects/` | **active** | Sub-projects container (devforge-project-foundry, knowledge-layer, openclaw-usage-dashboard) |
+| `projects/` | **active** | Sub-projects container (devforge-project-foundry, knowledge-layer, openclaw-usage-dashboard, titan-dashboard) |
 
 ### Projects Subdirectory
 
@@ -82,6 +82,7 @@ Canonical inventory of top-level workspaces and projects under `/home/stu/.openc
 | `projects/devforge-project-foundry` | **planning** | Master template for governed project delivery |
 | `projects/knowledge-layer` | **active** | Knowledge layer development |
 | `projects/openclaw-usage-dashboard` | **live** | Internal usage dashboard for session/token visibility |
+| `projects/titan-dashboard` | **planning** | Homepage-based launcher dashboard for Titan services |
 
 ---
 

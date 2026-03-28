@@ -168,6 +168,40 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
   - reads existing OpenClaw session telemetry only
   - does not modify nginx, lighttpd, WordPress, MariaDB, Redis, Ollama, or published ports
 
+### Titan Dashboard (Homepage)
+- Project code: OC-DASH-002
+- Status: planning
+- Purpose: Internal launcher dashboard for Titan services using Homepage with Docker label discovery
+- Host / environment: titan / Debian 12
+- Workspace / owner: `/home/stu/.openclaw/workspace/projects/titan-dashboard`
+- Type: Docker Compose service (Homepage + docker-socket-proxy)
+- Runtime location: `deploy/docker-compose.yml` in project workspace
+- Access method: Nginx reverse proxy at `dash.titan.local`
+- Ports / sockets / bindings:
+  - `127.0.0.1:3000/tcp` — Homepage HTTP
+  - `127.0.0.1:2375/tcp` — Docker socket proxy (internal only)
+- Authentication: none in Homepage; Nginx + Authentik handle access control
+- Storage / state paths: `./config/` for settings, services, widgets, custom CSS/JS
+- Dependencies: Docker, Docker Compose, Nginx (existing), `ghcr.io/gethomepage/homepage:latest`, `ghcr.io/tecnativa/docker-socket-proxy:latest`
+- Start command: `cd /opt/homepage && docker compose up -d`
+- Stop command: `cd /opt/homepage && docker compose down`
+- Restart command: `cd /opt/homepage && docker compose restart`
+- Validation:
+  - `docker compose ps`
+  - `curl -s http://127.0.0.1:3000 | head -20`
+  - `curl -s https://dash.titan.local | head -20`
+- Rollback:
+  - `docker compose down`
+  - remove `/opt/homepage` if needed
+  - remove Nginx vhost config
+- Security notes:
+  - Homepage has no built-in auth; relies on Nginx/Authentik
+  - Docker socket accessed via restricted proxy, not direct mount
+  - HOMEPAGE_ALLOWED_HOSTS limits access
+- Change impact / related services:
+  - Nginx gains new vhost for `dash.titan.local`
+  - No impact to existing services
+
 
 Things like:
 

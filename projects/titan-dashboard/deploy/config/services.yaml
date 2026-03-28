@@ -1,0 +1,10 @@
+# Manual service definitions for non-Docker or override entries
+# Most services will be discovered automatically via Docker labels
+
+- Core:
+    - Nginx:
+        href: https://dash.titan.local
+        icon: nginx.png
+        description: Reverse proxy
+        target: _self
+        id: nginx-tile

@@ -1,0 +1,25 @@
+title: Titan Dashboard
+description: Internal launcher for Titan services
+theme: dark
+color: slate
+target: _blank
+cardBlur: xs
+fullWidth: true
+useEqualHeights: true
+statusStyle: dot
+hideErrors: true
+instanceName: internal
+
+layout:
+  Core:
+    style: row
+    columns: 8
+  Infra:
+    style: row
+    columns: 8
+  Forge:
+    style: row
+    columns: 8
+  Labs:
+    style: row
+    columns: 8
