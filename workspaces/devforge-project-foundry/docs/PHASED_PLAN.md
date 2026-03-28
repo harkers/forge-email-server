@@ -4,6 +4,18 @@
 Status: Planning  
 Date: 2026-03-28
 
+## Flow Separation
+
+Project Foundry uses two distinct flows:
+
+### Planning flow
+Used for strategy, scope, architecture, controls, risk framing, and approval readiness.
+
+### Delivery flow
+Used for repository bootstrap, implementation, review, release, validation, and closure once approval gates are satisfied.
+
+A project must not drift from planning flow into delivery flow simply because planning documents are extensive.
+
 ## Phase 0 — Concept and Approval
 
 Purpose: define the why, who, scope, controls, and approval basis before any build begins.

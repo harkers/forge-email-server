@@ -70,6 +70,7 @@ Before moving into repository bootstrap, review should confirm:
 - AI operating model is understood
 - privacy remains explicit
 - approval gates are acceptable
+- planning flow and delivery flow are being kept separate
 - repo bootstrap planning is sufficient
 
 ## Recommended reading order

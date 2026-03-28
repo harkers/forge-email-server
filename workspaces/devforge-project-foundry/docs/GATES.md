@@ -58,3 +58,6 @@ Expected evidence:
 ## Rule
 
 No template repository bootstrap before G-4 is complete.
+
+Planning flow and delivery flow must remain separate.
+Passing through planning artifacts does not itself mean delivery may begin; the relevant gate must be satisfied.

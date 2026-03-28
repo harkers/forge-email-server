@@ -217,6 +217,39 @@ Think of it like a human reviewing their journal and updating their mental model
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
+## Planning vs Delivery Separation
+
+Planning and delivery are not the same thing and should not be blurred.
+
+### Planning flow
+Use planning flow when work is still being shaped or approved. This includes:
+- problem definition
+- strategy
+- scope and requirements
+- architecture and control design
+- roadmap shaping
+- risk framing
+- approval preparation
+
+Planning artifacts are for shaping, deciding, and approving work.
+They do not, by themselves, mean implementation is ready to begin.
+
+### Delivery flow
+Use delivery flow only after the relevant approval threshold is met. This includes:
+- workspace or repo bootstrap
+- implementation
+- review
+- testing
+- release
+- validation
+- closure
+
+Delivery artifacts are for execution, evidence, verification, and release readiness.
+
+### Rule
+Do not treat planning completeness as delivery readiness.
+A project moves from planning flow into delivery flow only when the relevant approval gate is satisfied.
+
 ## Forge Workspace Defaults
 
 When creating a new Forge workspace, add these local rules to its `AGENTS.md` unless the user says otherwise:

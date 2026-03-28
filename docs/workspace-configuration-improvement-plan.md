@@ -27,13 +27,15 @@ Turn current workspace configuration observations into a phased improvement plan
 
 ### Deliverables
 - add a root rule that distinguishes human governance roles from AI operating roles
-- align future project docs to that distinction
+- add a root rule separating planning flow from delivery flow
+- align future project docs to those distinctions
 - make approval and accountability language consistent
 
 ### Outcomes
 - less confusion in future workspace designs
 - cleaner governance model
 - fewer fake staffing-chart patterns
+- less blur between approval material and delivery readiness
 
 ## Phase 3 — Project Lifecycle Standardisation
 
