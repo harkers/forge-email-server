@@ -40,4 +40,6 @@ All execution domains should use the `forge-*` naming convention.
 
 Project Foundry should separate specialist execution domains clearly enough that each one can later carry its own directives, templates, and AI-assisted role support.
 
+Derived projects should also inherit explicit workspace-default guidance covering Forge Pipeline sync, self-improvement, self-reflection, and Quarto-aware documentation.
+
 These domains are currently planning placeholders inside the Project Foundry workspace. Their presence does not mean they are already implemented as live runtimes or completed specialist skills.

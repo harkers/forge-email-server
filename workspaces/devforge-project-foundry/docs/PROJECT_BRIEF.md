@@ -27,9 +27,10 @@ Create a master OpenClaw project foundation that allows teams to spin up world-c
 
 - Create a repeatable project foundation for OpenClaw workspaces
 - Standardise project structure across strategy, architecture, governance, delivery, review, release, communications, training, and risk
-- Ensure every future project starts with built-in templates, directives, controls, and specialist workspace separation
+- Ensure every future project starts with built-in templates, directives, controls, specialist workspace separation, and inherited workspace defaults
 - Support AI-assisted delivery through narrow specialist roles rather than one generic agent
 - Make future projects cloneable from a single proven master template
+- Ensure derived projects inherit Forge Pipeline sync, self-improvement, self-reflection, and Quarto-aware documentation defaults unless explicitly overridden
 
 ## 5. Success Metrics
 

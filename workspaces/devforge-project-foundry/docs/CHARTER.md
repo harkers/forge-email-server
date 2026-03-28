@@ -24,6 +24,7 @@ Provide a reusable delivery foundation that helps new projects begin with strong
 - build in comms, training, and risk as first-class concerns
 - support specialist AI-assisted roles with clear boundaries
 - make the future repository cloneable and reusable
+- ensure derived projects inherit the default workspace rules for Forge Pipeline sync, self-improvement, self-reflection, and Quarto-aware documentation
 
 ## Scope
 

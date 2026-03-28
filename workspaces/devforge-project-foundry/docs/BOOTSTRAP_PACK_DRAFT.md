@@ -44,6 +44,7 @@ Define the minimum bootstrap pack needed to create the future template repositor
 - comms handoff pack
 - training readiness pack
 - risk register starter
+- derived workspace guidance including Forge Pipeline sync, self-improvement, self-reflection, and Quarto availability defaults
 
 ### Initial schema candidates
 - project metadata

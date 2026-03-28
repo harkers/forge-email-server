@@ -25,6 +25,7 @@ Date: 2026-03-28
 - `CONTROLS.md`
 - `PRIVACY_POSITION.md`
 - `RISK_REGISTER_SEED.md`
+- `DEFAULT_WORKSPACE_RULES.md`
 
 ## Operating model
 - `LIFECYCLE_MODEL.md`
