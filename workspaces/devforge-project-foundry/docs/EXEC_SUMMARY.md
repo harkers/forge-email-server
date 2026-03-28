@@ -17,8 +17,8 @@ Key structural decisions already made:
 
 Current status:
 - planning workspace created
-- planning pack drafted
-- placeholder forge domains created for structure visibility
+- planning pack drafted and indexed
+- planning-only placeholder forge domains created for structure visibility
 - no repository bootstrap yet
 
 Immediate objective:

@@ -139,4 +139,17 @@ No implementation should begin until planning gates, charter, roles, and initial
 
 ## 12. Target Outcome
 
-A reusable master workspace and future GitHub template repository that can be cloned to create new OpenClaw project environments with built-in lifecycle structure, governance, comms, training, risk, and delivery discipline.
+A reusable master workspace and future GitHub template repository that can be cloned to create new OpenClaw project environments with built-in lifecycle structure, governance, communications, training, risk, and delivery discipline.
+
+## 13. Reading Order
+
+For a fast review, read in this order:
+1. `EXEC_SUMMARY.md`
+2. `PROJECT_BRIEF.md`
+3. `CHARTER.md`
+4. `PHASED_PLAN.md`
+5. `LIFECYCLE_MODEL.md`
+6. `TEAM_ROLES.md`
+7. `CONTROLS.md`
+8. `GATES.md`
+9. `INDEX.md`

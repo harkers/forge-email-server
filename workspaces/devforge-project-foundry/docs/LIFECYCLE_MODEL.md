@@ -31,7 +31,12 @@ Date: 2026-03-28
 23. ForgeTraining
 24. ForgeComms
 25. Forge Close
-26. Forge Fix loop when required
+26. Forge Fix
+
+## Naming Note
+
+In file and folder structure, execution domains use the `forge-*` naming convention, for example `forge-flash-design` and `forge-document-engine`.
+In narrative documentation, some stages are written in title form for readability, such as “Forge Flash Design” and “Forge Document Engine.”
 
 ## Lifecycle Logic
 
