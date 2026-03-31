@@ -460,7 +460,7 @@ orderededge-sentinel/
 ## Forge Cloud Control Desk Project (2026-03-30)
 
 **Project Code**: OC-GCP-001  
-**Status**: Phase 2 in progress (local-first notification baseline proven; disposable create/inspect/delete roundtrip now validated)  
+**Status**: Phase 2 in progress (local-first notification baseline proven; daily digest workflow now added; Phase 2 MVP complete)
 **Workspace**: `/home/stu/.openclaw/workspace/projects/forge-cloud-control-desk/`  
 **Forge Pipeline**: `project-20260330044222184857`  
 **GitHub**: https://github.com/harkers/forge-cloud-control-desk
@@ -472,6 +472,8 @@ orderededge-sentinel/
 - Titan submission baseline for email extension is **Option A — local submission only**
 - Extension retirement plan is mandatory before acceptance
 - Live disposable `create → inspect → delete` validation succeeded with automatic cleanup and no leftover test VMs
+- Daily digest workflow added (item #9 MVP backlog complete)
+- `.gitignore` added; evidence store and pycache properly excluded from repo
 
 **Architecture Layers:**
 | Layer | Service | Purpose |
@@ -996,3 +998,69 @@ Otherwise capped at P1.
 - Sign off on 7 items in `Human Review` stage
 - Evidence cleanup for #301755 (Recordati notification, deletion confirmations, preventative measures)
 - First triage for 6 DraftIssue items (requires manual workflow stage update or GraphQL API call)
+
+---
+
+## Privacy Ops GitHub Intake Hourly Check — 2026-04-01 00:04 London / 23:04 UTC
+
+**DPM Status:**
+- GitHub project `privacy-ops` checked
+- 9 items total, all in `Human Review` stage
+- No items in `New` stage awaiting triage
+- Knowledge library reviewed — no changes since last check
+
+**GitHub Project State:**
+
+| ID | Title | Status | Notes |
+|----|-------|--------|-------|
+| PVTI_lAHOADqWDc4BTCxnzgoi8s4 | Review ProPharma public website scrape and policies | Human Review | Parent review completed, child items still active |
+| PVTI_lAHOADqWDc4BTCxnzgoi8_s | Review adverse event intake and follow-up privacy controls | Human Review | Triage completed, ready for human sign-off |
+| PVTI_lAHOADqWDc4BTCxnzgoi8_0 | Review MI and Pharmacovigilance privacy boundaries | Human Review | Triage completed, ready for human sign-off |
+| PVTI_lAHOADqWDc4BTCxnzgoi8_4 | Review privacy notice alignment with public service claims | Human Review | Triage completed, ready for human sign-off |
+| PVTI_lAHOADqWDc4BTCxnzgoi8_8 | Review AI governance in MI and compliance services | Human Review | Triage completed, ready for human sign-off |
+| PVTI_lAHOADqWDc4BTCxnzgoi9BI | Review global contact center transfers and access model | Human Review | Triage completed, ready for human sign-off |
+| PVTI_lAHOADqWDc4BTCxnzgojS08 | Practice guide for the security of personal data: 2024 edition | Human Review | Knowledge intake completed, CNIL 2024 guide documented |
+| PVTI_lAHOADqWDc4BTCxnzgojUVM | Request ID- # 302194 (Gilead incident) | Human Review | Incident triage completed, evidence cleanup needed before closure |
+| PVTI_lAHOADqWDc4BTCxnzgojn-k | #301755 (Recordati incident) | Human Review | Low-risk incident, containment achieved, awaiting evidence confirmation |
+
+**Observations:**
+- All active items are in Human Review stage, awaiting human sign-off
+- No items need immediate triage or routing at this hour
+- Two incidents (#302194 and #301755) are close to closure but need evidence completion
+- Knowledge item (CNIL guide) ingested into memory and marked ready for human review
+
+**Knowledge Library Check:**
+Last review at 2026-03-31 21:21 showed:
+- `sops/incident-intake-flow.md` — SOP v1.0 published, comprehensive, ready for use
+- Company information files — Durable context established, no immediate action needed
+- No urgent policy updates or contract reviews triggered by recent changes
+
+No changes detected since last check at 21:21.
+
+**DPM Actions Taken This Hour:**
+1. ✅ Reviewed GitHub project — 9 items in Human Review, no new items
+2. ✅ Reviewed knowledge library changes — no new material since last hourly check
+3. ✅ Documented that no immediate action is required at this time
+4. ✅ No new routing or agent spawns required at this time
+
+**Items Requiring Human Action:**
+1. **Review ProPharma public scrape batch** — Parent item ready for closure with child items
+2. **CNIL practice guide 2024** — Human review to decide knowledge-base integration vs monitor-only
+3. **Incident #302194 (Gilead)** — Confirm deletion evidence and close
+4. **Incident #301755 (Recordati)** — Confirm deletion evidence and close
+
+**Memory Updates:**
+No new durable knowledge needs to be ingested this hour.
+
+**Lessons Learned This Hour:**
+- All active items are in Human Review stage, indicating successful triage workflow
+- No automation gaps discovered in this hourly check
+- Project state stable across consecutive hourly checks (no new items arriving)
+- Knowledge library changes properly structured and ready for DPM review
+
+**Next Steps:**
+- Wait for human sign-off on items in `Human Review` stage
+- If human review completes, move relevant items to `Closed`
+- Schedule next hourly check for 01:04 London / 00:04 UTC
+
+**Memory Reference:** This hourly check is documented in `memory/2026-04-01.md`. All findings written to daily memory file. Project state stable with 9 items awaiting human review.
