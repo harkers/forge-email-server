@@ -460,10 +460,18 @@ orderededge-sentinel/
 ## Forge Cloud Control Desk Project (2026-03-30)
 
 **Project Code**: OC-GCP-001  
-**Status**: Phase 2 in progress (thin end-to-end flow for VM start action)  
+**Status**: Phase 2 in progress (local-first notification baseline proven; disposable create/inspect/delete roundtrip now validated)  
 **Workspace**: `/home/stu/.openclaw/workspace/projects/forge-cloud-control-desk/`  
 **Forge Pipeline**: `project-20260330044222184857`  
 **GitHub**: https://github.com/harkers/forge-cloud-control-desk
+
+**2026-03-31 decisions + milestone:**
+- GCCD repositioned as a **platform** with team-operated extensions, not a solo desk
+- Notifications are **local-first**; Gmail deferred to Phase N+1
+- Email relay extension moved to **Phase 4**
+- Titan submission baseline for email extension is **Option A — local submission only**
+- Extension retirement plan is mandatory before acceptance
+- Live disposable `create → inspect → delete` validation succeeded with automatic cleanup and no leftover test VMs
 
 **Architecture Layers:**
 | Layer | Service | Purpose |
