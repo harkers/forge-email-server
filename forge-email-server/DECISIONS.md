@@ -1,117 +1,136 @@
-# Forge Mail Platform — Project Decision Record
+# Forge Email Server — Decision Record
 
-**Date**: 2026-03-30  
-**Project**: Forge Mail Platform – VPS-Hosted Email Service  
-**Domains**: `orderededge.co.uk`, `rker.dev`
+**Date:** 2026-03-31  
+**Project:** Forge Email Server / GCCD extension
 
 ---
 
-## Decisions Made
-
-### 1. Hosting Model
+## 1. Runtime location
 
 | Option | Decision | Rationale |
 |--------|----------|-----------|
-| **VPS-hosted mail** | **Chosen** | Stable public IP, better deliverability, cloud-friendly outbound |
-| **Titan-hosted mail** | Rejected | Dynamic IP, no PTR, port 25 restrictions on consumer ISP |
+| GCP-hosted relay VM | chosen | consistent with existing GCCD infrastructure and avoids Titan public-mail constraints |
+| Titan-hosted public mail | rejected | not suitable for this product baseline |
 
-### 2. VPS Provider
+---
 
-| Provider | Status | Notes |
-|----------|--------|-------|
-| **GCP** | Chosen | Known infrastructure, easy PTR setup, SendGrid integration |
-| AWS | Rejected | Not currently in use, more complex DNS |
-| DigitalOcean | Rejected | Good option, but GCP preferred for consistency |
-
-### 3. Outbound Mail Strategy
+## 2. Product shape
 
 | Option | Decision | Rationale |
 |--------|----------|-----------|
-| **Direct send (port 25)** | Rejected | GCP restricts port 25, deliverability risk |
-| **Relay on 587/465** | **Chosen** | GCP compliant, better deliverability, SendGrid recommended |
-
-### 4. Domain Roles
-
-| Domain | Mail Receiving | Mail Sending | Notes |
-|--------|----------------|--------------|-------|
-| `orderededge.co.uk` | ✅ Yes | ✅ Yes | Primary business domain |
-| `rker.dev` | ✅ Yes | ✅ Yes | Secondary domain |
-
-### 5. Mailbox Scope
-
-| Scope | Decision |
-|-------|----------|
-| **Personal/admin only** | **Chosen** |
-| **Business-wide** | Rejected (post-M1) |
-| **Enterprise migration** | Out of scope |
-
-### 6. Webmail Product
-
-| Product | Status | Rationale |
-|---------|--------|-----------|
-| **Roundcube** | **Chosen** | Actively maintained, plugin ecosystem |
-| RainLoop | Rejected | Archived, security risk |
-| SquirrelMail | Rejected | Legacy, security concerns |
-| SOGO | Rejected | Heavy, overkill for scope |
+| Full mailbox stack (Postfix + Dovecot + Rspamd + webmail) | rejected | too much attack surface for the actual need |
+| Postfix outbound relay only | chosen | simpler, tighter, aligned with GCP + SendGrid plan |
 
 ---
 
-## Dependencies Confirmed
+## 3. Mail flow
 
-- [x] VPS with static public IP (GCP, to be provisioned)
-- [x] DNS control for both domains (Cloudflare)
-- [x] PTR/reverse DNS capability (GCP supports)
-- [x] Relay provider (SendGrid recommended via GCP integration)
-- [x] Backup destination (Titan `/data/backups/`)
-- [x] Monitoring destination (Titan `/data/appdata/`)
-- [x] Admin access to domain mailboxes (for validation testing)
+| Choice | Decision |
+|--------|----------|
+| Primary relay path | Postfix → `smtp.sendgrid.net:587` with mandatory STARTTLS |
+| Fallback A | `smtp.sendgrid.net:465` with implicit TLS |
+| Fallback B | `smtp.sendgrid.net:2525` with STARTTLS |
+| Normal use of port 25 from GCP | rejected |
 
----
-
-## Out-of-Scope Confirmations
-
-- [x] No public mail transport on Titan
-- [x] No Cloudflare Tunnel for SMTP/IMAP
-- [x] No enterprise mailbox migration
-- [x] No marketing/bulk mail handling
-- [x] No archival/legal hold/eDiscovery
+Reason: Google Cloud blocks outbound 25 to external IPs by default, while 465 and 587 are excluded. SendGrid recommends 587 as the default SMTP submission port.
 
 ---
 
-## Risk Register
+## 4. Internet exposure
 
-| Risk | Severity | Mitigation | Status |
-|------|----------|------------|--------|
-| Port 25 blocked on GCP | High | Use relay on 587/465 | Mitigated |
-| PTR misalignment | Medium | Match PTR to `mail.*` hostname | Mitigated |
-| Roundcube archived | High | Use Roundcube, not RainLoop | Mitigated |
-| Admin overexposed | Medium | Keep admin local/private | Mitigated |
-| Backup failure late discovered | Medium | Monthly restore testing | Mitigated |
-| Project drift (Titan vs VPS) | Medium | Titan support only, not public | Mitigated |
+| Surface | Decision |
+|---------|----------|
+| Public inbound MX | out of scope |
+| Public inbound SMTP receive | out of scope |
+| Public IMAP / POP | out of scope |
+| Human-facing HTTP surfaces | allowed behind Cloudflare Access |
 
----
-
-## Next Actions
-
-- [ ] Provision GCP VPS with static IP
-- [ ] Allocate static IP and configure PTR
-- [ ] Choose and configure relay provider (SendGrid)
-- [ ] Freeze hostname scheme (`mail.*`, `webmail.*`)
-- [ ] Create final DNS change list
-- [ ] Begin Phase 1: Architecture and Security Baseline (already complete)
+This product is an outbound relay service, not a public mailbox platform.
 
 ---
 
-## Approval
+## 5. Sending identity
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| **Project sponsor** | — | — | — |
-| **Technical lead** | — | — | — |
-| **Security reviewer** | — | — | — |
+| Option | Decision | Rationale |
+|--------|----------|-----------|
+| Bare root sending domain only | not baseline | higher risk of coupling application mail to root identity |
+| Authenticated sending subdomain | chosen | cleaner separation for SendGrid-authenticated mail |
 
-*Record created: 2026-03-30 05:28 GMT+1*
+Recommended examples:
+- `noreply@mail.orderededge.co.uk`
+- `alerts@mail.orderededge.co.uk`
+- equivalent addresses under `mail.rker.dev` if needed
 
 ---
 
-*Last updated: 2026-03-30*
+## 6. Cloudflare role
+
+| Option | Decision | Rationale |
+|--------|----------|-----------|
+| Cloudflare in SMTP path | rejected | not appropriate for this relay design |
+| Cloudflare Access for HTTP apps | chosen | correct layer for CRM/admin UIs |
+| Cloudflare Access for SendGrid webhook callback | rejected | machine-to-machine webhook should use signature validation, not interactive access |
+
+---
+
+## 7. Authentication model
+
+| Surface | Decision |
+|---------|----------|
+| SendGrid SMTP auth | username `apikey`, password = scoped SendGrid API key |
+| SendGrid API key scope | Mail Send minimum by default |
+| Expanded key scopes | only if explicitly required and documented |
+
+---
+
+## 8. Event telemetry model
+
+| Option | Decision |
+|--------|----------|
+| SendGrid Event Webhook | chosen |
+| Signed Event Webhook verification | required |
+| PII in categories / unique args / custom args | prohibited |
+
+Minimum tracked events:
+- processed
+- delivered
+- deferred
+- dropped
+- bounce
+- spamreport
+- unsubscribe
+
+---
+
+## 9. Submission trust model
+
+| Option | Status | Notes |
+|--------|--------|-------|
+| relay VM local submission only | baseline | simplest and safest |
+| Titan-hosted app submits over private network / VPN | open design extension | allowed only if source restriction, auth, and logging are documented |
+| Titan-hosted app sends directly to SendGrid | fallback | acceptable where relay VM does not add value |
+
+This remains the main open integration decision for Titan-hosted systems.
+
+---
+
+## 10. Rejected assumptions from earlier drafts
+
+The following are no longer part of the target design:
+- docker-mailserver as the core runtime
+- Dovecot / IMAP / mailbox hosting as baseline
+- Roundcube as baseline webmail
+- public MX and inbound mail delivery
+- Cloudflare Tunnel as part of the SMTP delivery path
+
+---
+
+## 11. Immediate next actions
+
+- [ ] provision `forge-mail-server` in GCP through GCCD
+- [ ] install Debian 12 + Postfix relay profile
+- [ ] create scoped SendGrid API key
+- [ ] authenticate sending subdomain in SendGrid
+- [ ] enable Signed Event Webhook
+- [ ] decide Titan app submission model
+- [ ] update GCCD register/evidence model for relay operations

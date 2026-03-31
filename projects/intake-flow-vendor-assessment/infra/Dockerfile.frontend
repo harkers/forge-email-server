@@ -1,14 +1,6 @@
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/src ./src
-COPY frontend/index.html ./index.html
-RUN npm run build
-
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Build on host and copy dist directly — avoids Docker-layer build cache issues
+COPY frontend/dist /usr/share/nginx/html
 COPY infra/nginx.frontend.conf /etc/nginx/conf.d/default.conf
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]

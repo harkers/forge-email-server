@@ -1,189 +1,163 @@
-# Forge Mail Platform — Security Baseline
+# Forge Email Server — Security Baseline
 
-**Project**: Forge Mail Platform – VPS-Hosted Email Service  
-**Last updated**: 2026-03-30
-
----
-
-## Security Principles
-
-1. **Minimal attack surface** — Only necessary services exposed
-2. **Defense in depth** — Container isolation, TLS, rate limiting
-3. **least privilege** — Non-root containers, capability drops
-4. **Immutable infrastructure** — Configuration as code, state in bind mounts
-5. **Secure defaults** — TLS required, plaintext disabled, strong auth
+**Product shape:** outbound relay only  
+**Runtime:** Debian 12 on GCP  
+**MTA:** Postfix  
+**Upstream:** SendGrid
 
 ---
 
-## Container Security
+## 1. Security principles
 
-| Control | Setting | Target |
-|---------|---------|--------|
-| **Privileged** | `false` | Explicit deny |
-| **cap_drop** | `[ALL]` | Drop all capabilities |
-| **cap_add** | `[]` (or `NET_BIND_SERVICE` only) | Minimal add |
-| **read_only** | `true` (config volume) | Prevent runtime changes |
-| **user** | Non-root (`1000:1000`) | Prevent container escape |
-| **tmpfs** | `/tmp`, `/run` | Ephemeral data only |
+1. minimize exposed surfaces
+2. keep the relay role narrow
+3. require TLS to upstream delivery
+4. scope credentials to the minimum needed
+5. keep evidence and alerts explicit
+6. do not move sensitive data into relay metadata fields
 
 ---
 
-## Postfix Security
+## 2. Baseline host posture
 
-| Control | Setting | Purpose |
-|---------|---------|---------|
-| **TLS protocols** | `!SSLv2 !SSLv3 !TLSv1 !TLSv1.1` | TLS 1.2+ only |
-| **TLS ciphers** | `high` | Strong ciphers only |
-| **TLS session cache** | `btree:${data_directory}/smtpd_scache` | Session resumption |
-| **STARTTLS** | `smtpd_tls_security_level = may` or `encrypt` | TLS preferred |
-| **No plaintext auth** | `smtpd_tls_auth_only = yes` | Require TLS for auth |
-| **recipient restrictions** | Rspamd policy + reject_unauth | Spam filtering |
-| **smtputf8** | `no` (if relay doesn't support) | Avoid UTF-8 issues |
-
----
-
-## Dovecot Security
-
-| Control | Setting | Purpose |
-|---------|---------|---------|
-| **SSL** | `required` | All connections TLS |
-| **disable_plaintext_auth** | `yes` | No auth without TLS |
-| **mail_location** | `maildir:/var/mail/%d/%n` | Standard, portable |
-| **IMAP port** | `993 only` | No plaintext IMAP |
-| **SASL auth** | `dovecot` | Secure authentication |
-| **auth_mechanisms** | `plain login` (or just `plain`) | Minimal mechanisms |
-| **password_scheme** | `SHA512-CRYPT` | Strong hashing |
+| Control | Baseline |
+|---------|----------|
+| OS | Debian 12 |
+| Product role | outbound relay only |
+| Public inbound SMTP receive | disabled by scope |
+| Local delivery | disabled |
+| Unneeded services | not installed |
+| SSH | key-only, operator-restricted |
+| Patch policy | security updates applied before onboarding workloads |
 
 ---
 
-## Rspamd Security
+## 3. Postfix baseline
 
-| Control | Setting | Purpose |
-|---------|---------|---------|
-| **Admin port** | `11334` (localhost only) | Not exposed externally |
-| **Rate limiting** | `enabled` | Prevent abuse |
-| **Spam threshold** | `15` | Balanced filtering |
-| **Greylist** | `enabled`, delay `7` | Delayed spam delivery |
-| **Internal IPs** | Whitelist `10.0.0.0/8`, `192.168.0.0/16` | Local delivery trusted |
+### Required controls
+- `relayhost = [smtp.sendgrid.net]:587`
+- `smtp_sasl_auth_enable = yes`
+- `smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd`
+- `smtp_tls_security_level = encrypt`
+- `smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt`
+- `local_transport = error:local delivery disabled`
+- `mydestination =`
+- `disable_vrfy_command = yes`
 
----
+### Preferred listener posture
+The strictest baseline is local submission only.
 
-## Authentication
+```cf
+inet_interfaces = loopback-only
+```
 
-| Layer | Control | Standard |
-|-------|---------|----------|
-| **SMTP submission** | SASL via Dovecot | RFC 4954 |
-| **IMAP login** | SASL via Dovecot | RFC 5802 |
-| **Password policy** | Minimum 16 chars, complexity | NIST SP 800-63B |
-| **Account lockout** | 5 failed attempts | Brute force mitigation |
-| **Password history** | 12 passwords | Prevent reuse |
-
----
-
-## TLS Configuration
-
-| Service | Port | TLS Version | Certificate |
-|---------|------|-------------|-------------|
-| **SMTP (submission)** | 587 | TLS 1.2+ | Let's Encrypt / Origin CA |
-| **SMTP (implicit)** | 465 | TLS 1.2+ | Let's Encrypt / Origin CA |
-| **IMAP** | 993 | TLS 1.2+ | Let's Encrypt / Origin CA |
-| **Webmail** | 443 | TLS 1.3 | Let's Encrypt / Origin CA |
-
-**Certificate management**:
-- Let's Encrypt for public mail hostnames
-- Cloudflare Origin CA for webmail (optional, if tunnel used)
-- Auto-renewal via certbot + container reload
+If remote submitters are later required, that becomes a documented extension with source restriction and updated firewall rules. It is not part of the baseline by default.
 
 ---
 
-## Monitoring & Alerting
+## 4. SendGrid transport posture
 
-| Metric | Threshold | Alert Method |
-|--------|-----------|--------------|
-| **Mail queue** | > 100 | Telegram / webhook |
-| **Disk usage** | > 80% | Telegram / webhook |
-| **Auth failures** | > 10/min | Telegram / webhook |
-| **Certificate expiry** | < 7 days | Telegram / webhook |
-| **DKIM signing failures** | > 0 | Telegram / webhook |
-| **Rspamd score spikes** | > 5 above normal | Telegram / webhook |
-
----
-
-## Backup Security
-
-| Control | Setting | Location |
-|---------|---------|----------|
-| **Encrypted backup** | GPG / age | Titan `/data/backups/` |
-| **Key management** | Separate from VPS | Titan, encrypted |
-| **Off-site copy** | GCP Storage / S3 | Cloud redundancy |
-| **Restore test** | Monthly | Scheduled task |
-| **Key rotation** | Quarterly | Scheduled task |
+| Setting | Baseline |
+|---------|----------|
+| Primary port | 587 |
+| Primary TLS mode | STARTTLS mandatory |
+| Fallback 1 | 465 implicit TLS |
+| Fallback 2 | 2525 STARTTLS |
+| Port 25 on GCP | not part of normal design |
+| Auth username | `apikey` |
+| Auth password | scoped SendGrid API key |
 
 ---
 
-## Admin Access
+## 5. Secret handling
 
-| Surface | Access | Protection |
-|---------|--------|------------|
-| **VPS SSH** | Key-only, restricted IPs | Fail2ban |
-| **Rspamd admin** | Localhost only, not exposed | Network namespace |
-| **Postfix/Dovecot config** | Local file edit | Git versioned |
-| **Webmail admin** | Disabled unless needed | Basic auth if enabled |
-| **Container CLI** | Docker socket access | Restricted to admin group |
+### SendGrid API key
+- dedicated key for this relay only
+- `Mail Send` scope minimum unless another scope is explicitly justified
+- stored outside world-readable config
+- permissions on secret files: `0600`
+- rotate on suspicion of exposure or scheduled review
 
----
+### Postfix credentials map
+```text
+/etc/postfix/sasl_passwd
+/etc/postfix/sasl_passwd.db
+```
 
-## Incident Response
-
-| Scenario | Action | Tool |
-|----------|--------|------|
-| **Compromised mailbox** | Disable, rotate password, audit logs | Dovecot CLI |
-| **DKIM key lost** | Regenerate, update DNS, notify recipients | `docker-mailserver setup` |
-| **Mail queue stuck** | Flush queue, check logs, restart container | `postqueue`, `docker-compose` |
-| **Rspamd misfiltering** | Adjust scores, check logs, whitelist | Rspamd CLI |
-| **Certificate expiry** | Renew, reload containers | Certbot + Docker reload |
+After `postmap`, both files must remain restricted.
 
 ---
 
-## Compliance Considerations
+## 6. DNS and identity controls
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| **GDPR** | Basic compliance | Mail storage in EU, no automated processing |
-| **PIPA** | Not applicable | UK-based personal data, no PIPA scope |
-| **CCPA** | Basic compliance | No "selling" of personal data |
-| **SOC 2** | Not applicable | Internal use only, no service org |
-
----
-
-## Security Checklist (Pre-Launch)
-
-- [ ] All containers run non-root
-- [ ] All containers drop ALL capabilities
-- [ ] All services use TLS 1.2+ only
-- [ ] No plaintext auth enabled
-- [ ] Rspamd admin not exposed externally
-- [ ] Mailbox passwords meet 16-char minimum
-- [ ] DKIM keys stored encrypted in backup
-- [ ] Backup encryption keys separate from VPS
-- [ ] Monitoring alerts configured
-- [ ] Restore test passed
-- [ ] DMARC policy starts at `p=none`
-- [ ] PTR/reverse DNS aligned with mail hostname
+| Control | Baseline |
+|---------|----------|
+| Sending identity | authenticated sending subdomain |
+| DKIM | SendGrid domain authentication CNAMEs |
+| SPF | include SendGrid-authorized path |
+| DMARC | start with `p=none` |
+| Public MX | not required for relay-only model |
 
 ---
 
-## Exit Criteria
+## 7. Event webhook security
 
-- [ ] All security controls implemented
-- [ ] Container hardening applied
-- [ ] TLS 1.2+ enforced on all services
-- [ ] Admin interfaces restricted or disabled
-- [ ] Monitoring active and tested
-- [ ] Backup encryption verified
-- [ ] Restore test passed
-- [ ] Security checklist signed off
+If Event Webhook is enabled:
+- verify Signed Event Webhook signatures
+- prefer a narrow HTTPS endpoint dedicated to event intake
+- log validation failures explicitly
+- do not rely on Cloudflare Access interactive auth for webhook ingestion
+
+### Privacy rule
+Do **not** place PHI, personal data, or sensitive identifiers in:
+- categories
+- unique args
+- custom args
+- other SendGrid metadata fields that may be retained or exposed operationally
 
 ---
 
-*Last updated: 2026-03-30*
+## 8. Monitoring and alerting
+
+Minimum signals:
+- Postfix queue growth beyond normal baseline
+- auth failures to SendGrid
+- repeated TLS negotiation failures
+- Event Webhook validation failures
+- bounce/spamreport spikes
+- certificate / CA trust issues on relay host
+
+---
+
+## 9. Firewall posture
+
+### Default baseline
+- allow outbound 587 to SendGrid
+- keep admin access narrow
+- do not expose public inbound SMTP receive as part of this product
+
+### If remote submitters are added later
+Only allow explicitly approved source ranges over the chosen submission port.
+That change must be documented before rollout.
+
+---
+
+## 10. Pre-onboarding checklist
+
+- [ ] Debian 12 relay host patched
+- [ ] Postfix relay-only config applied
+- [ ] local delivery disabled
+- [ ] SendGrid API key scoped correctly
+- [ ] SASL password files locked to `0600`
+- [ ] DKIM/SPF/DMARC configured for sending subdomain
+- [ ] Signed Event Webhook validation ready if using webhook telemetry
+- [ ] no sensitive metadata passed to SendGrid fields
+- [ ] evidence and alerting path documented
+
+---
+
+## 11. Operational caution
+
+Earlier drafts assumed a much larger stack.
+That is no longer the security baseline.
+The trusted baseline is intentionally small: **Debian 12 + Postfix relay + SendGrid**, with Cloudflare used only where HTTP identity control is actually relevant.
