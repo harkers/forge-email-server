@@ -460,7 +460,7 @@ orderededge-sentinel/
 ## Forge Cloud Control Desk Project (2026-03-30)
 
 **Project Code**: OC-GCP-001  
-**Status**: Phase 2 in progress (local-first notification baseline proven; daily digest workflow now added; Phase 2 MVP complete)
+**Status**: Phase 2 **COMPLETE** — all MVP backlog items delivered; team ops runbook documented
 **Workspace**: `/home/stu/.openclaw/workspace/projects/forge-cloud-control-desk/`  
 **Forge Pipeline**: `project-20260330044222184857`  
 **GitHub**: https://github.com/harkers/forge-cloud-control-desk
