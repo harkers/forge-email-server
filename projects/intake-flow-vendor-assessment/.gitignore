@@ -1,0 +1,31 @@
+# Ignore embedded repos
+OpenClaw-DevOps/
+devforge-mcp-control-plane/
+devforge-openclaw-skills/
+forge-syslog-collector/
+github-forge-pipeline/
+privacy-ops-dashboard/
+privacy-ops-results-server/
+projects/forge-cloud-control-desk/
+projects/knowledge-layer/
+sso-home-lab/
+workspaces/docker-deploy/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+
+# Node
+node_modules/
+
+# Docker
+infra/backend/app/
+infra/frontend/src/
+infra/frontend/public/
+
+# Build artifacts
+dist/
+*.egg-info/

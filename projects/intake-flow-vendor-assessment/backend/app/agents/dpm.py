@@ -12,6 +12,7 @@ import json
 from datetime import datetime
 from typing import Any
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.base import BaseAgent, AgentError
@@ -41,7 +42,7 @@ class DPM:
         """
         # Load assessment
         result = await self.db.execute(
-            select(Assessment).where(Assessment.id == assessment_id)
+            select(Assessment).where(Assessment.id == assessment_id).options(selectinload(Assessment.vendor))
         )
         assessment = result.scalar_one_or_none()
         if not assessment:
