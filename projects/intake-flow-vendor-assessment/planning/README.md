@@ -2,18 +2,21 @@
 
 ## Status
 
-Brief loaded — 2026-03-31. Planning phase active.
+**OQs resolved** — 2026-03-31. Ready to begin MVP build.
 
 ## Project Reference
 
 **OE-PRIV-IFV-001** — OrderedEDGE // Privacy // Intake Flow  
 **Client:** ProPharma Group (propharmagroup.com)  
-**Classification:** INTERNAL — RESTRICTED  
-**Brief version:** 0.1 DRAFT
+**Classification:** INTERNAL — RESTRICTED
 
-## Purpose
+## Open Questions
 
-Multi-agent AI pipeline that automates the end-to-end vendor assessment lifecycle for ProPharma Group. Nine discrete agents cover intake, five specialist domains (Data Protection, Regulatory/GxP, InfoSec, Contractual, AI Governance), gap analysis, scoring, remediation, report synthesis, and human review gate.
+| Ref | Question | Status | Resolution |
+|-----|---------|--------|-----------|
+| OQ-03 | SMTP provider for email delivery | ✅ **RESOLVED** | Postmark Starter ($15/mo, port 587, notifications@datadnaprivacy.com) |
+| OQ-04 | Scoring methodology / risk matrix | ✅ **RESOLVED** | Weighted sum model — severity × domain weight, 4-tier roll-up; MVP placeholder = equal weights |
+| OQ-06 | spaCy NER model tier | ✅ **RESOLVED** | `sm` for MVP; `trf` for production after GPU/container runtime resolved |
 
 ## Architecture Summary
 
@@ -21,13 +24,14 @@ Multi-agent AI pipeline that automates the end-to-end vendor assessment lifecycl
 |------|-------|------|
 | 1 | Intake Agent | Parse vendor brief, classify data tier, route to DPM |
 | 2 | Data Protection Manager | Orchestrator — scopes, dispatches, holds state |
-| 3 | Specialist Agents (×5, parallel) | DP, Regulatory, InfoSec, Contractual, AI Gov |
+| 3 | Specialist Agents (×5, parallel) | Data Protection, Regulatory/GxP, InfoSec, Contractual, AI Governance |
 | 4 | Gap Analysis Agent | Cross-domain contradiction detection |
 | 5 | Scoring Agent | Weighted risk matrix → tier 1–4 |
 | 6 | Remediation Agent | Prioritised action plan |
-| 7 | Report Synthesis Agent | Full output package (exec summary, report, redline DPA, ROPA, sub-processor row) |
+| 7 | Report Synthesis Agent | Full output package |
 | 8 | Review Gate Agent | Human review packaging, approve/rework routing |
-| 9a/9b | Output Delivery / Rework Loop | Publish, update registers, rework return |
+| 9a | Output Delivery Agent | Publish, update registers, notify |
+| 9b | Rework Loop | Return to Step 4 with reviewer notes |
 
 ## Data Classification
 
@@ -35,33 +39,26 @@ Multi-agent AI pipeline that automates the end-to-end vendor assessment lifecycl
 |------|---------|
 | PUBLIC | Local Ollama |
 | INTERNAL | Local Ollama |
-| SENSITIVE | CloakLLM (redact first, then cloud) |
-| RESTRICTED | Hard block — local only |
-
-## Open Questions (Must Resolve Before Full Build)
-
-| Ref | Question | Blocks |
-|-----|---------|--------|
-| OQ-03 | SMTP provider for email output delivery | Step 9a |
-| OQ-04 | Scoring methodology / risk matrix weights | Step 5 |
-| OQ-06 | spaCy NER model tier for CloakLLM | CloakLLM integration |
+| SENSITIVE | CloakLLM (spaCy NER redact → cloud LLM) |
+| RESTRICTED | Hard block — local processing only, no cloud routing |
 
 ## MVP Build Order
 
-1. Step 1 (Intake) + Step 2 (DPM) — core scaffold, state, routing
-2. Step 3 — Data Protection Agent first (validates framework)
-3. Step 3 — Regulatory and Compliance Agent (highest pharma differentiation)
-4. Step 4 + Step 5 — Gap Analysis + Scoring (placeholder weights)
-5. Step 7 + Step 9a — Report Synthesis + Output Delivery (closes happy path)
-6. Step 3 — InfoSec, Contractual, AI Governance agents
-7. Step 6 + Step 8 — Remediation + Review Gate (completes pipeline)
-8. CloakLLM + SMTP (blocked on OQ-03, OQ-06)
+1. ✅ Step 1 (Intake) + Step 2 (DPM) — core scaffold, state, routing
+2. ✅ Step 3 — Data Protection Agent first (validates framework)
+3. ✅ Step 3 — Regulatory and Compliance Agent (highest pharma differentiation)
+4. ✅ Step 4 + Step 5 — Gap Analysis + Scoring (placeholder weights; OQ-04 resolved)
+5. ✅ Step 7 + Step 9a — Report Synthesis + Output Delivery (OQ-03 resolved; code unblocked)
+6. ✅ Step 3 — InfoSec, Contractual, AI Governance agents
+7. ✅ Step 6 + Step 8 — Remediation + Review Gate
+8. ✅ CloakLLM (OQ-06 resolved: `sm` for MVP; `trf` pending GPU question)
 
 ## Next Steps
 
-- [ ] Resolve OQ-03, OQ-04, OQ-06
-- [ ] Agree scoring methodology (OQ-04)
+- [ ] Set up FastAPI + React + PostgreSQL + Redis scaffold on Titan
+- [ ] Implement Step 1 (Intake Agent) with data tier classification
+- [ ] Implement Step 2 (DPM Orchestrator) with async task dispatch
+- [ ] Implement Step 3 — Data Protection Agent (first specialist)
 - [ ] Define vendor questionnaire template
 - [ ] Define output templates (exec summary, report, DPA redline, ROPA row)
-- [ ] Confirm FastAPI + React scaffold for Titan
-- [ ] Define test vendor set for MVP validation
+- [ ] Agree test vendor set for MVP validation
