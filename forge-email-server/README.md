@@ -49,7 +49,9 @@ This product is an **extension of Forge Cloud Control Desk**.
 
 ## Document map
 
+- `DESIGN-BRIEF.md` — product intent, scope, requirements, and acceptance criteria
 - `ARCHITECTURE.md` — target architecture and trust boundaries
+- `ARCHITECTURE-DECISIONS.md` — ADR-style architecture decisions and rationale
 - `DECISIONS.md` — decision record and rejected options
 - `PHASED-BRIEF.md` — phased implementation plan
 - `SECURITY-BASELINE.md` — hardened baseline for relay VM and SendGrid integration
