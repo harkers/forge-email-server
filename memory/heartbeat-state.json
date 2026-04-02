@@ -1,0 +1,13 @@
+{
+  "lastChecks": {
+    "quarto": 1743629640,
+    "forge-pipeline": 1743629640,
+    "usage-dashboard": 1743629640,
+    "model-lanes": 1743629640,
+    "memory-search": 1743629640,
+    "docker": 1743629640,
+    "disk-space": 1743629640
+  },
+  "lastCheckTime": "2026-04-02T20:54:00Z",
+  "status": "all-operational"
+}
